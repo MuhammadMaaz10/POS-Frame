@@ -31,6 +31,11 @@ dependencies:
   path:
   intl:
   flutter_speed_dial: ^7.0.0
+  device_info_plus: ^10.0.0
+  http:
+  url_launcher: ^6.3.2
+  connectivity_plus: ^6.1.4
+  shared_preferences: ^2.5.3
 
 
 dev_dependencies:

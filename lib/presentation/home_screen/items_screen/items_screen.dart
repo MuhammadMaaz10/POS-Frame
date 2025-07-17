@@ -143,7 +143,9 @@ class ItemsScreen extends StatelessWidget {
                       itemController.editPriceController.text = item.unitPrice.toString() ?? "";
                       itemController.editCategoryController.text = item.itemCategory.toString() ?? "";
                       itemController.editDescriptionController.text = item.itemDescription.toString() ?? "";
-                      itemController.editVatCategoryController.text = item.vatCategory.toString() ?? "";
+                      itemController.editVatCategoryNameController.text = item.vatCategoryName.toString() ?? "";
+                      itemController.editVatCategoryPercentageController.text = item.vatCategoryPercentage.toString() ?? "";
+                      itemController.editVatCategoryTaxIDController.text = item.vatCategoryID.toString() ?? "";
                       Get.to(EditItemScreen());
                     },
                     titleText: item.itemName,

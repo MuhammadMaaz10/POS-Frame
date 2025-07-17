@@ -22,14 +22,16 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       itemCategory: fields[2] as String,
       itemDescription: fields[3] as String,
       unitPrice: fields[4] as double,
-      vatCategory: fields[5] as String,
+      vatCategoryName: fields[5] as String,
+      vatCategoryPercentage: fields[6] as dynamic,
+      vatCategoryID: fields[7] as dynamic,
     );
   }
 
   @override
   void write(BinaryWriter writer, ItemModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.hsCode)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       ..writeByte(4)
       ..write(obj.unitPrice)
       ..writeByte(5)
-      ..write(obj.vatCategory);
+      ..write(obj.vatCategoryName)
+      ..writeByte(6)
+      ..write(obj.vatCategoryPercentage)
+      ..writeByte(7)
+      ..write(obj.vatCategoryID);
   }
 
   @override

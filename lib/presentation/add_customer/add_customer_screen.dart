@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
+import 'package:frame_virtual_fiscilation/constants/app_images.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_customer/controller/add_customer_controller.dart';
 import 'package:get/get.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
@@ -56,7 +57,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                             backgroundColor: Color(0xFF172349),
                         backgroundImage: controller.selectedImage.value != null
                             ? FileImage(controller.selectedImage.value!)
-                            : AssetImage("AppImages.demo") as ImageProvider,
+                            : AssetImage(AppImages.demo) as ImageProvider,
                         radius: 50.w,
                         child: controller.selectedImage.value == null
                             ? Icon(
@@ -69,7 +70,24 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     ),
                   ),
                 ),
-                16.ht,
+                10.ht,
+                CustomText(
+                  text: "TIN Number",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white70,
+                ),
+                10.ht,
+                CustomTextField(
+                  controller: controller.tinNumberController,
+                  hintText: "1234567890",
+                  keyboardType: TextInputType.number,
+                  borderColor: Colors.transparent,
+                  selectedBorderColor: AppColors.buttonClr,
+                  validator: controller.validateTinNumber,
+                ),
+
+                10.ht,
                 CustomText(
                   text: "Customer Name",
                   fontSize: 14,
@@ -79,13 +97,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 10.ht,
                 CustomTextField(
                   controller: controller.nameController,
-                  hintText: "Enter Name",
+                  hintText: "Enter name",
                   keyboardType: TextInputType.name,
                   borderColor: Colors.transparent,
                   selectedBorderColor: AppColors.buttonClr,
                   validator: controller.validateName,
                 ),
-                16.ht,
+                10.ht,
                 // CustomText(
                 //   text: "Customer Contact",
                 //   fontSize: 14,
@@ -109,7 +127,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   selectedBorderColor: AppColors.buttonClr,
                   validator: controller.validateEmail,
                 ),
-                16.ht,
+                10.ht,
                 CustomText(
                   text: "Phone",
                   fontSize: 14,
@@ -126,24 +144,116 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   selectedBorderColor: AppColors.buttonClr,
                   validator: controller.validatePhone,
                 ),
-                16.ht,
+                10.ht,
+
+                // CustomText(
+                //   text: "Address",
+                //   fontSize: 14,
+                //   fontWeight: FontWeight.w500,
+                //   color: Colors.white70,
+                // ),
+                // 10.ht,
+                // CustomTextField(
+                //   controller: controller.addressController,
+                //   hintText: "Enter address",
+                //   keyboardType: TextInputType.streetAddress,
+                //   borderColor: Colors.transparent,
+                //   selectedBorderColor: AppColors.buttonClr,
+                //   maxLines: 2,
+                //   validator: controller.validateAddress,
+                // ),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: "Province",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
+                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          CustomTextField(
+                            controller: controller.provinceController,
+                            hintText: "Enter province",
+                            keyboardType: TextInputType.streetAddress,
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            maxLines: 1,
+                            validator: controller.validateProvince,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 16), // Horizontal spacing between fields
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: "City",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
+                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          CustomTextField(
+                            controller: controller.cityController, // Changed to cityController
+                            hintText: "Enter city",
+                            keyboardType: TextInputType.streetAddress,
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            maxLines: 1,
+                            validator: controller.validateCity,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                10.ht,
                 CustomText(
-                  text: "Address",
+                  text: "Street",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: Colors.white70,
                 ),
                 10.ht,
                 CustomTextField(
-                  controller: controller.addressController,
-                  hintText: "Enter address",
+                  controller: controller.streetController,
+                  hintText: "Enter street",
                   keyboardType: TextInputType.streetAddress,
                   borderColor: Colors.transparent,
                   selectedBorderColor: AppColors.buttonClr,
-                  maxLines: 2,
-                  validator: controller.validateAddress,
+                  maxLines: 1,
+                  validator: controller.validateStreet,
                 ),
-                147.ht,
+
+                10.ht,
+                CustomText(
+                  text: "House Number",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white70,
+                ),
+                10.ht,
+                CustomTextField(
+                  controller: controller.houseNumberController,
+                  hintText: "Enter house number",
+                  keyboardType: TextInputType.streetAddress,
+                  borderColor: Colors.transparent,
+                  selectedBorderColor: AppColors.buttonClr,
+                  maxLines: 1,
+                  validator: controller.validateHouseNumber,
+                ),
+
+
+
+                20.ht,
                 Padding(
                   padding: EdgeInsets.only(left: 174.w),
                   child: CustomButton(

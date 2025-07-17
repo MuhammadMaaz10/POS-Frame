@@ -60,8 +60,8 @@ class _EditItemScreenState extends State<EditItemScreen> {
                 10.ht,
                 CustomTextField(
                   controller: controller.editHsCodeController,
-                  hintText: "HS-123456",
-                  keyboardType: TextInputType.text,
+                  hintText: "12345678",
+                  keyboardType: TextInputType.number,
                   borderColor: Colors.transparent,
                   selectedBorderColor: AppColors.buttonClr,
                   maxLines: 1,
@@ -132,7 +132,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                 GestureDetector(
                   onTap: () => controller.showEditTaxGroupBottomSheet(context),
                   child: CustomTextField(
-                    controller: controller.editVatCategoryController,
+                    controller: controller.editVatCategoryNameController,
                     hintText: "Select Tax Group",
                     keyboardType: TextInputType.text,
                     borderColor: Colors.transparent,

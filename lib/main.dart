@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
+import 'package:frame_virtual_fiscilation/local_storage/qrUrlsList_model.g.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart'; // Ensure this path is correct
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -16,9 +18,52 @@ import 'local_storage/invoice_model.dart';
 import 'local_storage/item_model.dart';
 import 'local_storage/user_model.dart';
 import 'local_storage/vat_category_model.dart'; // Ensure this path is correct
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
+
+Future<String?> getDeviceId() async {
+  try {
+    final deviceInfo = DeviceInfoPlugin();
+    print('Platform: ${Platform.operatingSystem}');
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      print('Android ID: ${androidInfo.id}');
+      print('Android version: ${androidInfo.model}');
+      print('Android brand: ${androidInfo.brand}');
+      return androidInfo.id;
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      print('iOS Identifier: ${iosInfo.identifierForVendor}');
+      return iosInfo.identifierForVendor;
+    } else if (Platform.isWindows) {
+      final windowsInfo = await deviceInfo.windowsInfo;
+      print('Windows Device ID: ${windowsInfo.deviceId}');
+      return windowsInfo.deviceId;
+    } else if (Platform.isMacOS) {
+      final macOsInfo = await deviceInfo.macOsInfo;
+      print('macOS System GUID: ${macOsInfo.systemGUID}');
+      return macOsInfo.systemGUID;
+    } else if (Platform.isLinux) {
+      final linuxInfo = await deviceInfo.linuxInfo;
+      print('Linux Machine ID: ${linuxInfo.machineId}');
+      return linuxInfo.machineId;
+    } else {
+      print('Unsupported platform: ${Platform.operatingSystem}');
+      return null;
+    }
+  } catch (e) {
+    print('Error getting device ID: $e');
+    return null;
+  }
+}
+
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  String? deviceId = await getDeviceId();
+  deviceID = deviceId!;
+  print('Device ID: $deviceID');
   final directory = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(directory.path);
 
@@ -39,6 +84,7 @@ Future<void> main() async {
   Hive.registerAdapter(InvoiceModelAdapter());
   Hive.registerAdapter(InvoiceCustomerAdapter());
   Hive.registerAdapter(InvoiceItemAdapter());
+  Hive.registerAdapter(QrUrlsModelAdapter());
 
 
 

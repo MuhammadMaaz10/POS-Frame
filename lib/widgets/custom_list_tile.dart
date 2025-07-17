@@ -14,7 +14,8 @@ class ItemsCustomListTile extends StatelessWidget {
     this.titleText = "Ahmed Ali",
     this.amount = 728,
     this.leftPadding,
-    this.onTap
+    this.onTap,
+    this.tileColor
   });
   double? leftPadding ;
   String? titleText;
@@ -23,6 +24,7 @@ class ItemsCustomListTile extends StatelessWidget {
   double? amount;
   bool? isTrailing;
   void Function()? onTap;
+  Color? tileColor;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class ItemsCustomListTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.r),
       ),
-      tileColor: Color(0xFF172349),
+      tileColor: tileColor ?? Color(0xFF172349),
       textColor: Colors.white,
       title: Text(titleText!, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
       subtitleTextStyle: TextStyle(fontSize: 12, color: AppColors.smallTextClr),
@@ -138,7 +140,10 @@ class InvoiceCustomListTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          paid! ? SvgPicture.asset(AppImages.unpaid) : SvgPicture.asset(AppImages.paid),
+          paid!
+              ? CustomText(text: "Processed: ",fontSize: 12,color: Colors.green,fontWeight: FontWeight.w500,)
+              : CustomText(text: "Pending: ",fontSize: 12,color: Colors.red,fontWeight: FontWeight.w500,),
+          // paid! ? SvgPicture.asset(AppImages.unpaid) : SvgPicture.asset(AppImages.paid),
           Text(
             "\$$amount",
             style: TextStyle(

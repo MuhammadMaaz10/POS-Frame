@@ -10,5 +10,8 @@ class VatCategoryModel extends HiveObject {
   @HiveField(1)
   String rate;
 
-  VatCategoryModel({required this.name, required this.rate});
+ @HiveField(2)
+  dynamic taxID;
+
+  VatCategoryModel({required this.name, required this.rate,required this.taxID,});
 }

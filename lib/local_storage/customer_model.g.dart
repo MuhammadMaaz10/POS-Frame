@@ -20,15 +20,19 @@ class CustomerModelAdapter extends TypeAdapter<CustomerModel> {
       name: fields[0] as String,
       phone: fields[1] as String,
       email: fields[2] as String,
-      address: fields[3] as String,
-      imagePath: fields[4] as String?,
+      imagePath: fields[3] as String?,
+      province: fields[4] as dynamic,
+      city: fields[5] as dynamic,
+      street: fields[6] as dynamic,
+      houseNumber: fields[7] as dynamic,
+      tinNumber: fields[8] as dynamic,
     );
   }
 
   @override
   void write(BinaryWriter writer, CustomerModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -36,9 +40,17 @@ class CustomerModelAdapter extends TypeAdapter<CustomerModel> {
       ..writeByte(2)
       ..write(obj.email)
       ..writeByte(3)
-      ..write(obj.address)
+      ..write(obj.imagePath)
       ..writeByte(4)
-      ..write(obj.imagePath);
+      ..write(obj.province)
+      ..writeByte(5)
+      ..write(obj.city)
+      ..writeByte(6)
+      ..write(obj.street)
+      ..writeByte(7)
+      ..write(obj.houseNumber)
+      ..writeByte(8)
+      ..write(obj.tinNumber);
   }
 
   @override

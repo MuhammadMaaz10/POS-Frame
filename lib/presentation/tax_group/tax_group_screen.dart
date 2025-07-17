@@ -57,6 +57,7 @@ class _TaxGroupScreenState extends State<TaxGroupScreen> {
                       shrinkWrap: true,
                       itemCount: controller.vatList.length,
                       itemBuilder: (context, index) {
+                        print("Tax group ---> ${controller.vatList.length}");
                         final taxGroup = controller.vatList[index];
                         return
 

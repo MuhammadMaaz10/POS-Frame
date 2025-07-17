@@ -55,10 +55,17 @@ class CustomersScreen extends StatelessWidget {
                       customerController.editCustomerIndex = index;
                       customerController.editNameController.text = item.name.toString() ?? "";
                       customerController.editEmailController.text = item.email.toString() ?? "";
-                      customerController.editAddressController.text = item.address.toString() ?? "";
+                      customerController.editProvinceController.text = item.province.toString() ?? "";
+                      customerController.editCityController.text = item.city.toString() ?? "";
+                      customerController.editStreetController.text = item.street.toString() ?? "";
+                      customerController.editHouseNumberController.text = item.houseNumber.toString() ?? "";
+                      customerController.editTinNumberController.text = item.tinNumber.toString() ?? "";
                       customerController.editPhoneController.text = item.phone.toString() ?? "";
                        customerController.ediSelectedImage.value = (File(item.imagePath!));
                       Get.to(EditCustomerScreen());
+                      print("tin Number -------> ${item.tinNumber.toString()}");
+                      print("street -------> ${item.street.toString()}");
+
                     },
                     titleText: item.name,
                     subTitleText: item.email,

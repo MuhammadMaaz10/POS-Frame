@@ -8,6 +8,7 @@ import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 
+import '../../constants/app_images.dart';
 import '../../widgets/custom_textfield.dart';
 
 class EditCustomerScreen extends StatefulWidget {
@@ -57,7 +58,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                             backgroundColor: Color(0xFF172349),
                         backgroundImage: controller.ediSelectedImage.value != null
                             ? FileImage(controller.ediSelectedImage.value!)
-                            : AssetImage("AppImages.demo") as ImageProvider,
+                            : AssetImage(AppImages.demo) as ImageProvider,
                         radius: 50.w,
                         child: controller.ediSelectedImage.value == null
                             ? Icon(
@@ -70,7 +71,24 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                     ),
                   ),
                 ),
-                16.ht,
+                10.ht,
+                CustomText(
+                  text: "TIN Number",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white70,
+                ),
+                10.ht,
+                CustomTextField(
+                  controller: controller.editTinNumberController,
+                  hintText: "Enter TIN number",
+                  keyboardType: TextInputType.number,
+                  borderColor: Colors.transparent,
+                  selectedBorderColor: AppColors.buttonClr,
+                  validator:  controller.validateTinNumber,
+                ),
+
+                10.ht,
                 CustomText(
                   text: "Customer Name",
                   fontSize: 14,
@@ -128,23 +146,95 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                   validator: controller.validatePhone,
                 ),
                 16.ht,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: "Province",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
+                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          CustomTextField(
+                            controller: controller.editProvinceController,
+                            hintText: "Enter province",
+                            keyboardType: TextInputType.streetAddress,
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            maxLines: 1,
+                            validator: controller.validateProvince,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 16), // Horizontal spacing between fields
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: "City",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
+                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          CustomTextField(
+                            controller: controller.editCityController, // Changed to cityController
+                            hintText: "Enter city",
+                            keyboardType: TextInputType.streetAddress,
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            maxLines: 1,
+                            validator: controller.validateCity,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                10.ht,
                 CustomText(
-                  text: "Address",
+                  text: "Street",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: Colors.white70,
                 ),
                 10.ht,
                 CustomTextField(
-                  controller: controller.editAddressController,
-                  hintText: "Enter address",
+                  controller: controller.editStreetController,
+                  hintText: "Enter street",
                   keyboardType: TextInputType.streetAddress,
                   borderColor: Colors.transparent,
                   selectedBorderColor: AppColors.buttonClr,
-                  maxLines: 2,
-                  validator: controller.validateAddress,
+                  maxLines: 1,
+                  validator: controller.validateStreet,
                 ),
-                147.ht,
+
+                10.ht,
+                CustomText(
+                  text: "House Number",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white70,
+                ),
+                10.ht,
+                CustomTextField(
+                  controller: controller.editHouseNumberController,
+                  hintText: "Enter house number",
+                  keyboardType: TextInputType.streetAddress,
+                  borderColor: Colors.transparent,
+                  selectedBorderColor: AppColors.buttonClr,
+                  maxLines: 1,
+                  validator: controller.validateHouseNumber,
+                ),
+
+                10.ht,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

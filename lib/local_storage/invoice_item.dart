@@ -13,9 +13,29 @@ class InvoiceItem {
   @HiveField(2)
   final String price;
 
+  @HiveField(3)
+  final dynamic quantity;
+
+  @HiveField(4)
+  final dynamic taxName;
+
+  @HiveField(5)
+  final dynamic taxPercentage;
+
+  @HiveField(6)
+  final dynamic taxID;
+
+  @HiveField(6)
+  final dynamic hsCode;
+
   InvoiceItem({
     required this.name,
     required this.category,
     required this.price,
+    required this.quantity,
+    required this.taxName,
+    required this.taxPercentage,
+    required this.taxID,
+    required this.hsCode,
   });
 }

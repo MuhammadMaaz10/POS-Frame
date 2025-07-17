@@ -13,6 +13,7 @@ import 'package:hive/hive.dart';
 import 'package:path/path.dart';
 
 import '../../../local_storage/configured_fdms_model.dart';
+import '../../home_screen/controller/home_screen_controller.dart';
 
 
 class SettingsController extends GetxController {
@@ -54,6 +55,8 @@ class SettingsController extends GetxController {
     var box = await Hive.openBox('settings');
     await box.put('isUserLoggedIn', false);
     await box.put('isFromCompany', false);
+    // final homeController = Get.put(HomeScreenController());
+    // homeController.clearQrUrls();
 
     CustomGetSnackBar.show(
       title: "Logout Successful",

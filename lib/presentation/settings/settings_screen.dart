@@ -121,21 +121,24 @@ class SettingsScreen extends StatelessWidget {
 customTile({bool showDivider = true,required String title, String? iconPath, Widget? leading,void Function()? onTap}){
   return Column(
     children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          leading == null ? SvgPicture.asset(iconPath.toString(),color: Colors.white70,height: 16.h,):leading,
-          10.wd,
-          CustomText(
-            text: "$title",
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
-          Spacer(),
-          GestureDetector(onTap: onTap,child: Icon(Icons.arrow_forward_ios,color: Colors.white70,size: 18,)),
-        ],
+      GestureDetector(
+        onTap: onTap,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            leading == null ? SvgPicture.asset(iconPath.toString(),color: Colors.white70,height: 16.h,):leading,
+            10.wd,
+            CustomText(
+              text: "$title",
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+            Spacer(),
+            Icon(Icons.arrow_forward_ios,color: Colors.white70,size: 18,),
+          ],
+        ),
       ),
       showDivider == true ?
       Padding(

@@ -16,6 +16,7 @@ import '../../../local_storage/vat_category_model.dart';
 class TaxController extends GetxController {
   final nameController = TextEditingController();
   final percentageController = TextEditingController();
+  final taxIDController = TextEditingController();
   final isLoading = false.obs;
   List<VatCategoryModel> vatList = [];
   Future<List<VatCategoryModel>> getVatCategories() async{
@@ -56,10 +57,13 @@ class TaxController extends GetxController {
     if (value == null || value.isEmpty) {
       return 'Tax perecentage is required';
     }
-    // final price = double.tryParse(value);
-    // if (price == null || price <= 0) {
-    //   return 'Enter a valid positive price';
-    // }
+    return null;
+  }
+
+ String? validateTaxID(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Tax ID is required';
+    }
     return null;
   }
 
@@ -132,6 +136,18 @@ class TaxController extends GetxController {
                       selectedBorderColor: AppColors.buttonClr,
                     validator: validatePricePercentage,
                   ),
+                  10.ht,
+                  CustomTextField(
+                      controller: taxIDController,
+                      hintText: "Tax ID",
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                    validator: validateTaxID,
+                  ),
+
+
+
+
                   30.ht,
                   CustomButton(
                       text: "Add",
@@ -154,7 +170,11 @@ class TaxController extends GetxController {
       isLoading.value = true;
       Future.delayed( Duration(seconds: 1), () async {
         isLoading.value = false;
-        saveVatCategory(VatCategoryModel(name:nameController.text,rate:percentageController.text ));
+        saveVatCategory(VatCategoryModel(
+            name:nameController.text,
+            rate:percentageController.text,
+          taxID: taxIDController.text
+        ));
         AddItemController().refreshVayCategories();
 
 
@@ -170,6 +190,7 @@ class TaxController extends GetxController {
         // Clear fields after saving
         nameController.clear();
         percentageController.clear();
+        taxIDController.clear();
 
       });
     } else {
@@ -183,6 +204,7 @@ class TaxController extends GetxController {
       // );
     }
   }
+
   //
   // @override
   // void onClose() {

@@ -19,6 +19,11 @@ class CustomerController extends GetxController {
   final editEmailController = TextEditingController();
   final editPhoneController = TextEditingController();
   final editAddressController = TextEditingController();
+  final editProvinceController = TextEditingController();
+  final editCityController = TextEditingController();
+  final editStreetController = TextEditingController();
+  final editHouseNumberController = TextEditingController();
+  final editTinNumberController = TextEditingController();
   final ediSelectedImage = Rxn<File>();
   // final isLoading = false.obs;
   // final selectedImage = Rxn<File>();
@@ -29,6 +34,11 @@ class CustomerController extends GetxController {
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
+  final provinceController = TextEditingController();
+  final cityController = TextEditingController();
+  final streetController = TextEditingController();
+  final houseNumberController = TextEditingController();
+  final tinNumberController = TextEditingController();
   final isLoading = false.obs;
   final selectedImage = Rxn<File>();
 
@@ -70,19 +80,49 @@ class CustomerController extends GetxController {
     return null;
   }
 
-
-
-
-
-
+  String? validateTinNumber(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Tin Number is required';
+    }
+    if (value.length < 10 || value.length > 10 ) {
+      return 'Tin Number must be exactly 10 characters';
+    }
+    return null;
+  }
 
   String? validateAddress(String? value) {
     if (value == null || value.isEmpty) {
       return 'Address is required';
     }
-    // if (value.length < 5) {
-    //   return 'Address must be at least 5 characters';
-    // }
+    return null;
+  }
+
+  String? validateProvince(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Province is required';
+    }
+
+    return null;
+  }
+
+  String? validateCity(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'City is required';
+    }
+    return null;
+  }
+
+  String? validateStreet(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Street is required';
+    }
+    return null;
+  }
+
+  String? validateHouseNumber(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'HouseNumber is required';
+    }
     return null;
   }
 
@@ -206,9 +246,14 @@ class CustomerController extends GetxController {
     required String name,
     required String phone,
     required String email,
-    required String address,
     File? imageFile,
-  }) async {
+    required String province,
+    required String city,
+    required String street,
+    required String houseNumber,
+    String? tiNNumber,
+  })
+  async {
     try {
       var settingsBox = await Hive.openBox('settings');
       var username = settingsBox.get('loggedInUser');
@@ -217,8 +262,12 @@ class CustomerController extends GetxController {
         name: name,
         phone: phone,
         email: email,
-        address: address,
         imagePath: imageFile?.path ?? "",
+        province: province,
+        city: city,
+        street: street,
+        houseNumber: houseNumber,
+        tinNumber: tiNNumber ?? "",
       );
       await customerBox.add(customer);
     } catch (e) {
@@ -273,12 +322,17 @@ class CustomerController extends GetxController {
       Future.delayed(const Duration(seconds: 2), () async {
         try {
           isLoading.value = false;
+          print("object");
           await saveCustomerHive(
             name: nameController.text,
             phone: phoneController.text,
             email: emailController.text,
-            address: addressController.text,
             imageFile: selectedImage.value,
+            province: provinceController.text,
+            city: cityController.text,
+            street: streetController.text,
+            houseNumber: houseNumberController.text,
+            tiNNumber: tinNumberController.text,
           );
 
           Get.find<HomeScreenController>().loadCustomer();
@@ -295,6 +349,11 @@ class CustomerController extends GetxController {
           emailController.clear();
           phoneController.clear();
           addressController.clear();
+          provinceController.clear();
+          cityController.clear();
+          streetController.clear();
+          houseNumberController.clear();
+          tinNumberController.clear();
           selectedImage.value = null;
         } catch (e) {
           CustomGetSnackBar.show(
@@ -315,6 +374,7 @@ class CustomerController extends GetxController {
       // );
     }
   }
+
  late int editCustomerIndex;
    void editCustomer() {
     if (formKey.currentState!.validate() ) {
@@ -324,11 +384,15 @@ class CustomerController extends GetxController {
         try {
           isLoading.value = false;
           final updatedCustomer=  CustomerModel(
-            name: editNameController.text,
-            phone: editPhoneController.text,
-            email: editEmailController.text,
-            address: editAddressController.text,
-            imagePath: ediSelectedImage.value?.path,
+            name: editNameController.text?? "",
+            phone: editPhoneController.text?? "",
+            email: editEmailController.text?? "",
+            imagePath: ediSelectedImage.value?.path?? "",
+            province: editProvinceController.text?? "",
+            city: editCityController.text?? "",
+            street: editStreetController.text?? "",
+            houseNumber: editHouseNumberController.text?? "",
+            tinNumber: editTinNumberController.text ?? "",
           );
           var settingsBox = await Hive.openBox('settings');
           var username = settingsBox.get('loggedInUser');
@@ -350,7 +414,11 @@ class CustomerController extends GetxController {
           editNameController.clear();
           editEmailController.clear();
           editPhoneController.clear();
-          editAddressController.clear();
+          provinceController.clear();
+          cityController.clear();
+          streetController.clear();
+          houseNumberController.clear();
+          tinNumberController.clear();
           ediSelectedImage.value = null;
         } catch (e) {
           CustomGetSnackBar.show(

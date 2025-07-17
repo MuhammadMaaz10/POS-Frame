@@ -20,19 +20,37 @@ class InvoiceItemAdapter extends TypeAdapter<InvoiceItem> {
       name: fields[0] as String,
       category: fields[1] as String,
       price: fields[2] as String,
+      quantity: fields[3] as dynamic,
+      taxName: fields[4] as dynamic,
+      taxPercentage: fields[5] as dynamic,
+      taxID: fields[6] as dynamic,
+      hsCode: fields[7] as dynamic,
     );
   }
 
   @override
   void write(BinaryWriter writer, InvoiceItem obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.category)
       ..writeByte(2)
-      ..write(obj.price);
+      ..write(obj.price)
+    ..writeByte(3)
+      ..write(obj.quantity)
+    ..writeByte(4)
+      ..write(obj.taxName)
+    ..writeByte(5)
+      ..write(obj.taxPercentage)
+    ..writeByte(6)
+      ..write(obj.taxID)
+      ..writeByte(7)
+      ..write(obj.hsCode)
+
+
+    ;
   }
 
   @override

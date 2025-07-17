@@ -7,12 +7,13 @@ import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/company_setup_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/login_screen/controller/login_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/login_screen/login_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/home_screen/controller/home_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:hive/hive.dart';
 
 import '../../routes/app_routes.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -21,38 +22,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 3), () async {
-
-      moveToNext();
-
-
-
-
-
-      // try {
-      //   final authBox = Hive.box('auth');
-      //   final isLoggedIn = authBox.get('isLoggedIn') ?? false;
-      //
-      //   if (isLoggedIn) {
-      //     Get.offAllNamed(companySetupScreen);
-      //   } else {
-      //     Get.offAll(() => LoginScreen());
-      //   }
-      // } catch (e) {
-      //   // Handle any errors during Hive access
-      //   print('Error accessing Hive box: $e');
-      //   CustomGetSnackBar.show(
-      //     title: "Error",
-      //     message: "$e",
-      //     backgroundColor: AppColors.buttonClr,
-      //     snackPosition: SnackPosition.TOP,
-      //   );
-      //   // Get.offAll(() => LoginScreen()); // Fallback to login screen
-      // }
+      await moveToNext();
     });
   }
 
@@ -60,6 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void dispose() {
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,52 +44,37 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-
-            SvgPicture.asset("assets/logos/logo.svg", width: 309.w, height: 200.h),
-
-
+            SvgPicture.asset(
+              "assets/logos/logo.svg",
+              width: 309.w,
+              height: 200.h,
+            ),
           ],
         ),
       ),
     );
   }
 
-  // void moveToNext() async{
-  //   var box = await Hive.openBox('settings');
-  //   bool isLoggedIn = box.get('isUserLoggedIn', defaultValue: false);
-  //   bool isFromCompany = box.get('isFromCompany', defaultValue: false);
-  //
-  //
-  //
-  //  if(isLoggedIn==false){
-  //   AppRouter.offAllTo(loginScreen);
-  //  }else if(isFromCompany == false){
-  //   AppRouter.offAllTo(companySetupScreen);
-  //
-  //  }else{
-  //    AppRouter.offAllTo(homeScreen);
-  //  }
-  //
-  // }
-
-  void moveToNext() async {
+  Future<void> moveToNext() async {
     var box = await Hive.openBox('settings');
     bool isLoggedIn = box.get('isUserLoggedIn', defaultValue: false);
     bool isFromCompany = box.get('isFromCompany', defaultValue: false);
     String? username = box.get('loggedInUser');
 
     if (isLoggedIn && username != null) {
-      final loginController=Get.put(LoginScreenController());
-      await loginController.openUserBoxes(username); // ✅ Open user-specific Hive boxes
+      final loginController = Get.put(LoginScreenController());
+      await loginController.openUserBoxes(username); // Open user-specific Hive boxes
+      // Initialize HomeScreenController and load qrUrlList
+      // final homeController = Get.put(HomeScreenController());
+      // await homeController.loadQrUrls(); // Load QR URLs from SharedPreferences
     }
 
-    if (isLoggedIn == false) {
+    if (!isLoggedIn) {
       AppRouter.offAllTo(loginScreen);
-    } else if (isFromCompany == false) {
+    } else if (!isFromCompany) {
       AppRouter.offAllTo(companySetupScreen);
     } else {
       AppRouter.offAllTo(homeScreen);
     }
   }
-
 }

@@ -23,7 +23,9 @@ class AddItemController extends GetxController {
   final editCategoryController = TextEditingController();
   final editDescriptionController = TextEditingController();
   final editPriceController = TextEditingController();
-  final editVatCategoryController = TextEditingController();
+  final editVatCategoryNameController = TextEditingController();
+  final editVatCategoryPercentageController = TextEditingController();
+  final editVatCategoryTaxIDController = TextEditingController();
 
 
   /// add item controllers
@@ -32,7 +34,9 @@ class AddItemController extends GetxController {
   final categoryController = TextEditingController();
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
-  final vatCategoryController = TextEditingController();
+  final vatCategoryNameController = TextEditingController();
+  final vatCategoryPercentageController = TextEditingController();
+  final vatCategoryTaxIDController = TextEditingController();
   final isLoading = false.obs;
   List<VatCategoryModel> vatList = [];
 
@@ -47,11 +51,12 @@ class AddItemController extends GetxController {
     super.onInit();
     vatList=await getVatCategories();
   }
+
   String? validateHsCode(String? value) {
     if (value == null || value.isEmpty) {
       return 'HS Code is required';
     }
-    if (value.length < 8) {
+    if (value.length < 8 || value.length > 8 ) {
       return 'HS Code must be exactly 8 characters';
     }
     // final hsCodeRegex = RegExp(r'^HS-\d{6}$');
@@ -190,7 +195,9 @@ class AddItemController extends GetxController {
 
                     GestureDetector(
                     onTap: () {
-                      vatCategoryController.text = taxGroup.name;
+                      vatCategoryNameController.text = taxGroup.name;
+                      vatCategoryPercentageController.text = taxGroup.rate;
+                      vatCategoryTaxIDController.text = taxGroup.taxID;
                       Navigator.pop(context);
                     },
                     child: Padding(
@@ -207,6 +214,14 @@ class AddItemController extends GetxController {
                                   fontWeight: FontWeight.w400,
                                   color: Colors.white,
                                 ),
+
+                                CustomText(
+                                  text: taxGroup.taxID.toString(),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                ),
+
                                 CustomText(
                                   text: "${taxGroup.rate}%",
                                   fontSize: 14,
@@ -228,15 +243,10 @@ class AddItemController extends GetxController {
       },
     );
   }
+
   void showEditTaxGroupBottomSheet(BuildContext context) {
-
-
     refreshVayCategories();
-
-
-
     showModalBottomSheet(
-
       context: context,
       backgroundColor: const Color(0xFF172349),
       shape: const RoundedRectangleBorder(
@@ -280,14 +290,13 @@ class AddItemController extends GetxController {
                   final taxGroup = vatList[index];
                   return
 
-
-
                   vatList.isNotEmpty ?
-
 
                     GestureDetector(
                     onTap: () {
-                      editVatCategoryController.text = taxGroup.name;
+                      editVatCategoryNameController.text = taxGroup.name;
+                      editVatCategoryPercentageController.text = taxGroup.rate;
+                      editVatCategoryTaxIDController.text = taxGroup.taxID;
                       Navigator.pop(context);
                     },
                     child: Padding(
@@ -340,7 +349,9 @@ class AddItemController extends GetxController {
           itemCategory: categoryController.text,
           itemDescription:descriptionController.text,
           unitPrice: double.parse(priceController.text),
-          vatCategory: vatCategoryController.text,
+          vatCategoryName: vatCategoryNameController.text,
+          vatCategoryPercentage: vatCategoryPercentageController.text,
+          vatCategoryID: vatCategoryTaxIDController.text,
         ));
 
 
@@ -359,17 +370,9 @@ class AddItemController extends GetxController {
         categoryController.clear();
         descriptionController.clear();
         priceController.clear();
-        vatCategoryController.clear();
+        vatCategoryNameController.clear();
       });
     } else {
-      // Get.snackbar(
-      //   'Error',
-      //   selectedImageBytes.value == null
-      //       ? 'Please select an item image'
-      //       : 'Please fill all fields correctly',
-      //   backgroundColor: Colors.red,
-      //   colorText: AppColors.white,
-      // );
     }
   }
   void editItem() async{
@@ -383,8 +386,11 @@ class AddItemController extends GetxController {
           itemCategory: editCategoryController.text,
           itemDescription:editDescriptionController.text,
           unitPrice: double.parse(editPriceController.text),
-          vatCategory: editVatCategoryController.text,
+          vatCategoryName: editVatCategoryNameController.text,
+          vatCategoryPercentage: editVatCategoryPercentageController.text,
+          vatCategoryID: editVatCategoryTaxIDController.text,
         );
+       print("updated ---> vatCategoryName  = ${editVatCategoryNameController.text}");
         var settingsBox = await Hive.openBox('settings');
         var username = settingsBox.get('loggedInUser');
         final box = Hive.box<ItemModel>('items_$username');
@@ -405,17 +411,11 @@ class AddItemController extends GetxController {
         editCategoryController.clear();
         editDescriptionController.clear();
         editPriceController.clear();
-        editVatCategoryController.clear();
+        editVatCategoryNameController.clear();
+        editVatCategoryPercentageController.clear();
+        editVatCategoryTaxIDController.clear();
       });
     } else {
-      // Get.snackbar(
-      //   'Error',
-      //   selectedImageBytes.value == null
-      //       ? 'Please select an item image'
-      //       : 'Please fill all fields correctly',
-      //   backgroundColor: Colors.red,
-      //   colorText: AppColors.white,
-      // );
     }
   }
   void deleteItem()async{
@@ -442,7 +442,7 @@ class AddItemController extends GetxController {
     categoryController.dispose();
     descriptionController.dispose();
     priceController.dispose();
-    vatCategoryController.dispose();
+    vatCategoryNameController.dispose();
     super.onClose();
   }
 }

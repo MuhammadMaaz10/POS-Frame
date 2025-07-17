@@ -21,7 +21,13 @@ class ItemModel extends HiveObject {
   double unitPrice;
 
   @HiveField(5)
-  String vatCategory;
+  String vatCategoryName;
+
+  @HiveField(6)
+  dynamic vatCategoryPercentage;
+
+  @HiveField(7)
+  dynamic vatCategoryID;
 
   ItemModel({
     required this.hsCode,
@@ -29,6 +35,8 @@ class ItemModel extends HiveObject {
     required this.itemCategory,
     required this.itemDescription,
     required this.unitPrice,
-    required this.vatCategory,
+    required this.vatCategoryName,
+    required this.vatCategoryPercentage,
+    required this.vatCategoryID,
   });
 }

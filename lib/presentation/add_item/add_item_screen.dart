@@ -61,8 +61,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 10.ht,
                 CustomTextField(
                   controller: controller.hsCodeController,
-                  hintText: "HS-123456",
-                  keyboardType: TextInputType.text,
+                  hintText: "12345678",
+                  keyboardType: TextInputType.number,
                   borderColor: Colors.transparent,
                   selectedBorderColor: AppColors.buttonClr,
                   maxLines: 1,
@@ -133,7 +133,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 GestureDetector(
                   onTap: () => controller.showTaxGroupBottomSheet(context),
                   child: CustomTextField(
-                    controller: controller.vatCategoryController,
+                    controller: controller.vatCategoryNameController,
                     hintText: "Select Tax Group",
                     keyboardType: TextInputType.text,
                     borderColor: Colors.transparent,

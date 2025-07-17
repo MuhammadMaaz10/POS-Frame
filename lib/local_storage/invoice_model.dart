@@ -14,7 +14,7 @@ class InvoiceModel extends HiveObject {
   final InvoiceCustomer customer;
 
   @HiveField(2)
-  final InvoiceItem items;
+  List<InvoiceItem> items;
 
   @HiveField(3)
   final String invoiceDate;
@@ -28,6 +28,9 @@ class InvoiceModel extends HiveObject {
   @HiveField(6)
   final String termsAndConditions;
 
+  @HiveField(7)
+  dynamic currency;
+
   InvoiceModel({
     required this.invoiceNo,
     required this.customer,
@@ -36,5 +39,7 @@ class InvoiceModel extends HiveObject {
     required this.invoiceDueDate,
     required this.notes,
     required this.termsAndConditions,
+    // required this.currency,
+    this.currency = "USD",
   });
 }

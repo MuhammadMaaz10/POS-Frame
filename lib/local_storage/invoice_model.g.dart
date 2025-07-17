@@ -19,18 +19,19 @@ class InvoiceModelAdapter extends TypeAdapter<InvoiceModel> {
     return InvoiceModel(
       invoiceNo: fields[0] as String,
       customer: fields[1] as InvoiceCustomer,
-      items: fields[2] as InvoiceItem,
+      items: (fields[2] as List).cast<InvoiceItem>(),
       invoiceDate: fields[3] as String,
       invoiceDueDate: fields[4] as String,
       notes: fields[5] as String,
       termsAndConditions: fields[6] as String,
+      currency: fields[7] as dynamic,
     );
   }
 
   @override
   void write(BinaryWriter writer, InvoiceModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.invoiceNo)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class InvoiceModelAdapter extends TypeAdapter<InvoiceModel> {
       ..writeByte(5)
       ..write(obj.notes)
       ..writeByte(6)
-      ..write(obj.termsAndConditions);
+      ..write(obj.termsAndConditions)
+      ..writeByte(7)
+      ..write(obj.currency);
   }
 
   @override
