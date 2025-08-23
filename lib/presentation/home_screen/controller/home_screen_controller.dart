@@ -7,6 +7,8 @@ import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/local_storage/customer_model.dart';
 import 'package:frame_virtual_fiscilation/local_storage/invoice_model.dart';
+import 'package:frame_virtual_fiscilation/presentation/invoice_pdf_generation_screen/invoice_pdf_generation_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/invoice_pdf_generation_screen/model/invoice_pdf_preview_model.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -190,9 +192,12 @@ class HomeScreenController extends GetxController {
 
   // Method to processed multiple item Sequentially
   Future<void> processReceiptsSequentially() async {
-    print("proccess called ------");
+    print("🔄 processReceiptsSequentially() called ------");
 
+    // Check Internet
+    print("🌐 Checking internet connection...");
     if (!await hasInternetConnection()) {
+      print("❌ No internet connection found.");
       Get.snackbar(
         "No Internet",
         "Please check your internet connection",
@@ -200,42 +205,100 @@ class HomeScreenController extends GetxController {
       );
       return;
     }
+
+    // Start loading
     isLoading.value = true;
-    qrUrlList.assignAll(List.filled(filteredInvoiceList.length, null)); // Reset QR URLs
+    print("⏳ isLoading set to TRUE");
+
+    // Reset QR URLs for fresh processing
+    qrUrlList.assignAll(List.filled(filteredInvoiceList.length, null));
+    print("🔁 qrUrlList reset with ${filteredInvoiceList.length} empty items");
+
     update();
-    for (int index = 0; index < filteredInvoiceList.length; index++) {
-      try {
+
+    try {
+      for (int index = 0; index < filteredInvoiceList.length; index++) {
+        print("📦 Processing item ${index + 1} of ${filteredInvoiceList.length}");
         await createReceipt(invoiceModel: filteredInvoiceList[index], index: index);
-      } catch (e) {
-        // Stop processing on error
-        Get.snackbar(
-          'Error',
-          'Stopped at index $index: $e',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: AppColors.buttonClr,
-          duration: Duration(seconds: 3),
-        );
-        break; // Stop further API calls on error
+        print("✅ Finished processing item $index");
       }
+
+      print("💾 Saving QR URLs locally...");
+      await saveQrUrls(qrUrlList);
+
+      String? username = await getLoggedInUsername();
+      if (username != null) {
+        print("👤 Found logged-in user: $username");
+        await saveQrUrlsToHive(username, qrUrlList);
+        print('📝 Saved QR URLs in Hive for user $username: $qrUrlList');
+      } else {
+        print('⚠️ No logged-in user found.');
+      }
+
+      print('🎉 All QR URLs saved successfully: $qrUrlList');
+
+    } catch (e) {
+      print("🔥 ERROR while processing: $e");
+      Get.snackbar(
+        'Error',
+        'Processing failed: $e',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.buttonClr,
+        duration: Duration(seconds: 3),
+      );
+    } finally {
+      isLoading.value = false;
+      print("✅ isLoading set to FALSE (Process completed)");
     }
-    isLoading.value = false;
-
-    /// ✅ Save the complete QR list after processing all receipts
-
-    await saveQrUrls(qrUrlList);
-    String? username = await getLoggedInUsername();
-    if (username != null) {
-      await saveQrUrlsToHive(username, qrUrlList);
-      print('qrUrl data for multiple item in Hive -- user --> $username urls -> $qrUrlList');
-    }else {
-      print('No logged in user found.');
-    }
-
-
-    print('All QR URLs saved after processing: $qrUrlList');
   }
 
   /// processed Single item
+  Future<void> processSingleInvoicePreview(int index, String url) async {
+    if (index < 0 || index >= filteredInvoiceList.length) {
+      Get.snackbar(
+        'Error',
+        'Invalid index: $index',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.buttonClr,
+        duration: Duration(seconds: 3),
+      );
+      return;
+    }
+
+    if (!await hasInternetConnection()) {
+      Get.snackbar(
+        'No Internet',
+        'Please check your internet connection',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      );
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+
+      await invoicePreview(invoiceModel: filteredInvoiceList[index], index: index,qrUrl: url);
+      // Get.snackbar(
+      //   'Success',
+      //   'Invoice preview for item ${index+1}',
+      //   snackPosition: SnackPosition.TOP,
+      //   backgroundColor: AppColors.buttonClr,
+      //   duration: Duration(seconds: 3),
+      // );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to process Invoice preview at index $index: $e',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.buttonClr,
+        duration: Duration(seconds: 3),
+      );
+    }
+  }
+
+
   Future<void> processSingleReceipt(int index) async {
     if (index < 0 || index >= filteredInvoiceList.length) {
       Get.snackbar(
@@ -312,6 +375,76 @@ class HomeScreenController extends GetxController {
       return false;
     }
   }
+
+
+  Future<void> invoicePreview({required InvoiceModel invoiceModel, required int index, required String qrUrl}) async {
+
+      print('Starting receipt creation process...');
+
+      // Build receipt lines for both API and model
+      List<ReceiptLines> receiptLines = [];
+
+      for (int i = 0; i < invoiceModel.items.length; i++) {
+        final item = invoiceModel.items[i];
+        receiptLines.add(ReceiptLines(
+          receiptLineHSCode: item.hsCode ?? "99001000",
+          receiptLineType: "Sale",
+          receiptLineNo: i + 1,
+          receiptLineName: item.name,
+          receiptLineQuantity: item.quantity is String
+              ? (double.tryParse(item.quantity) ?? 1.0).toInt()
+              : item.quantity,
+          receiptLineTotal: (double.tryParse(item.price) ?? 0.0).toInt(),
+          taxPercent: item.taxPercentage is String
+              ? (double.tryParse(item.taxPercentage) ?? 0).toInt()
+              : item.taxPercentage,
+          taxID: item.taxID?.toString() ?? "2",
+        ));
+      }
+
+      // Extract customer info for both API and model
+      final buyerData = BuyerData(
+        buyerRegisterName: invoiceModel.customer.name,
+        buyerTIN: invoiceModel.customer.tinNumber ?? "0000000000",
+        buyerAddress: BuyerAddress(
+          houseNumber: invoiceModel.customer.houseNumber,
+          street: invoiceModel.customer.street,
+          city: invoiceModel.customer.city,
+          province: invoiceModel.customer.provience,
+        ),
+      );
+
+      // Calculate totals
+      double receiptTotal = _calculateTotal(invoiceModel);
+      double receiptTaxAmount = _calculateTax(invoiceModel);
+
+      // Create and populate the invoicePdfPreviewModel
+      invoicePdfPreviewModel previewModel = invoicePdfPreviewModel(
+        receiptType: "FiscalInvoice",
+        receiptCurrency: invoiceModel.currency,
+        receiptGlobalNo: 1,
+        invoiceNo: invoiceModel.invoiceNo,
+        buyerData: buyerData,
+        receiptLinesTaxInclusive: true,
+        receiptLines: receiptLines,
+        receiptPayments: [
+          ReceiptPayments(
+            moneyTypeCode: "CASH",
+            paymentAmount: receiptTotal.toInt(),
+          )
+        ],
+        receiptTotal: receiptTotal.toInt(),
+        receiptTaxAmount: receiptTaxAmount,
+        receiptPrintForm: "Receipt48",
+      );
+
+      // Optional: Log the model to verify data
+      print("Preview Model Data index $index  --- : ${invoicePdfPreviewModel}");
+      print("buyerTIN: Data index $index  --- : ${previewModel.buyerData!.buyerTIN}");
+      Get.to(InvoiceScreenPdfView(previewModel: previewModel,qrUrl: qrUrl,));
+
+  }
+
 
   Future<void> createReceipt({required InvoiceModel invoiceModel, required int index}) async {
     print("api called -----");

@@ -6,6 +6,7 @@ import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_images.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_customer/add_customer_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_item/add_item_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/home_screen/controller/home_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/home_screen/customers_screen/customers_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/home_screen/items_screen/items_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/settings/settings_screen.dart';
@@ -22,9 +23,10 @@ class HomeScreenMain extends StatefulWidget {
   _HomeScreenMainState createState() => _HomeScreenMainState();
 }
 
-class _HomeScreenMainState extends State<HomeScreenMain> with SingleTickerProviderStateMixin {
+class _HomeScreenMainState extends State<HomeScreenMain>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
+  final controller = Get.put(HomeScreenController());
   @override
   void initState() {
     super.initState();
@@ -50,6 +52,23 @@ class _HomeScreenMainState extends State<HomeScreenMain> with SingleTickerProvid
         titleSpacing: 18.w,
         title: barLogo(),
         actions: [
+          _tabController.index == 0
+              ? Padding(
+                  padding: EdgeInsets.only(right: 5.w),
+                  child: syncIcon(
+                    onTap: () {
+                      controller.processReceiptsSequentially();
+                    },
+                  ),
+                )
+              : SizedBox.shrink(),
+          // Padding(
+          //   padding: EdgeInsets.only(right: 5.w),
+          //   child: syncIcon(onTap: () {
+          //     Get.find<HomeScreenController>().processReceiptsSequentially();
+          //   }),
+          // ),
+
           Padding(
             padding: EdgeInsets.only(right: 18.w),
             child: settingsIcon(onTap: () => Get.to(SettingsScreen())),
@@ -60,12 +79,19 @@ class _HomeScreenMainState extends State<HomeScreenMain> with SingleTickerProvid
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: TabBar(
+              onTap: (value) {
+                setState(() {
+                  print("_tabController.index == ${_tabController.index}");
+                });
+              },
               controller: _tabController,
               labelColor: AppColors.buttonClr,
               unselectedLabelColor: AppColors.smallTextClr,
               indicatorColor: AppColors.buttonClr,
-              labelStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
-              unselectedLabelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400),
+              labelStyle:
+                  TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+              unselectedLabelStyle:
+                  TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400),
               indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(
                   color: AppColors.buttonClr,
@@ -74,7 +100,8 @@ class _HomeScreenMainState extends State<HomeScreenMain> with SingleTickerProvid
                 insets: EdgeInsets.symmetric(horizontal: 4.w),
               ),
               dividerColor: Colors.transparent,
-              indicatorPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+              indicatorPadding:
+                  EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
               indicatorSize: TabBarIndicatorSize.tab,
               tabs: const [
                 Tab(text: 'Invoices'),
@@ -104,42 +131,60 @@ class _HomeScreenMainState extends State<HomeScreenMain> with SingleTickerProvid
           overlayOpacity: 0.1,
           children: [
             SpeedDialChild(
-              onTap: () => Get.to(() =>  AddInvoicesScreen()),
+              onTap: () => Get.to(() => AddInvoicesScreen()),
               shape: const CircleBorder(),
               backgroundColor: AppColors.bgClr,
               foregroundColor: Colors.white,
               labelBackgroundColor: AppColors.bgClr,
               label: "Create Invoice",
-              labelStyle: TextStyle(color: Colors.white70,fontSize: 12.sp, fontWeight: FontWeight.w500),
+              labelStyle: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500),
               child: Padding(
                 padding: EdgeInsets.only(top: 3.w),
-                child: SvgPicture.asset(AppImages.invoiceIcon,height: 18.sp,),
+                child: SvgPicture.asset(
+                  AppImages.invoiceIcon,
+                  height: 18.sp,
+                ),
               ),
             ),
             SpeedDialChild(
-              onTap: () => Get.to(() =>  AddItemScreen()),
+              onTap: () => Get.to(() => AddItemScreen()),
               shape: const CircleBorder(),
               backgroundColor: AppColors.bgClr,
               foregroundColor: Colors.white,
               labelBackgroundColor: AppColors.bgClr,
               label: "Add Item",
-              labelStyle: TextStyle(color: Colors.white70,fontSize: 12.sp, fontWeight: FontWeight.w500),
+              labelStyle: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500),
               child: Padding(
                 padding: EdgeInsets.only(left: 5.w),
-                child: SvgPicture.asset(AppImages.itemIcon,height: 18.sp,),
+                child: SvgPicture.asset(
+                  AppImages.itemIcon,
+                  height: 18.sp,
+                ),
               ),
             ),
             SpeedDialChild(
-              onTap: () => Get.to(() =>  AddCustomerScreen()),
+              onTap: () => Get.to(() => AddCustomerScreen()),
               shape: const CircleBorder(),
               backgroundColor: AppColors.bgClr,
               foregroundColor: Colors.white,
               labelBackgroundColor: AppColors.bgClr,
               label: "Add Customer",
-              labelStyle: TextStyle(color: Colors.white70,fontSize: 12.sp, fontWeight: FontWeight.w500),
+              labelStyle: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500),
               child: Padding(
                 padding: EdgeInsets.only(left: 5.w),
-                child: SvgPicture.asset(AppImages.itemIcon,height: 18.sp,),
+                child: SvgPicture.asset(
+                  AppImages.itemIcon,
+                  height: 18.sp,
+                ),
               ),
             ),
           ],

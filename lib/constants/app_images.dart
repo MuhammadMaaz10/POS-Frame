@@ -14,6 +14,8 @@ class AppImages {
 
 
   /// SVG
+  static const sync1 = "assets/logos/sync1.png";
+  static const sync2 = "assets/logos/sync2.png";
   static const appLogoSVG = "assets/logos/appLogo.svg";
   static const barLogo = "assets/logos/screenLogo.svg";
   static const appleIcon = "assets/logos/apple-icon.svg";

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:frame_virtual_fiscilation/presentation/invoice_pdf_generation_screen/invoice_pdf_generation_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -62,17 +63,18 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
               ),
             ],
           ),
+
           // ElevatedButton(
           //   onPressed: () => homeController.processReceiptsSequentially(),
           //   child: Text("Start Processing"),
           // ),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 100.w,vertical: 3.h),
-            child: CustomButton(
-              text: "FDMS Sync All",
-              onPressed: () => homeController.processReceiptsSequentially(),),
-          ),
+          //
+          // Padding(
+          //   padding: EdgeInsets.symmetric(horizontal: 100.w,vertical: 3.h),
+          //   child: CustomButton(
+          //     text: "FDMS Sync All",
+          //     onPressed: () => homeController.processReceiptsSequentially(),),
+          // ),
 
           20.ht,
 
@@ -100,7 +102,6 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                     final qrUrl = index < homeController.qrUrlList.length
                         ? homeController.qrUrlList[index]
                         : null;
-
                     return GestureDetector(
                         onLongPress: () =>
                             invoiceVerificationBottomSheet(
@@ -118,20 +119,14 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                         child: InvoiceCustomListTile(
                           onTap: () {
                             final invoice = item;
-                            invoiceController.editInvoiceIDController.text =
-                                invoice.invoiceNo.toString();
+                            invoiceController.editInvoiceIDController.text = invoice.invoiceNo.toString();
                             invoiceController.editIndexInvoice = index;
-                            invoiceController.editInvoiceNumber.value =
-                                invoice.invoiceNo.toString();
-                            invoiceController.editSelectedCustomer.value =
-                                item.customer;
+                            invoiceController.editInvoiceNumber.value = invoice.invoiceNo.toString();
+                            invoiceController.editSelectedCustomer.value = item.customer;
                             invoiceController.editSelectedItem.value = invoice.items;
-                            invoiceController.editDateController.text =
-                                item.invoiceDate.toString();
-                            invoiceController.editDueDateController.text =
-                                item.invoiceDueDate.toString();
-                            invoiceController.editNotesController.text =
-                                item.notes.toString();
+                            invoiceController.editDateController.text = item.invoiceDate.toString();
+                            invoiceController.editDueDateController.text = item.invoiceDueDate.toString();
+                            invoiceController.editNotesController.text = item.notes.toString();
                             invoiceController.editAddressController.text = item.termsAndConditions.toString();
                             invoiceController.editSelectedCurrency.value = item.currency ?? "USD";
                             Get.to(EditInvoicesScreen());
@@ -275,9 +270,20 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                ),
                10.ht,
                CustomButton(
+                 text: "Invoice preview",
+                 // onPressed: () => Get.to(InvoiceScreenPdfView(itemIndex: itemIndex,)),
+                   onPressed: () {
+                     homeController.processSingleInvoicePreview(itemIndex,qrUrl);
+                     Navigator.pop(context);
+                   }
+               ),
+               10.ht,
+               CustomButton(
                  text: "Verify",
+                 // onPressed: () => Get.to(InvoiceScreenPdfView()),
                  onPressed: () => launchQR(qrUrl ?? singleInvoiceQrURL),
                ),
+               30.ht,
              ],
            ),
          );

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/app_images.dart';
+import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/fiscal_device_management.dart';
 import 'package:frame_virtual_fiscilation/presentation/settings/controller/settings_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/tax_group/tax_group_screen.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
@@ -59,6 +60,12 @@ class SettingsScreen extends StatelessWidget {
                   customTile(
                     title: "Configure FDMS",
                     onTap: () => controller.addAPIkeyBottomSheet(context),
+                      iconPath: AppImages.fdmsIcon
+                  ),
+
+                  customTile(
+                    title: "Fiscal Device Management",
+                    onTap: () => Get.to(FiscalDeviceManagementScreen()),
                       iconPath: AppImages.fdmsIcon
                   ),
 

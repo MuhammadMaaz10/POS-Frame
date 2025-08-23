@@ -55,108 +55,6 @@ class AddInvoicesController extends GetxController {
     generateInvoiceNumber();
   }
 
-  Future<void> createReceipt() async {
-    try {
-      print('Starting receipt creation process...');
-
-      var headers = {
-        'Content-Type': 'application/json',
-        'apiKey': 'd0c64961-34c1-4b3a-9ee2-ffb35c096af7'
-      };
-
-      String url = 'http://frame-server.af-south-1.elasticbeanstalk.com/api/v1/client/receipts/25811';
-      var request = http.Request(
-        'POST', Uri.parse(url),
-      );
-
-      print("createReceipt API Url ---> ${url} ");
-      request.body = jsonEncode({
-        "receiptType": "FiscalInvoice",
-        "receiptCurrency": "USD",
-        "receiptGlobalNo": 1,
-        "invoiceNo": "INV-5526",
-        "buyerData": {
-          "buyerRegisterName": "Akim Malaba",
-          "buyerTIN": "1234567890",
-          "buyerAddress": {
-            "houseNumber": "123",
-            "street": "Cuddin",
-            "city": "Bulawayo",
-            "province": "Bulawayo"
-          }
-        },
-        "receiptLinesTaxInclusive": true,
-        "receiptLines": [
-          {
-            "receiptLineHSCode": "99001000",
-            "receiptLineType": "Sale",
-            "receiptLineNo": 1,
-            "receiptLineName": "Sub catchment levy",
-            "receiptLineQuantity": 1.0,
-            "receiptLineTotal": 12.0,
-            "taxPercent": 15,
-            "taxID": 3
-          },
-          {
-            "receiptLineHSCode": "99001000",
-            "receiptLineType": "Sale",
-            "receiptLineNo": 2,
-            "receiptLineName": "Water Fund",
-            "receiptLineQuantity": 1.0,
-            "receiptLineTotal": 12.0,
-            "taxPercent": 0,
-            "taxID": 2
-          },
-        ],
-        "receiptPayments": [
-          {
-            "moneyTypeCode": "CASH",
-            "paymentAmount": 48.0
-          }
-        ],
-        "receiptTotal": 48.0,
-        "receiptTaxAmount": 1.57,
-        "receiptPrintForm": "InvoiceA4"
-      });
-
-
-      request.headers.addAll(headers);
-      print("Request Body ---> ${request.body}");
-      // print('Sending POST request to create receipt...');
-
-      http.StreamedResponse response = await request.send();
-      print('Response received with status code: ${response.statusCode}');
-
-      if (response.statusCode == 201) {
-        String responseBody = await response.stream.bytesToString();
-        print('Receipt created successfully: $responseBody');
-        Get.snackbar(
-          'Success',
-          'Receipt created successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 3),
-        );
-      } else {
-        String errorMessage = response.reasonPhrase ?? 'Unknown error';
-        print('Failed to create receipt: $errorMessage');
-        Get.snackbar(
-          'Error',
-          'Failed to create receipt: $errorMessage',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 3),
-        );
-      }
-    } catch (e) {
-      print('Error occurred while creating receipt: $e');
-      Get.snackbar(
-        'Error',
-        'An error occurred: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 3),
-      );
-    }
-  }
-
   int _invoiceCounter = 1; // start from 1
 
   void generateInvoiceNumber() {
@@ -1317,6 +1215,8 @@ class ReceiptController with ChangeNotifier {
     notifyListeners();
   }
 
+
+
   Future<void> createReceipt({required InvoiceModel invoiceModel}) async {
     await updateLoading(true);
 
@@ -1436,6 +1336,8 @@ class ReceiptController with ChangeNotifier {
       await updateLoading(false);
     }
   }
+
+
 
   double _calculateTotal(InvoiceModel model) {
     return model.items.fold(0.0, (sum, item) {
