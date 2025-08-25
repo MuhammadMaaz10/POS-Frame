@@ -1,20 +1,25 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
+import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/widgets/app_logo.dart';
-import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 
 // GetX Controller for Fiscal Device Management
+// Inside your FiscalDeviceManagementController
 class FiscalDeviceManagementController extends GetxController {
-  var isDayOpen = false.obs; // Tracks if fiscal day is open or closed
-  var isServerOnline = true.obs; // Tracks server status
-  var dayNumber = 1.obs; // Fiscal day number
-  var countdownDuration = Duration(hours: 24).obs; // 24-hour countdown
-  var countdownText = "24:00:00".obs; // Display for countdown
+  var isDayOpen = false.obs;
+  var isServerOnline = true.obs;
+  var dayNumber = 1.obs;
+  var countdownDuration = Duration(hours: 24).obs;
+  var countdownText = "24:00:00".obs;
   Timer? _timer;
+
+  final int totalSeconds = 24 * 60 * 60; // 24 hours in seconds
+  var progress = 1.0.obs; // for progress bar (1.0 = full)
 
   @override
   void onInit() {
@@ -28,21 +33,28 @@ class FiscalDeviceManagementController extends GetxController {
     super.onClose();
   }
 
-  // Starts the 24-hour countdown timer
   void _startCountdownTimer() {
-    _timer?.cancel(); // Cancel any existing timer
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer?.cancel();
+    countdownDuration.value = Duration(seconds: totalSeconds);
+    progress.value = 1.0;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (countdownDuration.value.inSeconds > 0) {
-        countdownDuration.value -= Duration(seconds: 1);
+        countdownDuration.value -= const Duration(seconds: 1);
+
+        // update text
         countdownText.value = _formatDuration(countdownDuration.value);
+
+        // update progress
+        progress.value = countdownDuration.value.inSeconds / totalSeconds;
       } else {
         timer.cancel();
         countdownText.value = "00:00:00";
+        progress.value = 0.0;
       }
     });
   }
 
-  // Formats the duration into HH:MM:SS
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     final hours = twoDigits(duration.inHours);
@@ -51,27 +63,21 @@ class FiscalDeviceManagementController extends GetxController {
     return "$hours:$minutes:$seconds";
   }
 
-  // Handles Open Day action
   void openDay() {
     isDayOpen.value = true;
     dayNumber.value += 1;
-    countdownDuration.value = Duration(hours: 24); // Reset countdown
-    countdownText.value = _formatDuration(countdownDuration.value);
     _startCountdownTimer();
-    Get.snackbar("Success", "Fiscal Day ${dayNumber.value} opened successfully");
+    Get.snackbar(
+        "Success", "Fiscal Day ${dayNumber.value} opened successfully");
   }
 
-  // Handles Close Day action
   void closeDay() {
     isDayOpen.value = false;
     _timer?.cancel();
     countdownText.value = "00:00:00";
-    Get.snackbar("Success", "Fiscal Day ${dayNumber.value} closed successfully");
-  }
-
-  // Toggles server status (for demo purposes)
-  void toggleServerStatus() {
-    isServerOnline.value = !isServerOnline.value;
+    progress.value = 0.0;
+    Get.snackbar(
+        "Success", "Fiscal Day ${dayNumber.value} closed successfully");
   }
 }
 
@@ -85,140 +91,186 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.bgClr,
+      appBar: AppBar(
+        backgroundColor: AppColors.bgClr,
+        title: CustomText(
+          text: "Fiscal Device Management",
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+        leading: InkWell(
+          onTap: () => Get.back(),
+          child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 18.w),
+            child: syncIcon(
+              onTap: () {
+                // controller.processReceiptsSequentially();
+              },
+            ),
+          )
+        ],
+      ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SvgAppLogo(), // App logo consistent with branding
-            SizedBox(height: 40.h),
-            CustomText(
-              text: "Fiscal Device Management",
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-            SizedBox(height: 20.h),
-            // Fiscal Day Status
-            Container(
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: GetBuilder<FiscalDeviceManagementController>(
-                builder: (controller) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomText(
-                      text: "Fiscal Day Status",
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    SizedBox(height: 10.h),
-                    CustomText(
-                      text: "Day Number: ${controller.dayNumber.value}",
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white70,
-                    ),
-                    SizedBox(height: 5.h),
-                    CustomText(
-                      text: "Status: ${controller.isDayOpen.value ? 'Open' : 'Closed'}",
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                      color: controller.isDayOpen.value ? Colors.green : Colors.red,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20.h),
-            // Server Status
-            GestureDetector(
-              onTap: controller.toggleServerStatus, // Toggle server status for demo
-              child: Container(
-                padding: EdgeInsets.all(16.w),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 18.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // SvgAppLogo(), // App logo consistent with branding
+              SizedBox(height: 30.h),
+              Container(
+                height: 236.h,
+                width: double.infinity,
+                padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12.r),
+                  color: AppColors.green.withOpacity(.15),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: Obx(
-                      () => Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CustomText(
-                        text: "Server Status",
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                      CustomText(
-                        text: controller.isServerOnline.value ? "Online" : "Offline",
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: controller.isServerOnline.value ? Colors.green : Colors.red,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 20.h),
-            // Countdown Timer
-            Container(
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Obx(
-                    () => Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomText(
-                      text: "Countdown Timer",
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const CustomText(
+                            text: "DAY 23",
+                            color: Colors.white70,
+                            fontSize: 14),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 4.h),
+                          decoration: BoxDecoration(
+                            color: AppColors.green,
+                            borderRadius: BorderRadius.circular(7.r),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.circle,
+                                  size: 10, color: AppColors.white),
+                              SizedBox(width: 4),
+                              CustomText(
+                                text: "Online",
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 10.h),
-                    CustomText(
-                      text: controller.countdownText.value,
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.buttonClr,
-                    ),
+                    50.ht,
+                    Obx(() {
+                      return Center(
+                        child: Text(
+                          controller.countdownText.value,
+                          style: const TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.green,
+                          ),
+                        ),
+                      );
+                    }),
+                    const Spacer(),
+                    // Progress Bar at the bottom
+                    Obx(() {
+                      // Total duration in seconds (24 hours = 86400 seconds)
+                      final totalSeconds = Duration(hours: 24).inSeconds;
+                      final remainingSeconds =
+                          controller.countdownDuration.value.inSeconds;
+                      final progress = remainingSeconds / totalSeconds; // 1 → 0
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.white12,
+                          color: AppColors.green,
+                          minHeight: 6,
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
-            ),
-            SizedBox(height: 30.h),
-            // Open/Close Day Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  width: 100,
-                  child: CustomButton(
-                    text: "Open Day",
-                    onPressed: controller.openDay,
-                    // width: 150.w,
-                    // isDisabled: controller.isDayOpen.value,
+
+              16.ht,
+              CustomText(
+                  text: "Once day is closed, invoices can’t be created.",
+                  color: Colors.white70),
+              SizedBox(height: 278.h),
+              Row(
+                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CustomActionButton(
+                    text: "Stop",
+                    color: AppColors.redClr,
+                    icon: Icons.stop,
+                    onTap: () {
+                      print("Stop tapped");
+                    },
                   ),
-                ),
-                SizedBox(
-                  width: 100,
-                  child: CustomButton(
-                    text: "Close Day",
-                    onPressed: controller.closeDay,
-                    // width: 150.w,
-                    // isDisabled: !controller.isDayOpen.value,
+                  8.wd,
+                  CustomActionButton(
+                    text: "Start",
+                    color: AppColors.green,
+                    icon: Icons.play_arrow,
+                    onTap: () {
+                      print("Start tapped");
+                    },
                   ),
-                ),
-              ],
+                ],
+              ),
+              SizedBox(height: 20.h),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomActionButton extends StatelessWidget {
+  final String text;
+  final Color color;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const CustomActionButton({
+    super.key,
+    required this.text,
+    required this.color,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 100.h,
+        width: 174.w, // same as in your Figma
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 28),
+            const SizedBox(width: 8),
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            SizedBox(height: 20.h),
           ],
         ),
       ),

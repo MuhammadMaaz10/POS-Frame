@@ -239,7 +239,7 @@ class AddInvoicesScreen extends StatelessWidget {
                   padding: EdgeInsets.only(left: 174.w),
                   child: CustomButton(
                     text: "Generate Invoice",
-                    onPressed: () => controller.generateInvoice(),
+                    onPressed: () => controller.createInvoice(),
                   ),
                 ),
               ],

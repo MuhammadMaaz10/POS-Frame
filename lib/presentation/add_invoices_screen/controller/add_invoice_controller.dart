@@ -988,7 +988,9 @@ class AddInvoicesController extends GetxController {
     }
   }
 
-  void generateInvoice() {
+
+  ///////////////// create invoice //////////////////
+  void createInvoice() {
     if (selectedCustomer.value == null) {
       CustomGetSnackBar.show(
         title: "Validation Error!",
@@ -1071,9 +1073,11 @@ class AddInvoicesController extends GetxController {
     addressController.clear();
   }
 
+
+
   late int editIndexInvoice;
 
-
+  /////////////////////// edit invoice //////////////////////////////
   Future<void> saveEditedInvoice() async {
     if (editSelectedCustomer.value == null) {
       CustomGetSnackBar.show(

@@ -64,18 +64,6 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
             ],
           ),
 
-          // ElevatedButton(
-          //   onPressed: () => homeController.processReceiptsSequentially(),
-          //   child: Text("Start Processing"),
-          // ),
-          //
-          // Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: 100.w,vertical: 3.h),
-          //   child: CustomButton(
-          //     text: "FDMS Sync All",
-          //     onPressed: () => homeController.processReceiptsSequentially(),),
-          // ),
-
           20.ht,
 
           Expanded(

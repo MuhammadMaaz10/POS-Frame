@@ -48,6 +48,7 @@ class HomeScreenController extends GetxController {
     //     print("Internet connection restored");
     //   }
     // });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String? username = await getLoggedInUsername();
       if (username != null) {
