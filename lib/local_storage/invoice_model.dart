@@ -31,6 +31,12 @@ class InvoiceModel extends HiveObject {
   @HiveField(7)
   dynamic currency;
 
+  @HiveField(8)
+  dynamic qrUrl;
+
+  @HiveField(9)
+  dynamic invoiceType;
+
   InvoiceModel({
     required this.invoiceNo,
     required this.customer,
@@ -39,7 +45,8 @@ class InvoiceModel extends HiveObject {
     required this.invoiceDueDate,
     required this.notes,
     required this.termsAndConditions,
-    // required this.currency,
     this.currency = "USD",
+    this.qrUrl,
+    this.invoiceType,
   });
 }

@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/app_images.dart';
+import 'package:frame_virtual_fiscilation/local_storage/invoice_model.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_invoices_screen/controller/add_invoice_controller.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_list_tile.dart';
@@ -14,12 +15,21 @@ import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
 
 class EditInvoicesScreen extends StatelessWidget {
-  const EditInvoicesScreen({super.key});
+  String qrUrl = "";
+  final InvoiceModel invoice; // Add invoice parameter
+  final int invoiceIndex; // Add index parameter
+   EditInvoicesScreen({super.key,required this.qrUrl, required this.invoice,
+     required this.invoiceIndex,});
 
   @override
   Widget build(BuildContext context) {
     // final controller = Get.put(AddInvoicesController());
     Size size = MediaQuery.of(context).size;
+
+    final controller = Get.find<AddInvoicesController>();
+
+    // Initialize controller with invoice data
+    controller.initializeEditInvoice(invoice, invoiceIndex);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -73,7 +83,10 @@ class EditInvoicesScreen extends StatelessWidget {
                   child: DropdownButton<String>(
                     dropdownColor: AppColors.bgClr,
                     isExpanded: true,
+                    enableFeedback: true,
                     underline: SizedBox(),
+                    iconDisabledColor: Colors.white38,
+                    iconEnabledColor: AppColors.white,
                     value: controller.editSelectedCurrency.value,
                     items: ['USD', 'ZWG'].map((currency) {
                       return DropdownMenuItem<String>(
@@ -81,7 +94,8 @@ class EditInvoicesScreen extends StatelessWidget {
                         child: CustomText(text:currency,fontWeight: FontWeight.w500,fontSize: 14.sp,),
                       );
                     }).toList(),
-                    onChanged: controller.editUpdateSelectedCurrency,
+                    onChanged: qrUrl.isEmpty
+                        ? controller.editUpdateSelectedCurrency : null,
                   ),
                 ),
 
@@ -89,13 +103,13 @@ class EditInvoicesScreen extends StatelessWidget {
 
 
                 TitleAndInput(
-                  ontap: () => controller.showEditCustomerBottomSheet(context),
+                  ontap: () => qrUrl.isEmpty ? controller.showEditCustomerBottomSheet(context) : null,
                   titletext: "Customer",
                   labeltext: "",
-                  suffixtext: controller.editSelectedCustomer.value != null ? "Change" : "",
+                  suffixtext: qrUrl.isEmpty ? "Change" : "",
                   underline: true,
                   secondary: GestureDetector(
-                    onTap: () => controller.showEditCustomerBottomSheet(context),
+                    onTap: () => qrUrl.isEmpty ? controller.showEditCustomerBottomSheet(context):null,
                     child: Obx(
                           () => controller.editSelectedCustomer.value == null
                           ? Container(
@@ -177,6 +191,7 @@ class EditInvoicesScreen extends StatelessWidget {
                             color: AppColors.secondaryClr,
                           ),
                           child: ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: controller.editSelectedItem.length,
                             itemBuilder: (context, index) {
@@ -195,15 +210,6 @@ class EditInvoicesScreen extends StatelessWidget {
                           ),
                         )
 
-
-                      // : ItemsCustomListTile(
-                      //     imageUrl: null,
-                      //     leftPadding: 10.w,
-                      //     titleText: controller.editSelectedItem.value!.name,
-                      //     subTitleText: controller.editSelectedItem.value!.category,
-                      //     amount: double.tryParse(controller.editSelectedItem.value!.price),
-                      //     isTrailing: true,
-                      //   ),
                     ),
                   ),
                 ),
@@ -215,6 +221,8 @@ class EditInvoicesScreen extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.44,
                       child: TitleAndInput(
+                        isdisabled: qrUrl.isEmpty
+                            ? false : true,
                         suffixIcon: Icons.calendar_month,
                         controller: controller.editDateController,
                         titletext: "Invoice Date",
@@ -229,6 +237,8 @@ class EditInvoicesScreen extends StatelessWidget {
                     SizedBox(
                       width: size.width * 0.44,
                       child: TitleAndInput(
+                        isdisabled: qrUrl.isEmpty
+                            ? false : true,
                         suffixIcon: Icons.calendar_month,
                         controller: controller.editDueDateController,
                         titletext: "Due Date",
@@ -243,6 +253,8 @@ class EditInvoicesScreen extends StatelessWidget {
                 ),
                 16.ht,
                 TitleAndInput(
+                  isdisabled: qrUrl.isEmpty
+                      ? false : true,
                   controller: controller.editNotesController,
                   titletext: "Notes",
                   labeltext: "Enter notes",
@@ -250,6 +262,8 @@ class EditInvoicesScreen extends StatelessWidget {
                 ),
                 16.ht,
                 TitleAndInput(
+                  isdisabled: qrUrl.isEmpty
+                      ? false : true,
                   controller: controller.editAddressController,
                   titletext: "Terms and Conditions",
                   labeltext: "Enter terms and conditions",
@@ -269,17 +283,29 @@ class EditInvoicesScreen extends StatelessWidget {
                         // isLoading: controller.isLoading.value,
                       ),
                     ),
-                    SizedBox(
+                    qrUrl.isEmpty
+                        ? SizedBox(
                       width: 100.w,
                       child: CustomButton(
-                        text: "Save",
+                        text: "Edit",
                         onPressed: () {
                           print("selected Items length ----> ${controller.editSelectedItem.length}");
                           controller.saveEditedInvoice();
                         },
                         // isLoading: controller.isLoading.value,
                       ),
-                    ),
+                    )
+                        : SizedBox(
+                      width: 150.w,
+                      child: CustomButton(
+                        text: "Duplicate Invoice",
+                        onPressed: () {
+                          print("📋 Duplicating invoice with items length: ${controller.editSelectedItem.length}");
+                          controller.duplicateInvoice();
+                        },
+                        // isLoading: controller.isLoading.value,
+                      ),
+                    ) ,
                   ],
                 ),
               ],

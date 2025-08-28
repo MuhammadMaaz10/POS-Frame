@@ -29,6 +29,7 @@ class AddInvoicesController extends GetxController {
   /// edit invoice controllers
   var selectedCurrency = 'USD'.obs;  // Default selected
   var editSelectedCurrency = 'USD'.obs;  // Default selected
+  var editInvoiceType = 'Fiscal Invoice'.obs;  // Default selected
 
   final editInvoiceNumber = ''.obs;
   final editSelectedCustomer = Rxn<InvoiceCustomer>();
@@ -49,17 +50,36 @@ class AddInvoicesController extends GetxController {
   final notesController = TextEditingController();
   final addressController = TextEditingController();
 
+  int _invoiceCounter = 1; // Start from 1, will be loaded from Hive
+
   @override
   void onInit() {
     super.onInit();
+    _loadInvoiceCounter();
     generateInvoiceNumber();
   }
 
-  int _invoiceCounter = 1; // start from 1
+  Future<void> _loadInvoiceCounter() async {
+    var settingsBox = await Hive.openBox('settings');
+    var username = settingsBox.get('loggedInUser');
+    final counterBox = await Hive.openBox('invoice_counter_$username');
+    _invoiceCounter = counterBox.get('counter', defaultValue: 1);
+    print("📊 Loaded invoice counter: $_invoiceCounter for user: $username");
+  }
+
+  Future<void> _saveInvoiceCounter() async {
+    var settingsBox = await Hive.openBox('settings');
+    var username = settingsBox.get('loggedInUser');
+    final counterBox = await Hive.openBox('invoice_counter_$username');
+    await counterBox.put('counter', _invoiceCounter);
+    print("💾 Saved invoice counter: $_invoiceCounter for user: $username");
+  } // start from 1
 
   void generateInvoiceNumber() {
     invoiceNumber.value = 'INV-FR-${_invoiceCounter.toString().padLeft(5, '0')}';
+    print("📋 Generated invoice number: ${invoiceNumber.value}");
     _invoiceCounter++;
+    _saveInvoiceCounter();
   }
 
   void updateSelectedCurrency(String? value) {
@@ -943,7 +963,8 @@ class AddInvoicesController extends GetxController {
       invoiceDueDate: invoiceDueDate,
       notes: notes,
       termsAndConditions: termsAndConditions,
-      currency: selectedCurrency.toString()
+      currency: selectedCurrency.toString(),
+      invoiceType: "Fiscal Invoice"
     );
 
     // Save to Hive box
@@ -1154,7 +1175,8 @@ class AddInvoicesController extends GetxController {
       invoiceDueDate: editDueDateController.text,
       notes: editNotesController.text,
       termsAndConditions: editAddressController.text,
-      currency: editSelectedCurrency.toString()
+      currency: editSelectedCurrency.toString(),
+      invoiceType: editInvoiceType.toString()
     );
 
 
@@ -1209,153 +1231,154 @@ class AddInvoicesController extends GetxController {
     );
   }
 
-}
 
-class ReceiptController with ChangeNotifier {
-  bool loading = false;
+  //////////////////////////////////////////////////////////////////////////////////
+/// Duplicate Invoice Function
+  /// Additional for duplicate logic
+  var originalTotal = 0.0.obs;
 
-  Future<void> updateLoading(bool value) async {
-    loading = value;
-    notifyListeners();
-  }
+  // Initialize invoice for editing
+  void initializeEditInvoice(InvoiceModel invoice, int index) {
+    editIndexInvoice = index;
+    editInvoiceNumber.value = invoice.invoiceNo;
+    editSelectedCustomer.value = invoice.customer;
+    editSelectedItem.value = invoice.items;
+    editDateController.text = invoice.invoiceDate;
+    editDueDateController.text = invoice.invoiceDueDate;
+    editNotesController.text = invoice.notes ?? '';
+    editAddressController.text = invoice.termsAndConditions ?? '';
+    editSelectedCurrency.value = invoice.currency ?? 'USD';
 
+    // Load original total
+    loadOriginalTotal(invoice);
 
-
-  Future<void> createReceipt({required InvoiceModel invoiceModel}) async {
-    await updateLoading(true);
-
-    try {
-      print('Starting receipt creation process...');
-
-      var headers = {
-        'Content-Type': 'application/json',
-        'apiKey': 'd0c64961-34c1-4b3a-9ee2-ffb35c096af7'
-      };
-
-      String url =
-          'http://frame-server.af-south-1.elasticbeanstalk.com/api/v1/client/receipts/25811';
-      var request = http.Request('POST', Uri.parse(url));
-
-      // Build receipt lines from invoice items
-      List<Map<String, dynamic>> receiptLines = [];
-
-      for (int i = 0; i < invoiceModel.items.length; i++) {
-        final item = invoiceModel.items[i];
-        print('Hs Code ... ${item.hsCode}');
-        print('item.name ... ${item.name}');
-        receiptLines.add({
-          "receiptLineHSCode": item.hsCode ?? "99001000",
-          "receiptLineType": "Sale",
-          "receiptLineNo": i + 1,
-          "receiptLineName": item.name,
-          "receiptLineQuantity": item.quantity is String
-              ? double.tryParse(item.quantity) ?? 1.0
-              : item.quantity.toDouble(),
-          "receiptLineTotal": double.tryParse(item.price) ?? 0.0,
-          "taxPercent": item.taxPercentage is String
-              ? double.tryParse(item.taxPercentage) ?? 0
-              : item.taxPercentage,
-          "taxID": item.taxID ?? 2,
-        });
-
-      }
-
-
-
-      // Extract customer info
-      final buyerData = {
-        "buyerRegisterName": invoiceModel.customer.name,
-        "buyerTIN": invoiceModel.customer.tinNumber ?? "0000000000",
-        "buyerAddress": {
-          "houseNumber": invoiceModel.customer.houseNumber,
-          "street": invoiceModel.customer.street,
-          "city": invoiceModel.customer.city,
-          "province": invoiceModel.customer.provience,
-        }
-      };
-
-      // Calculate totals
-      double receiptTotal = _calculateTotal(invoiceModel);
-      double receiptTaxAmount = _calculateTax(invoiceModel);
-
-      // Final body
-      request.body = jsonEncode({
-        "receiptType": "FiscalInvoice",
-        "receiptCurrency": "USD",
-        "receiptGlobalNo": 17,
-        "invoiceNo": invoiceModel.invoiceNo,
-        "buyerData": buyerData,
-        "receiptLinesTaxInclusive": true,
-        "receiptLines": receiptLines,
-        "receiptPayments": [
-          {
-            "moneyTypeCode": "CASH",
-            "paymentAmount": receiptTotal,
-          }
-        ],
-        "receiptTotal": receiptTotal,
-        "receiptTaxAmount": receiptTaxAmount,
-        "receiptPrintForm": "InvoiceA4"
-      });
-
-      request.headers.addAll(headers);
-      print("createReceipt API Url ---> $url");
-      print("Request Body ---> ${request.body}");
-
-      // Send the request
-      http.StreamedResponse response = await request.send();
-
-      print("Response Status Code ---> ${response.statusCode}");
-
-      if (response.statusCode == 201) {
-        String responseBody = await response.stream.bytesToString();
-        print('Receipt created successfully: $responseBody');
-
-        Get.snackbar(
-          'Success',
-          'Receipt created successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 3),
-        );
-      } else {
-        String responseBody = await response.stream.bytesToString();
-        print('Failed to create receipt: $responseBody');
-
-        Get.snackbar(
-          'Error',
-          'Failed to create receipt',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 3),
-        );
-      }
-    } catch (e) {
-      print('Error occurred while creating receipt: $e');
-      Get.snackbar(
-        'Error',
-        'An error occurred: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 3),
+    // Initialize selectedItemsWithQuantity for editing
+    selectedItemsWithQuantity.clear();
+    for (var item in invoice.items) {
+      final matchingItem = Get.find<HomeScreenController>().itemList.firstWhereOrNull(
+            (i) => i.itemName == item.name && i.itemCategory == item.category,
       );
-    } finally {
-      await updateLoading(false);
+      if (matchingItem != null) {
+        selectedItemsWithQuantity[matchingItem] = item.quantity;
+      }
     }
+    print("📝 Initialized edit invoice: ${invoice.invoiceNo}, items: ${invoice.items.length}");
   }
 
-
-
-  double _calculateTotal(InvoiceModel model) {
-    return model.items.fold(0.0, (sum, item) {
+  void loadOriginalTotal(InvoiceModel invoice) {
+    originalTotal.value = invoice.items.fold(0.0, (sum, item) {
       return sum + (double.tryParse(item.price) ?? 0.0);
     });
+    print("💸 Loaded original total: ${originalTotal.value} for invoice: ${invoice.invoiceNo}");
   }
 
-  double _calculateTax(InvoiceModel model) {
-    return model.items.fold(0.0, (sum, item) {
-      final price = double.tryParse(item.price) ?? 0.0;
-      final tax = item.taxPercentage is String
-          ? double.tryParse(item.taxPercentage) ?? 0
-          : item.taxPercentage;
-      return sum + (price * (tax / 100));
-    });
+  Future<void> duplicateInvoice() async {
+    if (editSelectedCustomer.value == null) {
+      CustomGetSnackBar.show(
+        title: "Validation Error!",
+        message: "Please select a customer",
+        backgroundColor: AppColors.buttonClr,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    if (editDateController.text.isEmpty || editDueDateController.text.isEmpty) {
+      CustomGetSnackBar.show(
+        title: "Validation Error!",
+        message: "Please select invoice and due dates",
+        backgroundColor: AppColors.buttonClr,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    // Generate new invoice number
+    generateInvoiceNumber(); // Reuse existing method to get new number
+    String newInvoiceNo = invoiceNumber.value;
+    print("📋 Generated new invoice number for duplicate: $newInvoiceNo");
+
+    // Build updated items (from edits)
+    if (selectedItemsWithQuantity.isNotEmpty) {
+      editSelectedItem.value = selectedItemsWithQuantity.entries.map((entry) {
+        return InvoiceItem(
+          name: entry.key.itemName,
+          category: entry.key.itemCategory,
+          price: (entry.key.unitPrice * entry.value).toString(),
+          quantity: entry.value,
+          taxName: entry.key.vatCategoryName,
+          taxPercentage: entry.key.vatCategoryPercentage,
+          taxID: entry.key.vatCategoryID,
+          hsCode: entry.key.hsCode,
+        );
+      }).toList();
+    }
+
+    // Calculate new total
+    double newTotal = editSelectedItem.fold(0.0, (sum, item) => sum + (double.tryParse(item.price) ?? 0.0));
+    print("💸 New total after edits: $newTotal (original: ${originalTotal.value})");
+
+    // Determine InvoiceType based on comparison
+    String newInvoiceType = "Fiscal Invoice";
+    if (newTotal > originalTotal.value) {
+      newInvoiceType = "Debit Invoice";
+      print("📈 Invoice type set to Debit (increase in total)");
+    } else if (newTotal < originalTotal.value) {
+      newInvoiceType = "Credit Invoice";
+      print("📉 Invoice type set to Credit (decrease in total)");
+    } else {
+      print("⚖️ Invoice type remains Fiscal Invoice (no change in total)");
+    }
+
+    // Build new customer
+    final newCustomer = InvoiceCustomer(
+      name: editSelectedCustomer.value!.name,
+      pic: editSelectedCustomer.value!.pic,
+      email: editSelectedCustomer.value!.email,
+      tinNumber: editSelectedCustomer.value!.tinNumber,
+      phoneNumber: editSelectedCustomer.value!.phoneNumber,
+      provience: editSelectedCustomer.value!.provience,
+      city: editSelectedCustomer.value!.city,
+      street: editSelectedCustomer.value!.street,
+      houseNumber: editSelectedCustomer.value!.houseNumber,
+    );
+
+    // Create new InvoiceModel (with null qrUrl)
+    final newInvoice = InvoiceModel(
+      invoiceNo: newInvoiceNo,
+      customer: newCustomer,
+      items: editSelectedItem.value,
+      invoiceDate: editDateController.text,
+      invoiceDueDate: editDueDateController.text,
+      notes: editNotesController.text,
+      termsAndConditions: editAddressController.text,
+      currency: editSelectedCurrency.value,
+      invoiceType: newInvoiceType,
+      qrUrl: null, // Explicitly set to null
+    );
+
+    // Save to Hive
+    var settingsBox = await Hive.openBox('settings');
+    var username = settingsBox.get('loggedInUser');
+    final invoiceBox = Hive.box<InvoiceModel>('invoices_$username');
+    await invoiceBox.add(newInvoice);
+    print("✅ Saved new duplicate invoice $newInvoiceNo with type $newInvoiceType and qrUrl: null");
+
+    // Reload invoices
+    Get.find<HomeScreenController>().loadInvoice();
+    Get.back();
+    selectedItemsWithQuantity.clear();
+
+    CustomGetSnackBar.show(
+      title: "Success",
+      message: "Duplicate invoice $newInvoiceNo created successfully!",
+      backgroundColor: AppColors.buttonClr,
+      snackPosition: SnackPosition.TOP,
+    );
   }
+
+
+
+
 }
+

@@ -84,6 +84,8 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                         (sum, item) => sum + (double.tryParse(item.price) ?? 0.0),
                   );
                   print("singleInvoiceQrURL ---> ${singleInvoiceQrURL}");
+                  // print("invoice type ---> ${item.invoiceType}");
+                  // print("invoice url ---> ${item.qrUrl}");
 
                   // homeController.createReceipt(invoiceModel: homeController.filteredInvoiceList.last, index: 0);
                   return Obx(() {
@@ -98,9 +100,9 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                               date: item.invoiceDate,
                               imagePath: item.customer.pic,
                               price: invoiceTotal.toString(),
-                              // status: qrUrl || singleInvoiceQrURL != null ? true: false,
-                                status: (qrUrl != null || singleInvoiceQrURL != "") ? true : false,
-                                qrUrl: qrUrl ?? "",
+                                // status: (qrUrl != null || singleInvoiceQrURL != "") ? true : false,
+                                status: (item.qrUrl != null || singleInvoiceQrURL != "") ? true : false,
+                                qrUrl: item.qrUrl ?? "",
                               context: context,
                               itemIndex: index
                             ),
@@ -117,13 +119,24 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                             invoiceController.editNotesController.text = item.notes.toString();
                             invoiceController.editAddressController.text = item.termsAndConditions.toString();
                             invoiceController.editSelectedCurrency.value = item.currency ?? "USD";
-                            Get.to(EditInvoicesScreen());
+                            invoiceController.editInvoiceType.value = item.invoiceType ?? "Fiscal Invoice";
+                            Get.to(EditInvoicesScreen(
+                              qrUrl: item.qrUrl??"",
+                              invoice: invoice,
+                              invoiceIndex: index,
+                            ));
                           },
                           titleText: item.customer.name,
                           invoiceID: item.invoiceNo,
                           isTrailing: true,
-                          paid: qrUrl != null ? true: false,
+                          paid: item.qrUrl != null ? true: false,
                           date: item.invoiceDate,
+                          inoiveTypeTextcolor: item.invoiceType == "Fiscal Invoice"
+                              ? AppColors.buttonClr
+                              : item.invoiceType == "Credit Invoice"
+                              ? AppColors.redClr
+                              : AppColors.green,
+                          invoiceType: item.invoiceType ?? "",
                           amount: invoiceTotal,
                           imageUrl: File(item.customer.pic).existsSync()
                               ? FileImage(File(item.customer.pic))
@@ -132,7 +145,6 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                     );
                   }
                   );
-
                 },
                 itemCount: homeController.filteredInvoiceList.length,
                 separatorBuilder: (context, index) => SizedBox(height: 10),

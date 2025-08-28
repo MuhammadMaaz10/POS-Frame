@@ -41,6 +41,8 @@ dependencies:
   printing: ^5.13.5
   share_plus: ^11.1.0
   qr_flutter: ^4.1.0
+  skeletonizer:
+  mobile_scanner: ^4.0.0
 
 
 dev_dependencies:

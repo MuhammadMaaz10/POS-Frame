@@ -5,6 +5,7 @@ import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/app_images.dart';
 import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/fiscal_device_management.dart';
+import 'package:frame_virtual_fiscilation/presentation/qr_code_scanner/qr_code_scanner_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/settings/controller/settings_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/tax_group/tax_group_screen.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
@@ -59,7 +60,12 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   customTile(
                     title: "Configure FDMS",
-                    onTap: () => controller.addAPIkeyBottomSheet(context),
+                    onTap: () {
+                      final controller = Get.find<SettingsController>();
+                      // controller.showConfigOptionSheet(Get.context!);
+                      controller.openQRScanner(Get.context!);
+                      },
+                    // onTap: () => controller.addAPIkeyBottomSheet(context),
                       iconPath: AppImages.fdmsIcon
                   ),
 
@@ -92,7 +98,7 @@ class SettingsScreen extends StatelessWidget {
                 ],
               )
             ),
-              270.ht,
+              220.ht,
             GestureDetector(
               onTap: () => controller.logout(),
               child: Container(

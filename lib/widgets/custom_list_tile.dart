@@ -79,6 +79,7 @@ class InvoiceCustomListTile extends StatelessWidget {
   InvoiceCustomListTile({
     super.key,
     this.invoiceID = "INV-001",
+    this.invoiceType = "",
     this.isTrailing = true,
     this.imageUrl ,
     this.date,
@@ -86,9 +87,12 @@ class InvoiceCustomListTile extends StatelessWidget {
     this.amount = 728,
     this.paid = true,
     this.onTap,
+    this.inoiveTypeTextcolor,
   });
 
   String? invoiceID;
+  Color? inoiveTypeTextcolor;
+  String? invoiceType;
   String? titleText;
   String? date;
   ImageProvider? imageUrl;
@@ -114,7 +118,7 @@ class InvoiceCustomListTile extends StatelessWidget {
         child: SizedBox(
           height: 40.h,
           width: 40.w,
-          child: Image(image:imageUrl!),
+          child: Image(image:imageUrl!,fit: BoxFit.cover,),
         ),
       ) : SizedBox(),
       title: Text(titleText!, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp)),
@@ -133,6 +137,14 @@ class InvoiceCustomListTile extends StatelessWidget {
               CustomText(text: "Date: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
               CustomText(text: "$date",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w500,), ],
           ) : SizedBox(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CustomText(text: "Type: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
+              CustomText(text: "$invoiceType",fontSize: 12,color: inoiveTypeTextcolor ?? AppColors.buttonClr,fontWeight: FontWeight.w500,),
+            ],
+          ),
         ],
       ),
       trailing: isTrailing!
@@ -141,8 +153,8 @@ class InvoiceCustomListTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           paid!
-              ? CustomText(text: "Processed: ",fontSize: 12,color: Colors.green,fontWeight: FontWeight.w500,)
-              : CustomText(text: "Pending: ",fontSize: 12,color: Colors.red,fontWeight: FontWeight.w500,),
+              ? CustomText(text: "Processed ",fontSize: 12,color: Colors.green,fontWeight: FontWeight.w500,)
+              : CustomText(text: "Pending ",fontSize: 12,color: Colors.red,fontWeight: FontWeight.w500,),
           // paid! ? SvgPicture.asset(AppImages.unpaid) : SvgPicture.asset(AppImages.paid),
           Text(
             "\$$amount",
