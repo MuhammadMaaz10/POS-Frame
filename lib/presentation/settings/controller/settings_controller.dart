@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
+import 'package:frame_virtual_fiscilation/presentation/qr_code_scanner/qr_code_scanner_screen.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart';
 import 'package:frame_virtual_fiscilation/routes/app_routes.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
@@ -115,7 +116,9 @@ class SettingsController extends GetxController {
                 text: "Scan QR Code",
                 onPressed: () {
                   Get.back();
-                  openQRScanner(context);
+                  Get.to(QRScannerScreen());
+
+                  // openQRScanner(context);
                 },
               ),
               const SizedBox(height: 12),
@@ -144,47 +147,6 @@ class SettingsController extends GetxController {
       Get.snackbar("Permission Denied", "Camera access is required for scanning.");
     }
   }
-
-  // ------------------ QR Code Scanner ------------------
-  void openQRScanner(BuildContext context) {
-    Get.to(() => Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.bgClr,
-          title: CustomText(
-            text: "Scan QR Code",
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-          leading: InkWell(
-            onTap: () => Get.back(),
-            child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-          ),
-        ),
-      body: MobileScanner(
-        onDetect: (capture) {
-          final List<Barcode> barcodes = capture.barcodes;
-          for (final barcode in barcodes) {
-            if (barcode.rawValue != null) {
-              try {
-                final data = jsonDecode(barcode.rawValue!);
-                if (data is Map<String, dynamic>) {
-                  Get.back(); // Close scanner
-                  addAPIkeyBottomSheet(context, initialData: data);
-                } else {
-                  showInvalidQR();
-                }
-              } catch (e) {
-                showInvalidQR();
-              }
-              break;
-            }
-          }
-        },
-      ),
-    ));
-  }
-
   void showInvalidQR() {
     Get.snackbar(
       "Error",

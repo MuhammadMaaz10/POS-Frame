@@ -655,16 +655,20 @@
 
 
 
-
+//////////////////////////////////////////////////////////
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/controller/fiscal_day_controller.dart';
 
+import '../../../local_storage/configured_fdms_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
+import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/local_storage/customer_model.dart';
 import 'package:frame_virtual_fiscilation/local_storage/invoice_model.dart';
+import 'package:frame_virtual_fiscilation/presentation/add_invoices_screen/controller/add_invoice_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/invoice_pdf_generation_screen/invoice_pdf_generation_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/invoice_pdf_generation_screen/model/invoice_pdf_preview_model.dart';
 import 'package:get/get.dart';
@@ -717,7 +721,41 @@ class HomeScreenController extends GetxController {
     searchInvoiceController.addListener(() {
       filterInvoices(searchInvoiceController.text);
     });
+    loadAndPrintConfigs();
   }
+
+  Future<void> loadAndPrintConfigs() async {
+    print('-----------loadAndPrintConfigs--------------');
+    var settingsBox = await Hive.openBox('settings');
+    var username = settingsBox.get('loggedInUser');
+
+    final box = await Hive.openBox<ConfiguredFDMs>('configured_fdms_$username');
+
+    print('Total configs in box: ${box.length}');
+
+    if (box.isEmpty) {
+      print('⚠️ No configs found for user: $username');
+      return;
+    }
+
+    int index = 0;
+    for (var config in box.values) {
+      print('Config #$index');
+      print('Client ID: ${config.clientID}');
+      fiscalDeviceID = config.deviceID;
+      print('Device ID: ${fiscalDeviceID}');
+      if(fiscalDeviceID != ""){
+        print("--------------- fiscalDeviceID is ${fiscalDeviceID} --------");
+        Get.put(FiscalDeviceManagementController()).getFiscalDayData();
+      }else{
+        print("--------------- fiscalDeviceID is empty --------");
+      }
+      print('API Key: ${config.apiKey}');
+      print('-------------------------');
+      index++;
+    }
+  }
+
 
   void loadItems() async {
     var settingsBox = await Hive.openBox('settings');
@@ -1046,7 +1084,8 @@ class HomeScreenController extends GetxController {
     }
   }
 
-  Future<void> invoicePreview({required InvoiceModel invoiceModel, required int index, required String qrUrl}) async {
+  Future<void> invoicePreview({required InvoiceModel invoiceModel, required int index, required String qrUrl})
+  async {
     print('Starting receipt creation process...');
     List<ReceiptLines> receiptLines = [];
     for (int i = 0; i < invoiceModel.items.length; i++) {
@@ -1082,7 +1121,8 @@ class HomeScreenController extends GetxController {
     double receiptTaxAmount = _calculateTax(invoiceModel);
 
     invoicePdfPreviewModel previewModel = invoicePdfPreviewModel(
-      receiptType: "FiscalInvoice",
+      receiptType: invoiceModel.invoiceType,
+      // receiptType: "FiscalInvoice",
       receiptCurrency: invoiceModel.currency,
       receiptGlobalNo: 1,
       invoiceNo: invoiceModel.invoiceNo,
@@ -1105,18 +1145,25 @@ class HomeScreenController extends GetxController {
     Get.to(InvoiceScreenPdfView(previewModel: previewModel, qrUrl: qrUrl));
   }
 
-  Future<void> createReceipt({required InvoiceModel invoiceModel, required int index}) async {
+  final controller = Get.put(AddInvoicesController());
+  Future<void> createReceipt({
+    required InvoiceModel invoiceModel,
+    required int index,
+  })
+  async {
     print("api called -----");
     await updateLoading(true);
     try {
       print('Starting receipt creation process...');
       var headers = {
         'Content-Type': 'application/json',
-        'apiKey': 'd0c64961-34c1-4b3a-9ee2-ffb35c096af7'
+        'apiKey': 'd0c64961-34c1-4b3a-9ee2-ffb35c096af7',
       };
-      String url = 'http://frame-server.af-south-1.elasticbeanstalk.com/api/v1/client/receipts/25811';
+      String url =
+          'http://frame-server.af-south-1.elasticbeanstalk.com/api/v1/client/receipts/25811';
       var request = http.Request('POST', Uri.parse(url));
 
+      // Build receipt lines
       List<Map<String, dynamic>> receiptLines = [];
       for (int i = 0; i < invoiceModel.items.length; i++) {
         final item = invoiceModel.items[i];
@@ -1136,6 +1183,7 @@ class HomeScreenController extends GetxController {
         });
       }
 
+      // Build buyer data
       final buyerData = {
         "buyerRegisterName": invoiceModel.customer.name,
         "buyerTIN": invoiceModel.customer.tinNumber ?? "0000000000",
@@ -1147,11 +1195,13 @@ class HomeScreenController extends GetxController {
         }
       };
 
+      // Totals
       double receiptTotal = _calculateTotal(invoiceModel);
       double receiptTaxAmount = _calculateTax(invoiceModel);
 
-      request.body = jsonEncode({
-        "receiptType": "FiscalInvoice",
+      // Base request body (common for all types)
+      final Map<String, dynamic> requestBody = {
+        "receiptType": invoiceModel.invoiceType,
         "receiptCurrency": invoiceModel.currency,
         "receiptGlobalNo": 1,
         "invoiceNo": invoiceModel.invoiceNo,
@@ -1166,13 +1216,32 @@ class HomeScreenController extends GetxController {
         ],
         "receiptTotal": receiptTotal,
         "receiptTaxAmount": receiptTaxAmount,
-        "receiptPrintForm": "Receipt48"
-      });
+        "receiptPrintForm": "Receipt48",
+      };
 
+      // Add extra params only if NOT FiscalInvoice
+      if (invoiceModel.invoiceType != "FiscalInvoice") {
+        requestBody.addAll({
+          "receiptNotes": controller.editNotesController.text,
+          "creditDebitNote": {
+            "deviceID": 25811,
+            "receiptGlobalNo": 4,
+            "fiscalDayNo": fiscalDayNumber,
+          },
+        });
+      }
+
+      // Encode request body
+      request.body = jsonEncode(requestBody);
+
+      // Add headers
       request.headers.addAll(headers);
+
+      // Debug logs
       print("createReceipt API Url ---> $url");
       print("Request Body ---> ${request.body}");
 
+      // Send request
       http.StreamedResponse response = await request.send();
       print("Response Status Code ---> ${response.statusCode}");
 
@@ -1274,4 +1343,5 @@ class HomeScreenController extends GetxController {
       print('Not Cleared logged in user not found.');
     }
   }
+
 }

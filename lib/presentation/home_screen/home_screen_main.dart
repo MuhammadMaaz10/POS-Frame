@@ -41,7 +41,6 @@ class _HomeScreenMainState extends State<HomeScreenMain>
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,

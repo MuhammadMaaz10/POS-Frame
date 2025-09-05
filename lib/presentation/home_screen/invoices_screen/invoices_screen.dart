@@ -31,127 +31,129 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 18.w,vertical: 20.h),
-      child: Column(
-        children: [
-          CustomTextField(
-              controller: homeController.searchInvoiceController,
-              hintText: "Search",
-              prefixIcon: Icons.search,
-              borderColor: Colors.transparent,
-              selectedBorderColor: AppColors.buttonClr
-          ),
-          20.ht,
+    return Container(
+      color: AppColors.bgClr,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 18.w,vertical: 20.h),
+        child: Column(
+          children: [
+            CustomTextField(
+                controller: homeController.searchInvoiceController,
+                hintText: "Search",
+                prefixIcon: Icons.search,
+                borderColor: Colors.transparent,
+                selectedBorderColor: AppColors.buttonClr
+            ),
+            20.ht,
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CustomText(
-                  text: "Fiscal Day Status",
-                color: Colors.white70,
-                fontWeight: FontWeight.w500,
-              ),
-              GestureDetector(
-                onTap: () => homeController.clearQrUrlsFromHive(),
-                child: CustomText(
-                    text: "-",
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomText(
+                    text: "Fiscal Day Status",
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w500,
                 ),
-              ),
-            ],
-          ),
+                GestureDetector(
+                  onTap: () => homeController.clearQrUrlsFromHive(),
+                  child: CustomText(
+                      text: fiscalDayStatus,
+                    color: Colors.white,
+                    // fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
 
-          20.ht,
-
-          Expanded(
-            child:
-
+            20.ht,
 
             Obx(() {
               if (homeController.filteredInvoiceList.isEmpty) {
                 return Center(child: Text('No Invoices found'));
               }
-              return ListView.separated(
-                itemBuilder: (context, index) {
-                  final item = homeController.filteredInvoiceList[index];
-                  // print("item is ${item.items[0].hsCode}");
-                  // Calculate total price for this invoice
-                  final invoiceTotal = item.items.fold<double>(
-                    0.0,
-                        (sum, item) => sum + (double.tryParse(item.price) ?? 0.0),
-                  );
-                  print("singleInvoiceQrURL ---> ${singleInvoiceQrURL}");
-                  // print("invoice type ---> ${item.invoiceType}");
-                  // print("invoice url ---> ${item.qrUrl}");
-
-                  // homeController.createReceipt(invoiceModel: homeController.filteredInvoiceList.last, index: 0);
-                  return Obx(() {
-                    final qrUrl = index < homeController.qrUrlList.length
-                        ? homeController.qrUrlList[index]
-                        : null;
-                    return GestureDetector(
-                        onLongPress: () =>
-                            invoiceVerificationBottomSheet(
-                              title: item.customer.name,
-                              invoicID: item.invoiceNo,
-                              date: item.invoiceDate,
-                              imagePath: item.customer.pic,
-                              price: invoiceTotal.toString(),
-                                // status: (qrUrl != null || singleInvoiceQrURL != "") ? true : false,
-                                status: (item.qrUrl != null || singleInvoiceQrURL != "") ? true : false,
-                                qrUrl: item.qrUrl ?? "",
-                              context: context,
-                              itemIndex: index
-                            ),
-                        child: InvoiceCustomListTile(
-                          onTap: () {
-                            final invoice = item;
-                            invoiceController.editInvoiceIDController.text = invoice.invoiceNo.toString();
-                            invoiceController.editIndexInvoice = index;
-                            invoiceController.editInvoiceNumber.value = invoice.invoiceNo.toString();
-                            invoiceController.editSelectedCustomer.value = item.customer;
-                            invoiceController.editSelectedItem.value = invoice.items;
-                            invoiceController.editDateController.text = item.invoiceDate.toString();
-                            invoiceController.editDueDateController.text = item.invoiceDueDate.toString();
-                            invoiceController.editNotesController.text = item.notes.toString();
-                            invoiceController.editAddressController.text = item.termsAndConditions.toString();
-                            invoiceController.editSelectedCurrency.value = item.currency ?? "USD";
-                            invoiceController.editInvoiceType.value = item.invoiceType ?? "Fiscal Invoice";
-                            Get.to(EditInvoicesScreen(
-                              qrUrl: item.qrUrl??"",
-                              invoice: invoice,
-                              invoiceIndex: index,
-                            ));
-                          },
-                          titleText: item.customer.name,
-                          invoiceID: item.invoiceNo,
-                          isTrailing: true,
-                          paid: item.qrUrl != null ? true: false,
-                          date: item.invoiceDate,
-                          inoiveTypeTextcolor: item.invoiceType == "Fiscal Invoice"
-                              ? AppColors.buttonClr
-                              : item.invoiceType == "Credit Invoice"
-                              ? AppColors.redClr
-                              : AppColors.green,
-                          invoiceType: item.invoiceType ?? "",
-                          amount: invoiceTotal,
-                          imageUrl: File(item.customer.pic).existsSync()
-                              ? FileImage(File(item.customer.pic))
-                              : AssetImage(AppImages.demo),
-                        )
+              return Expanded(
+                child: ListView.separated(
+                  // physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final item = homeController.filteredInvoiceList[index];
+                    // print("item is ${item.items[0].hsCode}");
+                    // Calculate total price for this invoice
+                    final invoiceTotal = item.items.fold<double>(
+                      0.0,
+                          (sum, item) => sum + (double.tryParse(item.price) ?? 0.0),
                     );
-                  }
-                  );
-                },
-                itemCount: homeController.filteredInvoiceList.length,
-                separatorBuilder: (context, index) => SizedBox(height: 10),
+                    print("singleInvoiceQrURL ---> ${singleInvoiceQrURL}");
+                    // print("invoice type ---> ${item.invoiceType}");
+                    // print("invoice url ---> ${item.qrUrl}");
+
+                    // homeController.createReceipt(invoiceModel: homeController.filteredInvoiceList.last, index: 0);
+                    return Obx(() {
+                      final qrUrl = index < homeController.qrUrlList.length
+                          ? homeController.qrUrlList[index]
+                          : null;
+                      return GestureDetector(
+                          onLongPress: () =>
+                              invoiceVerificationBottomSheet(
+                                title: item.customer.name,
+                                invoicID: item.invoiceNo,
+                                date: item.invoiceDate,
+                                imagePath: item.customer.pic,
+                                price: invoiceTotal.toString(),
+                                  // status: (qrUrl != null || singleInvoiceQrURL != "") ? true : false,
+                                  status: (item.qrUrl != null || singleInvoiceQrURL != "") ? true : false,
+                                  qrUrl: item.qrUrl ?? "",
+                                context: context,
+                                itemIndex: index
+                              ),
+                          child: InvoiceCustomListTile(
+                            onTap: () {
+                              final invoice = item;
+                              invoiceController.editInvoiceIDController.text = invoice.invoiceNo.toString();
+                              invoiceController.editIndexInvoice = index;
+                              invoiceController.editInvoiceNumber.value = invoice.invoiceNo.toString();
+                              invoiceController.editSelectedCustomer.value = item.customer;
+                              invoiceController.editSelectedItem.value = invoice.items;
+                              invoiceController.editDateController.text = item.invoiceDate.toString();
+                              invoiceController.editDueDateController.text = item.invoiceDueDate.toString();
+                              invoiceController.editNotesController.text = item.notes.toString();
+                              invoiceController.editAddressController.text = item.termsAndConditions.toString();
+                              invoiceController.editSelectedCurrency.value = item.currency ?? "USD";
+                              invoiceController.editInvoiceType.value = item.invoiceType ?? "Fiscal Invoice";
+                              Get.to(EditInvoicesScreen(
+                                qrUrl: item.qrUrl??"",
+                                invoice: invoice,
+                                invoiceIndex: index,
+                              ));
+                            },
+                            titleText: item.customer.name,
+                            invoiceID: item.invoiceNo,
+                            isTrailing: true,
+                            paid: item.qrUrl != null ? true: false,
+                            date: item.invoiceDate,
+                            inoiveTypeTextcolor: item.invoiceType == "FiscalInvoice"
+                                ? AppColors.buttonClr
+                                : item.invoiceType == "CreditNote"
+                                ? AppColors.redClr
+                                : AppColors.green,
+                            invoiceType: item.invoiceType ?? "",
+                            amount: invoiceTotal,
+                            imageUrl: File(item.customer.pic).existsSync()
+                                ? FileImage(File(item.customer.pic))
+                                : AssetImage(AppImages.demo),
+                          )
+                      );
+                    }
+                    );
+                  },
+                  itemCount: homeController.filteredInvoiceList.length,
+                  separatorBuilder: (context, index) => SizedBox(height: 10),
+                ),
               );
             }),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

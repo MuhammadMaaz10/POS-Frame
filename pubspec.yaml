@@ -43,6 +43,11 @@ dependencies:
   qr_flutter: ^4.1.0
   skeletonizer:
   mobile_scanner: ^4.0.0
+#  bluetooth_print: ^4.3.0
+  flutter_bluetooth_printer:
+  image:
+#  esc_pos_utils:
+  location:
 
 
 dev_dependencies:

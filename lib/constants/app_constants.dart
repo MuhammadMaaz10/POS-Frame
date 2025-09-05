@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String deviceID = '';
 String singleInvoiceQrURL = '';
+ var fiscalDayStatus = "";
+ var fiscalDayNumber = "";
+ var fiscalDeviceID = "";
+ var lastInvoiceNumber = "";
+ var countDownTimerFromAPI = "";
 
+
+Future<void> saveLastInvoiceNumberOnce(String lastInvoiceNumber) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  // check if already saved
+  final alreadySaved = prefs.getBool('isInvoiceNumberSaved') ?? false;
+
+  if (!alreadySaved) {
+    await prefs.setString('lastInvoiceNumber', lastInvoiceNumber);
+    await prefs.setBool('isInvoiceNumberSaved', true); // mark as saved
+    print("✅ Saved lastInvoiceNumber ONCE: $lastInvoiceNumber");
+  } else {
+    print("⚠️ Skipping save, already saved once.");
+  }
+}
 
 extension EmptySpace on num {
   SizedBox get ht => SizedBox(height: toDouble().h);

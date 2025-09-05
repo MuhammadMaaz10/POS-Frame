@@ -67,7 +67,7 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                             children: [
                               CustomText(
                                   text:
-                                  "DAY ${controller.fiscalDayModel?.lastFiscalDayNo.toString()}",
+                                  "DAY ${controller.fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString()}",
                                   color: Colors.white70,
                                   fontSize: 14),
                               Container(
@@ -83,7 +83,7 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                                         size: 10, color: AppColors.white),
                                     SizedBox(width: 4),
                                     CustomText(
-                                      text: "${controller.fiscalDayModel?.fiscalDayStatus.toString()}",
+                                      text: "${controller.fiscalDayModel?.serverResponse?.fiscalDayStatus.toString()}",
                                       color: Colors.white,
                                     ),
                                   ],
@@ -95,12 +95,17 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                       50.ht,
                       Obx(() {
                         return Center(
-                          child: Text(
-                            controller.countdownText.value,
-                            style: const TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.green,
+                          child: Skeletonizer(
+                            enabled: controller.isLoading,
+                            containersColor: AppColors.bgClr,
+                            child: Text(
+                              controller.countdownText.value,
+                              // countDownTimerFromAPI,
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.green,
+                              ),
                             ),
                           ),
                         );
@@ -132,29 +137,43 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                     text: "Once day is closed, invoices can’t be created.",
                     color: Colors.white70),
                 SizedBox(height: 278.h),
-                Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    CustomActionButton(
-                      text: controller.isLoading3 == true ?  "Loading...." :"Close Day",
-                      color: AppColors.redClr,
-                      icon: Icons.stop,
-                      onTap: () {
-                        controller.closeDay(day: controller.fiscalDayModel!.lastFiscalDayNo.toString());
-                        print("${controller.isLoading3}");
-                      },
-                    ),
-                    8.wd,
-                    CustomActionButton(
-                      text: controller.isLoading2 == true ?  "Loading...." : "Open Day ",
-                      color: AppColors.green,
-                      icon: Icons.play_arrow,
-                      onTap: () {
-                        controller.openDay(day: controller.fiscalDayModel!.lastFiscalDayNo.toString());
-                      },
-                    ),
-                  ],
+                CustomActionButton(
+                  loading: fiscalDayStatus != "FiscalDayOpened"
+                      ? controller.isLoading2
+                      : controller.isLoading3,
+                  text: fiscalDayStatus != "FiscalDayOpened" ?  "Open Day" :"Close Day",
+                  color: fiscalDayStatus != "FiscalDayOpened" ?  AppColors.green : AppColors.redClr,
+                  icon:fiscalDayStatus != "FiscalDayOpened" ? Icons.play_arrow : Icons.stop,
+                  onTap: () {
+                    fiscalDayStatus != "FiscalDayOpened"
+                        ? controller.openDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString())
+                        : controller.closeDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString());
+                    print("${controller.isLoading3}");
+                  },
                 ),
+                // Row(
+                //   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //   children: [
+                //     CustomActionButton(
+                //       text: controller.isLoading3 == true ?  "Loading...." :"Close Day",
+                //       color: AppColors.redClr,
+                //       icon: Icons.stop,
+                //       onTap: () {
+                //         controller.closeDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString());
+                //         print("${controller.isLoading3}");
+                //       },
+                //     ),
+                //     8.wd,
+                //     CustomActionButton(
+                //       text: controller.isLoading2 == true ?  "Loading...." : "Open Day ",
+                //       color: AppColors.green,
+                //       icon: Icons.play_arrow,
+                //       onTap: () {
+                //         controller.openDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString());
+                //       },
+                //     ),
+                //   ],
+                // ),
                 SizedBox(height: 20.h),
               ],
             );
@@ -168,6 +187,7 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
 class CustomActionButton extends StatelessWidget {
   final String text;
   final Color color;
+  final bool loading;
   final IconData icon;
   final VoidCallback onTap;
 
@@ -175,6 +195,7 @@ class CustomActionButton extends StatelessWidget {
     super.key,
     required this.text,
     required this.color,
+    this.loading = false,
     required this.icon,
     required this.onTap,
   });
@@ -186,12 +207,14 @@ class CustomActionButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         height: 100.h,
-        width: 174.w, // same as in your Figma
+        // width: 174.w, // same as in your Figma
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
+        child: loading == true
+            ? Center(child: SizedBox(height: 40.h, width: 40.w,child: CircularProgressIndicator(color: AppColors.white,)))
+            : Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: Colors.white, size: 28),

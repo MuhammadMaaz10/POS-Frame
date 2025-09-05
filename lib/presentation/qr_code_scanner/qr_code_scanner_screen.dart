@@ -1,38 +1,75 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:frame_virtual_fiscilation/presentation/settings/controller/settings_controller.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-class QRScannerScreen extends StatelessWidget {
-  final Function(Map<String, dynamic> data) onScanned;
+import '../../constants/app_color.dart';
+import '../../widgets/custom_text.dart';
 
-  const QRScannerScreen({Key? key, required this.onScanned}) : super(key: key);
+class QRScannerScreen extends StatefulWidget {
+  const QRScannerScreen({Key? key}) : super(key: key);
+
+  @override
+  State<QRScannerScreen> createState() => _QRScannerScreenState();
+}
+
+class _QRScannerScreenState extends State<QRScannerScreen> {
+  bool _isProcessing = false; // flag to prevent duplicate scans
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Scan QR Code"),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: AppColors.bgClr,
+        title: CustomText(
+          text: "Scan QR Code",
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+        leading: InkWell(
+          onTap: () => Get.back(),
+          child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
+        ),
       ),
-      body: MobileScanner(
-        onDetect: (capture) {
-          final List<Barcode> barcodes = capture.barcodes;
-          for (final barcode in barcodes) {
-            if (barcode.rawValue != null) {
-              try {
-                final Map<String, dynamic> data = jsonDecode(barcode.rawValue!);
-                Navigator.pop(context); // Close scanner
-                onScanned(data); // Pass data back
-              } catch (e) {
-                Get.snackbar("Error", "Invalid QR Code format",
-                    backgroundColor: Colors.red, colorText: Colors.white);
+      body: GetBuilder<SettingsController>(
+        builder: (controller) {
+          return MobileScanner(
+            onDetect: (capture) {
+              if (_isProcessing) return; // stop duplicate processing
+              _isProcessing = true;
+
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                if (barcode.rawValue != null) {
+                  try {
+                    final data = jsonDecode(barcode.rawValue!);
+                    if (data is Map<String, dynamic>) {
+                      Get.back(); // Close scanner
+                      controller.addAPIkeyBottomSheet(context, initialData: data);
+                    } else {
+                      controller.showInvalidQR();
+                      _resetProcessingFlag();
+                    }
+                  } catch (e) {
+                    controller.showInvalidQR();
+                    _resetProcessingFlag();
+                  }
+                  break;
+                }
               }
-              break;
-            }
-          }
+            },
+          );
         },
       ),
     );
   }
+
+  void _resetProcessingFlag() {
+    Future.delayed(const Duration(seconds: 1), () {
+      _isProcessing = false;
+    });
+  }
 }
+

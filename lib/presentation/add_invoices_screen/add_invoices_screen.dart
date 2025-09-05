@@ -14,11 +14,9 @@ import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
 
 class AddInvoicesScreen extends StatelessWidget {
-  const AddInvoicesScreen({super.key});
-
+   AddInvoicesScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    // final controller = Get.put(AddInvoicesController());
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -46,7 +44,7 @@ class AddInvoicesScreen extends StatelessWidget {
                 TitleAndInput(
                   controller: controller.invoiceIDController,
                   titletext: "Invoice Number",
-                  labeltext: controller.invoiceNumber.value,
+                  labeltext: controller.invoiceIDController.text,
                   suffixtext: "Auto Generated",
                   isdisabled: true,
                 ),
@@ -239,7 +237,9 @@ class AddInvoicesScreen extends StatelessWidget {
                   padding: EdgeInsets.only(left: 174.w),
                   child: CustomButton(
                     text: "Generate Invoice",
-                    onPressed: () => controller.createInvoice(),
+                    onPressed: () {
+                      controller.createInvoice();
+                    }
                   ),
                 ),
               ],

@@ -5,12 +5,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/company_setup_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/controller/fiscal_day_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/login_screen/controller/login_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/login_screen/login_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/home_screen/controller/home_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../routes/app_routes.dart';
 
@@ -61,12 +63,14 @@ class _SplashScreenState extends State<SplashScreen> {
     bool isFromCompany = box.get('isFromCompany', defaultValue: false);
     String? username = box.get('loggedInUser');
 
+    // 🔹 Load lastInvoiceNumber from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    print('📄 Last Invoice Number: $lastInvoiceNumber');
+
     if (isLoggedIn && username != null) {
       final loginController = Get.put(LoginScreenController());
-      await loginController.openUserBoxes(username); // Open user-specific Hive boxes
-      // Initialize HomeScreenController and load qrUrlList
-      // final homeController = Get.put(HomeScreenController());
-      // await homeController.loadQrUrls(); // Load QR URLs from SharedPreferences
+      await loginController.openUserBoxes(username);
     }
 
     if (!isLoggedIn) {
@@ -77,4 +81,5 @@ class _SplashScreenState extends State<SplashScreen> {
       AppRouter.offAllTo(homeScreen);
     }
   }
+
 }

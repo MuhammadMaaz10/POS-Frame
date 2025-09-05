@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/urls.dart';
 import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/model/fiscal_device_model.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,7 @@ class FiscalDeviceManagementController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _startCountdownTimer();
+    // _startCountdownTimer();
   }
 
   @override
@@ -28,19 +29,26 @@ class FiscalDeviceManagementController extends GetxController {
     super.onClose();
   }
 
-  void _startCountdownTimer() {
-    _timer?.cancel();
-    countdownDuration.value = Duration(seconds: totalSeconds);
-    progress.value = 1.0;
+  void _startCountdownTimer({required Duration startDuration}) {
+    _timer?.cancel(); // cancel any previous timers
+
+    // If duration is 0 or negative, show 00:00:00 immediately
+    if (startDuration.inSeconds <= 0) {
+      countdownDuration.value = Duration.zero;
+      countdownText.value = "00:00:00";
+      progress.value = 0.0;
+      return;
+    }
+
+    countdownDuration.value = startDuration;
+    progress.value = countdownDuration.value.inSeconds / totalSeconds;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (countdownDuration.value.inSeconds > 0) {
         countdownDuration.value -= const Duration(seconds: 1);
 
-        // update text
+        // Update UI values
         countdownText.value = _formatDuration(countdownDuration.value);
-
-        // update progress
         progress.value = countdownDuration.value.inSeconds / totalSeconds;
       } else {
         timer.cancel();
@@ -50,6 +58,7 @@ class FiscalDeviceManagementController extends GetxController {
     });
   }
 
+
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     final hours = twoDigits(duration.inHours);
@@ -57,6 +66,19 @@ class FiscalDeviceManagementController extends GetxController {
     final seconds = twoDigits(duration.inSeconds.remainder(60));
     return "$hours:$minutes:$seconds";
   }
+  Duration _parseDuration(String timeString) {
+    try {
+      final parts = timeString.split(':');
+      final hours = int.parse(parts[0]);
+      final minutes = int.parse(parts[1]);
+      final seconds = int.parse(parts[2]);
+      return Duration(hours: hours, minutes: minutes, seconds: seconds);
+    } catch (e) {
+      print("⚠️ Error parsing duration: $e");
+      return Duration.zero;
+    }
+  }
+
 
   /// Setters loading for fiscalDay API
   var isLoading = false;
@@ -106,7 +128,25 @@ class FiscalDeviceManagementController extends GetxController {
 
         // Optionally store it in a variable for later use
         // this.fiscalDayModel = fiscalDayData;
-        print("📦 Model instance created: ${fiscalDayModel?.fiscalDayStatus}");
+
+        fiscalDayStatus = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
+        fiscalDayNumber = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
+        lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null)!;
+        await saveLastInvoiceNumberOnce(lastInvoiceNumber);
+
+        final apiTime = fiscalDayModel?.timeUntilDayClosure ?? "";
+
+        print("📦 fiscalDayStatus: $fiscalDayStatus");
+        print("📦 lastInvoiceNumber: $lastInvoiceNumber");
+        print("📦 timeUntilDayClosure: $apiTime");
+
+        if (apiTime.isNotEmpty) {
+          final duration = _parseDuration(apiTime);
+          _startCountdownTimer(startDuration: duration);
+        } else {
+          _startCountdownTimer(startDuration: Duration.zero);
+        }
+
         update();
       } else {
         print("❌ getFiscalDay  Status Code: ${response.statusCode}");

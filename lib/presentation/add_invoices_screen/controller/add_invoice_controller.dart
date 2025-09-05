@@ -11,6 +11,7 @@ import 'package:frame_virtual_fiscilation/local_storage/customer_model.dart';
 import 'package:frame_virtual_fiscilation/local_storage/item_model.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_customer/add_customer_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_item/add_item_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/home_screen/home_screen_main.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_list_tile.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
@@ -18,6 +19,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../local_storage/invoice_customer.dart';
 import '../../../local_storage/invoice_item.dart';
@@ -52,13 +54,21 @@ class AddInvoicesController extends GetxController {
 
   int _invoiceCounter = 1; // Start from 1, will be loaded from Hive
 
-  @override
-  void onInit() {
-    super.onInit();
-    _loadInvoiceCounter();
-    generateInvoiceNumber();
+  AddInvoicesController(){
+    print("----- on init called ----- ");
+
+    // First initialize, then generate
+    initInvoiceCounter().then((_) {
+      generateInvoiceNumber();
+    });
+
+    // Load last invoice number from SharedPreferences
+    _loadLastInvoiceNumber();
+    // optionally also load Hive counter if needed
+    // _loadInvoiceCounter();
   }
 
+/// not using
   Future<void> _loadInvoiceCounter() async {
     var settingsBox = await Hive.openBox('settings');
     var username = settingsBox.get('loggedInUser');
@@ -66,7 +76,7 @@ class AddInvoicesController extends GetxController {
     _invoiceCounter = counterBox.get('counter', defaultValue: 1);
     print("📊 Loaded invoice counter: $_invoiceCounter for user: $username");
   }
-
+  /// not using
   Future<void> _saveInvoiceCounter() async {
     var settingsBox = await Hive.openBox('settings');
     var username = settingsBox.get('loggedInUser');
@@ -75,12 +85,56 @@ class AddInvoicesController extends GetxController {
     print("💾 Saved invoice counter: $_invoiceCounter for user: $username");
   } // start from 1
 
+  Future<void> _loadLastInvoiceNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+
+    if (lastInvoiceNumber != null && lastInvoiceNumber.startsWith('INV-FR-')) {
+      final numberPart = lastInvoiceNumber.replaceAll('INV-FR-', '');
+      final parsed = int.tryParse(numberPart) ?? 0;
+      _invoiceCounter = parsed + 1;
+      print("📄 Loaded last invoice number: $lastInvoiceNumber, counter set to $_invoiceCounter");
+    } else {
+      _invoiceCounter = 1;
+      print("📄 No saved invoice number, counter reset to 1");
+    }
+  }
+
+
+  Future<void> initInvoiceCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+
+    if (lastInvoiceNumber.isNotEmpty && lastInvoiceNumber.startsWith('INV-FR-')) {
+      final numberPart = lastInvoiceNumber.replaceAll('INV-FR-', '');
+      final parsed = int.tryParse(numberPart) ?? 0;
+      _invoiceCounter = parsed + 1;
+    } else {
+      _invoiceCounter = 1; // fallback if no invoice found
+    }
+
+    print("🔢 Initialized _invoiceCounter = $_invoiceCounter from lastInvoiceNumber = $lastInvoiceNumber");
+  }
+
+
+
   void generateInvoiceNumber() {
+    print("---------- generateInvoiceNumber is called ------------ ");
     invoiceNumber.value = 'INV-FR-${_invoiceCounter.toString().padLeft(5, '0')}';
     print("📋 Generated invoice number: ${invoiceNumber.value}");
+    invoiceIDController.text = invoiceNumber.value.toString();
+    print("📋 Generated invoice number in controller: ${invoiceIDController.text}");
+    update();
     _invoiceCounter++;
-    _saveInvoiceCounter();
+    // _saveInvoiceCounter();
   }
+
+  // void generateInvoiceNumber() {
+  //   invoiceNumber.value = 'INV-FR-${_invoiceCounter.toString().padLeft(5, '0')}';
+  //   print("📋 Generated invoice number: ${invoiceNumber.value}");
+  //   _invoiceCounter++;
+  //   _saveInvoiceCounter();
+  // }
 
   void updateSelectedCurrency(String? value) {
     if (value != null) {
@@ -89,6 +143,7 @@ class AddInvoicesController extends GetxController {
       print("selected currency ---> ${selectedCurrency.value}");
     }
   }
+
   void editUpdateSelectedCurrency(String? value) {
     if (value != null) {
       editSelectedCurrency.value = value;
@@ -964,7 +1019,7 @@ class AddInvoicesController extends GetxController {
       notes: notes,
       termsAndConditions: termsAndConditions,
       currency: selectedCurrency.toString(),
-      invoiceType: "Fiscal Invoice"
+      invoiceType: "FiscalInvoice"
     );
 
     // Save to Hive box
@@ -1003,8 +1058,10 @@ class AddInvoicesController extends GetxController {
       final formattedDate = DateFormat('yyyy-MM-dd').format(picked);
       if (isInvoiceDate) {
         dateController.text = formattedDate;
+        update();
       } else {
         dueDateController.text = formattedDate;
+        update();
       }
     }
   }
@@ -1072,9 +1129,16 @@ class AddInvoicesController extends GetxController {
       termsAndConditions: addressController.text,
     );
 
+    // ✅ Save latest invoice number
+    saveLastInvoiceNumber(invoiceNumber.value);
+
+    // ✅ Generate the next invoice number immediately
+    generateInvoiceNumber();
+
+
     Get.find<HomeScreenController>().loadInvoice();
 
-    Get.back();
+    Get.offAll(HomeScreenMain());
     // Simulate invoice generation
     CustomGetSnackBar.show(
       title: "Success",
@@ -1084,14 +1148,28 @@ class AddInvoicesController extends GetxController {
     );
 
 
-    // Reset fields after submission
-    generateInvoiceNumber();
+
+
+    // // Reset fields after submission
+    // generateInvoiceNumber();
     selectedCustomer.value = null;
     selectedItem.value = null;
     dateController.clear();
+    invoiceIDController.clear();
     dueDateController.clear();
     notesController.clear();
     addressController.clear();
+  }
+
+
+  /// saving new invoice number when invoice generate successfully
+  Future<void> saveLastInvoiceNumber(String invoiceNumber) async {
+    final prefs = await SharedPreferences.getInstance();
+    lastInvoiceNumber = invoiceNumber; // update global variable
+    await prefs.setString('lastInvoiceNumber', lastInvoiceNumber);
+    print("💾 Saved lastInvoiceNumber globally: $lastInvoiceNumber");
+    _loadLastInvoiceNumber();
+
   }
 
 
@@ -1249,6 +1327,10 @@ class AddInvoicesController extends GetxController {
     editAddressController.text = invoice.termsAndConditions ?? '';
     editSelectedCurrency.value = invoice.currency ?? 'USD';
 
+
+    print("📝 this function is calling again and again");
+
+
     // Load original total
     loadOriginalTotal(invoice);
 
@@ -1319,12 +1401,12 @@ class AddInvoicesController extends GetxController {
     print("💸 New total after edits: $newTotal (original: ${originalTotal.value})");
 
     // Determine InvoiceType based on comparison
-    String newInvoiceType = "Fiscal Invoice";
+    String newInvoiceType = "FiscalInvoice";
     if (newTotal > originalTotal.value) {
-      newInvoiceType = "Debit Invoice";
+      newInvoiceType = "DebitNote";
       print("📈 Invoice type set to Debit (increase in total)");
     } else if (newTotal < originalTotal.value) {
-      newInvoiceType = "Credit Invoice";
+      newInvoiceType = "CreditNote";
       print("📉 Invoice type set to Credit (decrease in total)");
     } else {
       print("⚖️ Invoice type remains Fiscal Invoice (no change in total)");
@@ -1343,12 +1425,17 @@ class AddInvoicesController extends GetxController {
       houseNumber: editSelectedCustomer.value!.houseNumber,
     );
 
+    print("edit notes -----> ${editNotesController.text}");
+    String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    print("today date ----> $todayDate");
+
     // Create new InvoiceModel (with null qrUrl)
     final newInvoice = InvoiceModel(
       invoiceNo: newInvoiceNo,
       customer: newCustomer,
       items: editSelectedItem.value,
-      invoiceDate: editDateController.text,
+      invoiceDate: todayDate,
+      // invoiceDate: editDateController.text,
       invoiceDueDate: editDueDateController.text,
       notes: editNotesController.text,
       termsAndConditions: editAddressController.text,
@@ -1364,9 +1451,19 @@ class AddInvoicesController extends GetxController {
     await invoiceBox.add(newInvoice);
     print("✅ Saved new duplicate invoice $newInvoiceNo with type $newInvoiceType and qrUrl: null");
 
+    // ✅ Save last invoice number for persistence
+    saveLastInvoiceNumber(newInvoiceNo);
+
+    print("✅ Saved duplicate invoice $newInvoiceNo");
+
+    // ✅ Generate the next invoice number immediately
+    generateInvoiceNumber();
+
+
+
     // Reload invoices
     Get.find<HomeScreenController>().loadInvoice();
-    Get.back();
+    Get.offAll(HomeScreenMain());
     selectedItemsWithQuantity.clear();
 
     CustomGetSnackBar.show(
@@ -1375,6 +1472,8 @@ class AddInvoicesController extends GetxController {
       backgroundColor: AppColors.buttonClr,
       snackPosition: SnackPosition.TOP,
     );
+
+
   }
 
 

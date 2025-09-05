@@ -117,6 +117,7 @@ class ItemsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: AppColors.bgClr,
       margin: const EdgeInsets.fromLTRB(18, 18, 18, 10),
       child: Column(
         children: [
