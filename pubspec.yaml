@@ -45,9 +45,11 @@ dependencies:
   mobile_scanner: ^4.0.0
 #  bluetooth_print: ^4.3.0
   flutter_bluetooth_printer:
+  device_preview:
   image:
 #  esc_pos_utils:
   location:
+  bluetooth_print: ^4.3.0
 
 
 dev_dependencies:

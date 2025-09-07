@@ -166,88 +166,90 @@ class AddInvoicesController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 18.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomText(
-                    text: 'Select Customer',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    width: 82.w,
-                    child: CustomSmallButton(
-                      text: "Add New",
-                      onPressed: () {
-                        Get.to(AddCustomerScreen());
-                      },
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: 'Select Customer',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
-                  ),
-                  10.wd,
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF172349),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
-                        color: Colors.white70,
+                    const Spacer(),
+                    SizedBox(
+                      width: 82.w,
+                      child: CustomSmallButton(
+                        text: "Add New",
+                        onPressed: () {
+                          Get.to(AddCustomerScreen());
+                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-              20.ht,
-              Obx(() {
-                final customers = homeController.customerList;
-
-                if (customers.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No customers found.',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: customers.length,
-                  itemBuilder: (context, index) {
-                    final customer = customers[index];
-                    return GestureDetector(
-                      onTap: () {
-                        selectedCustomer.value = customer; // make sure `selectedCustomer` matches this type
-                        print("selected customer TIN number ---> ${customer.tinNumber}");
-                        print("selected customer TIN number ---> ${customer.houseNumber}");
-                        Navigator.pop(context);
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 10.h),
-                        child: ItemsCustomListTile(
-                          imageUrl: customer.imagePath != null && File(customer.imagePath!).existsSync()
-                              ? FileImage(File(customer.imagePath!))
-                              : AssetImage(AppImages.demo) , // if needed
-                          titleText: customer.name,
-                          subTitleText: customer.email,
-                          isTrailing: false,
-                          leftPadding: 10.w,
+                    10.wd,
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF172349),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          size: 18.sp,
+                          color: Colors.white70,
                         ),
                       ),
+                    ),
+                  ],
+                ),
+                20.ht,
+                Obx(() {
+                  final customers = homeController.customerList;
+
+                  if (customers.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No customers found.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     );
-                  },
-                );
-              }),
-            ],
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: customers.length,
+                    itemBuilder: (context, index) {
+                      final customer = customers[index];
+                      return GestureDetector(
+                        onTap: () {
+                          selectedCustomer.value = customer; // make sure `selectedCustomer` matches this type
+                          print("selected customer TIN number ---> ${customer.tinNumber}");
+                          print("selected customer TIN number ---> ${customer.houseNumber}");
+                          Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 10.h),
+                          child: ItemsCustomListTile(
+                            imageUrl: customer.imagePath != null && File(customer.imagePath!).existsSync()
+                                ? FileImage(File(customer.imagePath!))
+                                : AssetImage(AppImages.demo) , // if needed
+                            titleText: customer.name,
+                            subTitleText: customer.email,
+                            isTrailing: false,
+                            leftPadding: 10.w,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ],
+            ),
           ),
         );
       },
@@ -267,98 +269,100 @@ class AddInvoicesController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 18.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomText(
-                    text: 'Select Customer',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    width: 82.w,
-                    child: CustomSmallButton(
-                      text: "Add New",
-                      onPressed: () {
-                        Get.to(AddCustomerScreen());
-                      },
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: 'Select Customer',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
-                  ),
-                  10.wd,
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF172349),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
-                        color: Colors.white70,
+                    const Spacer(),
+                    SizedBox(
+                      width: 82.w,
+                      child: CustomSmallButton(
+                        text: "Add New",
+                        onPressed: () {
+                          Get.to(AddCustomerScreen());
+                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-              20.ht,
-              Obx(() {
-                final customers = homeController.customerList;
-
-                if (customers.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No customers found.',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: customers.length,
-                  itemBuilder: (context, index) {
-                    final customer = customers[index];
-                    return GestureDetector(
-                      onTap: () {
-                         editSelectedCustomer.value=InvoiceCustomer(
-                             name: customer.name,
-                             pic: customer.imagePath ?? AppImages.demo,
-                             email: customer.email,
-                           tinNumber: customer.tinNumber,
-                           phoneNumber: customer.phone,
-                           provience: customer.province,
-                           city: customer.city,
-                           street: customer.street,
-                           houseNumber: customer.houseNumber,
-                         );
-
-                         print("selected customer TIN number ---> ${customer.tinNumber}");
-                        Navigator.pop(context);
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 10.h),
-                        child: ItemsCustomListTile(
-                          imageUrl: customer.imagePath != null && File(customer.imagePath!).existsSync()
-                              ? FileImage(File(customer.imagePath!))
-                              : AssetImage(AppImages.demo) , // if needed
-                          titleText: customer.name,
-                          subTitleText: customer.email,
-                          isTrailing: false,
-                          leftPadding: 10.w,
+                    10.wd,
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF172349),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          size: 18.sp,
+                          color: Colors.white70,
                         ),
                       ),
+                    ),
+                  ],
+                ),
+                20.ht,
+                Obx(() {
+                  final customers = homeController.customerList;
+
+                  if (customers.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No customers found.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     );
-                  },
-                );
-              }),
-            ],
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: customers.length,
+                    itemBuilder: (context, index) {
+                      final customer = customers[index];
+                      return GestureDetector(
+                        onTap: () {
+                           editSelectedCustomer.value=InvoiceCustomer(
+                               name: customer.name,
+                               pic: customer.imagePath ?? AppImages.demo,
+                               email: customer.email,
+                             tinNumber: customer.tinNumber,
+                             phoneNumber: customer.phone,
+                             provience: customer.province,
+                             city: customer.city,
+                             street: customer.street,
+                             houseNumber: customer.houseNumber,
+                           );
+
+                           print("selected customer TIN number ---> ${customer.tinNumber}");
+                          Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 10.h),
+                          child: ItemsCustomListTile(
+                            imageUrl: customer.imagePath != null && File(customer.imagePath!).existsSync()
+                                ? FileImage(File(customer.imagePath!))
+                                : AssetImage(AppImages.demo) , // if needed
+                            titleText: customer.name,
+                            subTitleText: customer.email,
+                            isTrailing: false,
+                            leftPadding: 10.w,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ],
+            ),
           ),
         );
       },
@@ -384,187 +388,190 @@ class AddInvoicesController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 18.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomText(
-                    text: 'Select Items',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    width: 82.w,
-                    child: CustomSmallButton(
-                      text: "Add New",
-                      onPressed: () {
-                        Get.to(AddItemScreen());
-                      },
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: 'Select Items',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
-                  ),
-                  10.wd,
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF172349),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
-                        color: Colors.white70,
+                    const Spacer(),
+                    SizedBox(
+                      width: 82.w,
+                      child: CustomSmallButton(
+                        text: "Add New",
+                        onPressed: () {
+                          Get.to(AddItemScreen());
+                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-              20.ht,
-
-              /// Item list with your widgets
-              Obx(() {
-                if (homeController.itemList.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No items available.',
-                      style: TextStyle(color: Colors.white70),
+                    10.wd,
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF172349),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          size: 18.sp,
+                          color: Colors.white70,
+                        ),
+                      ),
                     ),
-                  );
-                }
-
-                return Expanded(
-                  child: ListView.builder(
-                    itemCount: homeController.itemList.length,
-                    itemBuilder: (context, index) {
-                      final item = homeController.itemList[index];
-
-
-
-                      return Obx((){
-                        final isSelected = tempSelectedItems.containsKey(item);
-                        final quantity = tempSelectedItems[item] ?? 0;
-                        return GestureDetector(
-                          onTap: () {
-                            if (isSelected) {
-                              tempSelectedItems.remove(item);
-                              selectedItems.remove(item);
-                            } else {
-                              tempSelectedItems[item] = 1;// Default quantity
-                              selectedItems.add(item);
-                            }
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? AppColors.buttonClr
-                                          : Colors.transparent,
-                                    ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      ItemsCustomListTile(
-                                        imageUrl: null,
-                                        titleText: item.itemName,
-                                        subTitleText: item.itemCategory,
-                                        isTrailing: true,
-                                        amount: item.unitPrice,
-                                        leftPadding: 10.w,
-                                      ),
-                                      if (isSelected)
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {
-                                                  if (quantity > 1) {
-                                                    tempSelectedItems[item] = quantity - 1;
-                                                  } else {
-                                                    tempSelectedItems.remove(item);
-                                                  }
-                                                },
-                                                icon: Icon(Icons.remove_circle_outline, size: 20.sp, color: Colors.white70),
-                                              ),
-                                              CustomText(
-                                                text: '$quantity',
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  tempSelectedItems[item] = quantity + 1;
-                                                },
-                                                icon: Icon(Icons.add_circle_outline, size: 20.sp, color: Colors.white70),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.buttonClr,
-                                        shape: BoxShape.rectangle,
-                                      ),
-                                      child: Icon(
-                                        Icons.check,
-                                        size: 16.sp,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-                      );
-
-
-                    },
-                  ),
-                );
-              }),
-
-              10.ht,
-
-              /// Confirm button
-              CustomButton(
-                text: "Confirm Selection",
-                onPressed: () {
-                  if (tempSelectedItems.isNotEmpty) {
-                    selectedItemsWithQuantity.assignAll(tempSelectedItems);
-                    Get.back();
-                  } else {
-                    CustomGetSnackBar.show(
-                      title: "No Selection",
-                      message: "Please select at least one item.",
-                      backgroundColor: AppColors.buttonClr,
-                      duration: const Duration(seconds: 2),
+                  ],
+                ),
+                20.ht,
+            
+                /// Item list with your widgets
+                Obx(() {
+                  if (homeController.itemList.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No items available.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     );
                   }
-                },
-              ),
-            ],
+            
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: homeController.itemList.length,
+                      itemBuilder: (context, index) {
+                        final item = homeController.itemList[index];
+            
+            
+            
+                        return Obx((){
+                          final isSelected = tempSelectedItems.containsKey(item);
+                          final quantity = tempSelectedItems[item] ?? 0;
+                          return GestureDetector(
+                            onTap: () {
+                              if (isSelected) {
+                                tempSelectedItems.remove(item);
+                                selectedItems.remove(item);
+                              } else {
+                                tempSelectedItems[item] = 1;// Default quantity
+                                selectedItems.add(item);
+                              }
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(bottom: 10.h),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF172349),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AppColors.buttonClr
+                                            : Colors.transparent,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        ItemsCustomListTile(
+                                          imageUrl: null,
+                                          titleText: item.itemName,
+                                          subTitleText: item.itemCategory,
+                                          isTrailing: true,
+                                          amount: item.unitPrice,
+                                          leftPadding: 10.w,
+                                        ),
+                                        if (isSelected)
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {
+                                                    if (quantity > 1) {
+                                                      tempSelectedItems[item] = quantity - 1;
+                                                    } else {
+                                                      tempSelectedItems.remove(item);
+                                                    }
+                                                  },
+                                                  icon: Icon(Icons.remove_circle_outline, size: 20.sp, color: Colors.white70),
+                                                ),
+                                                CustomText(
+                                                  text: '$quantity',
+                                                  fontSize: 16,
+                                                  color: Colors.white,
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    tempSelectedItems[item] = quantity + 1;
+                                                  },
+                                                  icon: Icon(Icons.add_circle_outline, size: 20.sp, color: Colors.white70),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.buttonClr,
+                                          shape: BoxShape.rectangle,
+                                        ),
+                                        child: Icon(
+                                          Icons.check,
+                                          size: 16.sp,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        );
+            
+            
+                      },
+                    ),
+                  );
+                }),
+            
+                10.ht,
+            
+                /// Confirm button
+                CustomButton(
+                  text: "Confirm Selection",
+                  onPressed: () {
+                    if (tempSelectedItems.isNotEmpty) {
+                      selectedItemsWithQuantity.assignAll(tempSelectedItems);
+                      Get.back();
+                    } else {
+                      CustomGetSnackBar.show(
+                        title: "No Selection",
+                        message: "Please select at least one item.",
+                        backgroundColor: AppColors.buttonClr,
+                        duration: const Duration(seconds: 2),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -595,195 +602,198 @@ class AddInvoicesController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 18.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomText(
-                    text: 'Select Items',
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    width: 82.w,
-                    child: CustomSmallButton(
-                      text: "Add New",
-                      onPressed: () {
-                        Get.to(() => AddItemScreen());
-                      },
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: 'Select Items',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
-                  ),
-                  10.wd,
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF172349),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
-                        color: Colors.white70,
+                    const Spacer(),
+                    SizedBox(
+                      width: 82.w,
+                      child: CustomSmallButton(
+                        text: "Add New",
+                        onPressed: () {
+                          Get.to(() => AddItemScreen());
+                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-              20.ht,
-
-              // Item list
-              Obx(() {
-                if (homeController.itemList.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No items available.',
-                      style: TextStyle(color: Colors.white70),
+                    10.wd,
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF172349),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          size: 18.sp,
+                          color: Colors.white70,
+                        ),
+                      ),
                     ),
-                  );
-                }
-
-                return Expanded(
-                  child: ListView.builder(
-                    itemCount: homeController.itemList.length,
-                    itemBuilder: (context, index) {
-                      final item = homeController.itemList[index];
-                      return Obx(() {
-                        final isSelected = tempSelectedItems.containsKey(item);
-                        final quantity = tempSelectedItems[item] ?? 0;
-                        return GestureDetector(
-                          onTap: () {
-                            if (isSelected) {
-                              tempSelectedItems.remove(item);
-                            } else {
-                              tempSelectedItems[item] = 1; // Default quantity
-                            }
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? AppColors.buttonClr
-                                          : Colors.transparent,
-                                    ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      ItemsCustomListTile(
-                                        imageUrl: null,
-                                        titleText: item.itemName,
-                                        subTitleText: item.itemCategory,
-                                        isTrailing: true,
-                                        amount: item.unitPrice,
-                                        leftPadding: 10.w,
-                                      ),
-                                      if (isSelected)
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {
-                                                  if (quantity > 1) {
-                                                    tempSelectedItems[item] = quantity - 1;
-                                                  } else {
-                                                    tempSelectedItems.remove(item);
-                                                  }
-                                                },
-                                                icon: Icon(Icons.remove_circle_outline, size: 20.sp, color: Colors.white70),
-                                              ),
-                                              CustomText(
-                                                text: '$quantity',
-                                                fontSize: 16.sp,
-                                                color: Colors.white,
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  tempSelectedItems[item] = quantity + 1;
-                                                },
-                                                icon: Icon(Icons.add_circle_outline, size: 20.sp, color: Colors.white70),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.buttonClr,
-                                        shape: BoxShape.rectangle,
-                                      ),
-                                      child: Icon(
-                                        Icons.check,
-                                        size: 16.sp,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      });
-                    },
-                  ),
-                );
-              }),
-
-              10.ht,
-
-              // Confirm button
-              CustomButton(
-                text: "Confirm Selection",
-                onPressed: () {
-                  if (tempSelectedItems.isNotEmpty) {
-                    // Update editSelectedItem with selected items and quantities
-                    editSelectedItem.value = tempSelectedItems.entries.map((entry) {
-                      final item = entry.key;
-                      final quantity = entry.value;
-                      return InvoiceItem(
-                        name: item.itemName,
-                        category: item.itemCategory,
-                        price: item.unitPrice.toString(), // Store unit price
-                        quantity: quantity,
-                        taxName: item.vatCategoryName,
-                        taxPercentage: item.vatCategoryPercentage,
-                        taxID: item.vatCategoryID,
-                        hsCode: item.hsCode
-                      );
-                    }).toList();
-                    // Update editSelectedItemsWithQuantity
-                    selectedItemsWithQuantity.assignAll(tempSelectedItems);
-                    Get.back();
-                  } else {
-                    CustomGetSnackBar.show(
-                      title: "No Selection",
-                      message: "Please select at least one item.",
-                      backgroundColor: AppColors.buttonClr,
-                      duration: const Duration(seconds: 2),
+                  ],
+                ),
+                20.ht,
+            
+                // Item list
+                Obx(() {
+                  if (homeController.itemList.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No items available.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     );
                   }
-                },
-              ),
-            ],
+            
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: homeController.itemList.length,
+                      itemBuilder: (context, index) {
+                        final item = homeController.itemList[index];
+                        return Obx(() {
+                          final isSelected = tempSelectedItems.containsKey(item);
+                          final quantity = tempSelectedItems[item] ?? 0;
+                          return GestureDetector(
+                            onTap: () {
+                              if (isSelected) {
+                                tempSelectedItems.remove(item);
+                              } else {
+                                tempSelectedItems[item] = 1; // Default quantity
+                              }
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(bottom: 10.h),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF172349),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AppColors.buttonClr
+                                            : Colors.transparent,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        ItemsCustomListTile(
+                                          imageUrl: null,
+                                          titleText: item.itemName,
+                                          subTitleText: item.itemCategory,
+                                          isTrailing: true,
+                                          amount: item.unitPrice,
+                                          leftPadding: 10.w,
+                                        ),
+                                        if (isSelected)
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {
+                                                    if (quantity > 1) {
+                                                      tempSelectedItems[item] = quantity - 1;
+                                                    } else {
+                                                      tempSelectedItems.remove(item);
+                                                    }
+                                                  },
+                                                  icon: Icon(Icons.remove_circle_outline, size: 20.sp, color: Colors.white70),
+                                                ),
+                                                CustomText(
+                                                  text: '$quantity',
+                                                  fontSize: 16.sp,
+                                                  color: Colors.white,
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    tempSelectedItems[item] = quantity + 1;
+                                                  },
+                                                  icon: Icon(Icons.add_circle_outline, size: 20.sp, color: Colors.white70),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.buttonClr,
+                                          shape: BoxShape.rectangle,
+                                        ),
+                                        child: Icon(
+                                          Icons.check,
+                                          size: 16.sp,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                  );
+                }),
+            
+                10.ht,
+            
+                // Confirm button
+                CustomButton(
+                  text: "Confirm Selection",
+                  onPressed: () {
+                    if (tempSelectedItems.isNotEmpty) {
+                      // Update editSelectedItem with selected items and quantities
+                      editSelectedItem.value = tempSelectedItems.entries.map((entry) {
+                        final item = entry.key;
+                        final quantity = entry.value;
+                        return InvoiceItem(
+                          name: item.itemName,
+                          category: item.itemCategory,
+                          price: item.unitPrice.toString(), // Store unit price
+                          quantity: quantity,
+                          taxName: item.vatCategoryName,
+                          taxPercentage: item.vatCategoryPercentage,
+                          taxID: item.vatCategoryID,
+                          hsCode: item.hsCode
+                        );
+                      }).toList();
+                      // Update editSelectedItemsWithQuantity
+                      selectedItemsWithQuantity.assignAll(tempSelectedItems);
+                      Get.back();
+                    } else {
+                      CustomGetSnackBar.show(
+                        title: "No Selection",
+                        message: "Please select at least one item.",
+                        backgroundColor: AppColors.buttonClr,
+                        duration: const Duration(seconds: 2),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -825,148 +835,150 @@ class AddInvoicesController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 18.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomText(
-                    text: 'Select Quantity',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF172349),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
-                        color: Colors.white70,
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: 'Select Quantity',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF172349),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          size: 18.sp,
+                          color: Colors.white70,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              20.ht,
+                  ],
+                ),
+                20.ht,
 
-              // Reactive List of Items
-              Obx(() {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: homeController.itemList.length,
-                  itemBuilder: (context, index) {
-                    final item = homeController.itemList[index];
-                    unitPrice = item.unitPrice;
+                // Reactive List of Items
+                Obx(() {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: homeController.itemList.length,
+                    itemBuilder: (context, index) {
+                      final item = homeController.itemList[index];
+                      unitPrice = item.unitPrice;
 
-                    return GestureDetector(
-                      onTap: () {
-                        // selectedItem.value = item;
-                        // Navigator.pop(context);
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 10.h),
-                        child: Container(
-                          // height: 57.h,
-                          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-                          decoration: BoxDecoration(
-                            color: Color(0xFF172349),
-                            borderRadius: BorderRadius.circular(10.r),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Main content (item name and unit price)
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                      return GestureDetector(
+                        onTap: () {
+                          // selectedItem.value = item;
+                          // Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 10.h),
+                          child: Container(
+                            // height: 57.h,
+                            padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF172349),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Main content (item name and unit price)
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        item.itemName,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 14.sp,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 0.h),
+                                      Text(
+                                        "\$${item.unitPrice} x ${quantity.value}",
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: AppColors.smallTextClr,
+                                          fontFamily: "Satoshi",
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Trailing content (quantity controls and total price)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      item.itemName,
+                                    Container(
+                                      // width: 90.w,
+                                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 7.5.h),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8.r),
+                                        border: Border.all(color: Color(0xFF343A40)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () => decrementQuantity(),
+                                            child: Icon(Icons.remove, color: Colors.white, size: 20.sp),
+                                          ),
+                                          SizedBox(width: 10.w),
+                                          Obx(() => Text(
+                                            "${quantity.value}",
+                                            style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                                          )),
+                                          SizedBox(width: 10.w),
+                                          GestureDetector(
+                                            onTap: () => incrementQuantity(),
+                                            child: Icon(Icons.add, color: Colors.white, size: 20.sp),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Obx(() => Text(
+                                      "\$${totalPrice.toStringAsFixed(1)}",
                                       style: TextStyle(
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w900,
-                                        fontSize: 14.sp,
                                         color: Colors.white,
                                       ),
-                                    ),
-                                    SizedBox(height: 0.h),
-                                    Text(
-                                      "\$${item.unitPrice} x ${quantity.value}",
-                                      style: TextStyle(
-                                        fontSize: 12.sp,
-                                        color: AppColors.smallTextClr,
-                                        fontFamily: "Satoshi",
-                                      ),
-                                    ),
+                                    )),
                                   ],
                                 ),
-                              ),
-                              // Trailing content (quantity controls and total price)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    // width: 90.w,
-                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 7.5.h),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      border: Border.all(color: Color(0xFF343A40)),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () => decrementQuantity(),
-                                          child: Icon(Icons.remove, color: Colors.white, size: 20.sp),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        Obx(() => Text(
-                                          "${quantity.value}",
-                                          style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                                        )),
-                                        SizedBox(width: 10.w),
-                                        GestureDetector(
-                                          onTap: () => incrementQuantity(),
-                                          child: Icon(Icons.add, color: Colors.white, size: 20.sp),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Obx(() => Text(
-                                    "\$${totalPrice.toStringAsFixed(1)}",
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                    ),
-                                  )),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
 
-                      ),
-                    );
-                  },
-                );
-              }),
-              30.ht,
-              CustomButton(text: "Confirm", onPressed: () {
-              },),
-              // 20.ht,
-            ],
+                        ),
+                      );
+                    },
+                  );
+                }),
+                30.ht,
+                CustomButton(text: "Confirm", onPressed: () {
+                },),
+                // 20.ht,
+              ],
+            ),
           ),
         );
       },

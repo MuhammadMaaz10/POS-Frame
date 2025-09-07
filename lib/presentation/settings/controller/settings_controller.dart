@@ -79,60 +79,62 @@ class SettingsController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.all(18),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomText(
-                    text: 'Configure FDMS',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF172349),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        size: 18,
-                        color: Colors.white70,
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: 'Configure FDMS',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF172349),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 18,
+                          color: Colors.white70,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+                  ],
+                ),
+                const SizedBox(height: 20),
 
-              // Scan QR Button
-              CustomButton(
-                text: "Scan QR Code",
-                onPressed: () {
-                  Get.back();
-                  Get.to(QRScannerScreen());
+                // Scan QR Button
+                CustomButton(
+                  text: "Scan QR Code",
+                  onPressed: () {
+                    Get.back();
+                    Get.to(QRScannerScreen());
 
-                  // openQRScanner(context);
-                },
-              ),
-              const SizedBox(height: 12),
+                    // openQRScanner(context);
+                  },
+                ),
+                const SizedBox(height: 12),
 
-              // Manual Entry Button
-              CustomButton(
-                text: "Enter Manually",
-                onPressed: () {
-                  Get.back();
-                  addAPIkeyBottomSheet(context);
-                },
-              ),
-              const SizedBox(height: 20),
-            ],
+                // Manual Entry Button
+                CustomButton(
+                  text: "Enter Manually",
+                  onPressed: () {
+                    Get.back();
+                    addAPIkeyBottomSheet(context);
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         );
       },
@@ -184,81 +186,83 @@ class SettingsController extends GetxController {
           child: SingleChildScrollView(
             child: Form(
               key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Title row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CustomText(
-                        text: 'Configure FDMS',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.back(),
-                        child: Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF172349),
-                            shape: BoxShape.circle,
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Title row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomText(
+                          text: 'Configure FDMS',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                        GestureDetector(
+                          onTap: () => Get.back(),
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF172349),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              size: 18.sp,
+                              color: Colors.white70,
+                            ),
                           ),
-                          child: Icon(
-                            Icons.close,
-                            size: 18.sp,
-                            color: Colors.white70,
+                        ),
+                      ],
+                    ),
+                    20.ht,
+                    // Input fields row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            maxLines: 1,
+                            controller: clientIDController,
+                            hintText: "Client ID",
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            validator: validateClintID,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  20.ht,
-                  // Input fields row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: CustomTextField(
-                          maxLines: 1,
-                          controller: clientIDController,
-                          hintText: "Client ID",
-                          borderColor: Colors.transparent,
-                          selectedBorderColor: AppColors.buttonClr,
-                          validator: validateClintID,
+                        8.wd,
+                        Expanded(
+                          child: CustomTextField(
+                            maxLines: 1,
+                            controller: deviceIDController,
+                            hintText: "Device ID",
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            validator: validateDeviceID,
+                          ),
                         ),
-                      ),
-                      8.wd,
-                      Expanded(
-                        child: CustomTextField(
-                          maxLines: 1,
-                          controller: deviceIDController,
-                          hintText: "Device ID",
-                          borderColor: Colors.transparent,
-                          selectedBorderColor: AppColors.buttonClr,
-                          validator: validateDeviceID,
-                        ),
-                      ),
-                    ],
-                  ),
-                  10.ht,
-                  // API key input
-                  CustomTextField(
-                    controller: apiKeyController,
-                    hintText: "API Key",
-                    borderColor: Colors.transparent,
-                    selectedBorderColor: AppColors.buttonClr,
-                    validator: validateAPIkey,
-                  ),
-                  30.ht,
-                  // Save button
-                  CustomButton(
-                    text: "Save",
-                    onPressed: () => saveAPIkey(),
-                  ),
-                  20.ht,
-                ],
+                      ],
+                    ),
+                    10.ht,
+                    // API key input
+                    CustomTextField(
+                      controller: apiKeyController,
+                      hintText: "API Key",
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                      validator: validateAPIkey,
+                    ),
+                    30.ht,
+                    // Save button
+                    CustomButton(
+                      text: "Save",
+                      onPressed: () => saveAPIkey(),
+                    ),
+                    20.ht,
+                  ],
+                ),
               ),
             ),
           ),

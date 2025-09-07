@@ -8,7 +8,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:device_preview/device_preview.dart';
 import 'local_storage/company_model.dart';
 import 'local_storage/configured_fdms_model.dart';
 import 'local_storage/customer_model.dart';
@@ -21,49 +21,49 @@ import 'local_storage/vat_category_model.dart'; // Ensure this path is correct
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
 
-Future<String?> getDeviceId() async {
-  try {
-    final deviceInfo = DeviceInfoPlugin();
-    print('Platform: ${Platform.operatingSystem}');
-    if (Platform.isAndroid) {
-      final androidInfo = await deviceInfo.androidInfo;
-      print('Android ID: ${androidInfo.id}');
-      print('Android version: ${androidInfo.model}');
-      print('Android brand: ${androidInfo.brand}');
-      return androidInfo.id;
-    } else if (Platform.isIOS) {
-      final iosInfo = await deviceInfo.iosInfo;
-      print('iOS Identifier: ${iosInfo.identifierForVendor}');
-      return iosInfo.identifierForVendor;
-    } else if (Platform.isWindows) {
-      final windowsInfo = await deviceInfo.windowsInfo;
-      print('Windows Device ID: ${windowsInfo.deviceId}');
-      return windowsInfo.deviceId;
-    } else if (Platform.isMacOS) {
-      final macOsInfo = await deviceInfo.macOsInfo;
-      print('macOS System GUID: ${macOsInfo.systemGUID}');
-      return macOsInfo.systemGUID;
-    } else if (Platform.isLinux) {
-      final linuxInfo = await deviceInfo.linuxInfo;
-      print('Linux Machine ID: ${linuxInfo.machineId}');
-      return linuxInfo.machineId;
-    } else {
-      print('Unsupported platform: ${Platform.operatingSystem}');
-      return null;
-    }
-  } catch (e) {
-    print('Error getting device ID: $e');
-    return null;
-  }
-}
-
+// Future<String?> getDeviceId() async {
+//   try {
+//     final deviceInfo = DeviceInfoPlugin();
+//     print('Platform: ${Platform.operatingSystem}');
+//     if (Platform.isAndroid) {
+//       final androidInfo = await deviceInfo.androidInfo;
+//       print('Android ID: ${androidInfo.id}');
+//       print('Android version: ${androidInfo.model}');
+//       print('Android brand: ${androidInfo.brand}');
+//       return androidInfo.id;
+//     } else if (Platform.isIOS) {
+//       final iosInfo = await deviceInfo.iosInfo;
+//       print('iOS Identifier: ${iosInfo.identifierForVendor}');
+//       return iosInfo.identifierForVendor;
+//     } else if (Platform.isWindows) {
+//       final windowsInfo = await deviceInfo.windowsInfo;
+//       print('Windows Device ID: ${windowsInfo.deviceId}');
+//       return windowsInfo.deviceId;
+//     } else if (Platform.isMacOS) {
+//       final macOsInfo = await deviceInfo.macOsInfo;
+//       print('macOS System GUID: ${macOsInfo.systemGUID}');
+//       return macOsInfo.systemGUID;
+//     } else if (Platform.isLinux) {
+//       final linuxInfo = await deviceInfo.linuxInfo;
+//       print('Linux Machine ID: ${linuxInfo.machineId}');
+//       return linuxInfo.machineId;
+//     } else {
+//       print('Unsupported platform: ${Platform.operatingSystem}');
+//       return null;
+//     }
+//   } catch (e) {
+//     print('Error getting device ID: $e');
+//     return null;
+//   }
+// }
+//
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  String? deviceId = await getDeviceId();
-  deviceID = deviceId!;
-  print('Device ID: $deviceID');
+  // String? deviceId = await getDeviceId();
+  // deviceID = deviceId!;
+  // print('Device ID: $deviceID');
   final directory = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(directory.path);
 
@@ -92,7 +92,12 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]).then((_) {
-    runApp(const MyApp());
+    runApp(
+        const MyApp());
+    // DevicePreview(
+    //   enabled: true,
+    //   builder: (context) => MyApp(), // Wrap your app
+    // ));
   });
 }
 

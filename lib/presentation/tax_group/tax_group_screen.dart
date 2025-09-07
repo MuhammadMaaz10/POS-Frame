@@ -11,6 +11,8 @@ import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
+
+import '../../local_storage/vat_category_model.dart';
 class TaxGroupScreen extends StatefulWidget {
   const TaxGroupScreen({super.key});
 
@@ -57,19 +59,86 @@ class _TaxGroupScreenState extends State<TaxGroupScreen> {
                       shrinkWrap: true,
                       itemCount: controller.vatList.length,
                       itemBuilder: (context, index) {
-                        print("Tax group ---> ${controller.vatList.length}");
                         final taxGroup = controller.vatList[index];
-                        return
+                        return Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          margin: EdgeInsets.only(bottom: 10.h),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF172349),
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Tax info
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomText(
+                                    text: "Tax Name:  ${taxGroup.name}",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                  CustomText(
+                                    text: "Tax Percentage:  ${taxGroup.rate}%",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white70,
+                                  ),
+                                  CustomText(
+                                    text: "Tax ID:  ${taxGroup.taxID}",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white70,
+                                  ),
+                                ],
+                              ),
 
-                          controller.vatList.isNotEmpty ?
+                              // Action buttons
+                              Row(
+                                children: [
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(Icons.edit, color: AppColors.buttonClr),
+                                    onPressed: () => controller.editTaxGroupBottomSheet(
+                                      context,      // pass context for bottom sheet
+                                      index,        // index of the current item
+                                      taxGroup,     // the current VatCategoryModel from your list
+                                    ),
+                                  ),
+
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: AppColors.redClr),
+                                    onPressed: () => controller.confirmDelete(context, index, taxGroup),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    )
 
 
-                          customContainar(
-                              taxName: taxGroup.name,
-                              percentage: "${taxGroup.rate}%"
-
-                          ) : Center(child: Text('No tax found'));
-                      },)
+                    // ListView.builder(
+                    //   physics: NeverScrollableScrollPhysics(),
+                    //   shrinkWrap: true,
+                    //   itemCount: controller.vatList.length,
+                    //   itemBuilder: (context, index) {
+                    //     print("Tax group ---> ${controller.vatList.length}");
+                    //     final taxGroup = controller.vatList[index];
+                    //     return
+                    //
+                    //       controller.vatList.isNotEmpty ?
+                    //
+                    //
+                    //       customContainar(
+                    //           taxName: taxGroup.name,
+                    //           percentage: "${taxGroup.rate}%"
+                    //
+                    //       ) : Center(child: Text('No tax found'));
+                    //   },)
 
                   ],
                 ),

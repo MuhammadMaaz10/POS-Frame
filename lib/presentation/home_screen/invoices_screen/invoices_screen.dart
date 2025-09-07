@@ -74,22 +74,15 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
               }
               return Expanded(
                 child: ListView.separated(
-                  // physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
+                  // reverse: true,
                   itemBuilder: (context, index) {
                     final item = homeController.filteredInvoiceList[index];
-                    // print("item is ${item.items[0].hsCode}");
-                    // Calculate total price for this invoice
-                    final invoiceTotal = item.items.fold<double>(
-                      0.0,
-                          (sum, item) => sum + (double.tryParse(item.price) ?? 0.0),
-                    );
+                    final invoiceTotal = item.items.fold<double>(0.0,
+                          (sum, item) => sum + (double.tryParse(item.price) ?? 0.0),);
                     print("singleInvoiceQrURL ---> ${singleInvoiceQrURL}");
-                    // print("invoice type ---> ${item.invoiceType}");
-                    // print("invoice url ---> ${item.qrUrl}");
 
-                    // homeController.createReceipt(invoiceModel: homeController.filteredInvoiceList.last, index: 0);
-                    return Obx(() {
+                   return Obx(() {
                       final qrUrl = index < homeController.qrUrlList.length
                           ? homeController.qrUrlList[index]
                           : null;
@@ -285,7 +278,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                  // onPressed: () => Get.to(InvoiceScreenPdfView()),
                  onPressed: () => launchQR(qrUrl ?? singleInvoiceQrURL),
                ),
-               30.ht,
+               40.ht,
              ],
            ),
          );

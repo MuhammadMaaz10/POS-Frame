@@ -111,14 +111,16 @@ class _HomeScreenMainState extends State<HomeScreenMain>
           ),
         ),
       ),
-      body: TabBarView(
-        physics: AlwaysScrollableScrollPhysics(),
-        controller: _tabController,
-        children: [
-          InvoicesScreen(),
-          ItemsScreen(),
-          CustomersScreen(),
-        ],
+      body: SafeArea(
+        child: TabBarView(
+          physics: AlwaysScrollableScrollPhysics(),
+          controller: _tabController,
+          children: [
+            InvoicesScreen(),
+            ItemsScreen(),
+            CustomersScreen(),
+          ],
+        ),
       ),
       floatingActionButton: SizedBox(
         width: 56.w,

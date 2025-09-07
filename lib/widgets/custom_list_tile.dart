@@ -124,19 +124,11 @@ class InvoiceCustomListTile extends StatelessWidget {
       title: Text(titleText!, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp)),
       subtitleTextStyle: TextStyle(fontSize: 12.sp, color: AppColors.smallTextClr,fontWeight: FontWeight.w400,),
       subtitle: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              CustomText(text: "Invoice ID: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
-              CustomText(text: "$invoiceID",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w500,),
-            ],
-          ),
-          date != null ? Row(
-            children: [
-              CustomText(text: "Date: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
-              CustomText(text: "$date",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w500,), ],
-          ) : SizedBox(),
+          CustomText(text: "Invoice ID: $invoiceID",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
+          date != null ? CustomText(text: "Date: $date",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,) : SizedBox(),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -152,16 +144,15 @@ class InvoiceCustomListTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          paid!
-              ? CustomText(text: "Processed ",fontSize: 12,color: Colors.green,fontWeight: FontWeight.w500,)
-              : CustomText(text: "Pending ",fontSize: 12,color: Colors.red,fontWeight: FontWeight.w500,),
-          // paid! ? SvgPicture.asset(AppImages.unpaid) : SvgPicture.asset(AppImages.paid),
-          Text(
-            "\$$amount",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-            ),
+          CustomText(
+            text: paid! ? "Processed ":"Pending ",
+            fontSize: 12,
+            color: paid! ? Colors.green : AppColors.redClr,
+            fontWeight: FontWeight.w500,),
+          CustomText(
+            text: "\$$amount",
+              // fontSize: 14.sp,
+              fontWeight: FontWeight.w700,
           ),
         ],
       )

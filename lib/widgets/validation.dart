@@ -13,6 +13,13 @@ String? validateEmail(String? value) {
   return null;
 }
 
+String? validateNoteField(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Note is required for Credit/Debit Note';
+  }
+  return null;
+}
+
 
 String? validatePassword(String? value) {
   if (value == null || value.isEmpty) {

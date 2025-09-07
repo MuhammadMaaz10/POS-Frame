@@ -82,13 +82,20 @@ class FiscalDeviceManagementController extends GetxController {
 
   /// Setters loading for fiscalDay API
   var isLoading = false;
-  void _setLoading(bool value) => isLoading = value;
+  void _setLoading(bool value) {
+    isLoading = value;
+    update();  // notify GetBuilder
+    print("loading state --------------> ${isLoading}");
+  }
+
+
 
   /// Setters loading for openDay API
   var isLoading2 = false;
   void _setLoading2(bool value) {
     isLoading2 = value;
     update(); // <-- This triggers the GetBuilder to rebuild
+    print("loading state --------------> ${isLoading2}");
   }
 
   /// Setters loading for closeDay API
@@ -205,7 +212,10 @@ class FiscalDeviceManagementController extends GetxController {
       print("🌐 API URL: $url");
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          "apiKey": "6ec430c2-9aa1-456a-a265-271c517d31da"
+        },
       );
 
       print("📡 closeDay  Status Code: ${response.statusCode}");

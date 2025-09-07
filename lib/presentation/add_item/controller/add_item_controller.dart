@@ -153,91 +153,93 @@ class AddItemController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 14.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.h,horizontal: 14.w),
-                child: GestureDetector(
-                  onTap: () => taxController.addTaxGroupBottomSheet(context),
-                  child: DottedBorder(
-                    color: Color(0xFF343A40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          color: Colors.white70,
-                        ),
-                        4.wd,
-                        CustomText(
-                          text: 'Add New',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white70,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: vatList.length,
-                itemBuilder: (context, index) {
-                  final taxGroup = vatList[index];
-                  return
-
-
-
-                  vatList.isNotEmpty ?
-
-
-                    GestureDetector(
-                    onTap: () {
-                      vatCategoryNameController.text = taxGroup.name;
-                      vatCategoryPercentageController.text = taxGroup.rate;
-                      vatCategoryTaxIDController.text = taxGroup.taxID;
-                      Navigator.pop(context);
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 14.w),
-                      child: Column(
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h,horizontal: 14.w),
+                  child: GestureDetector(
+                    onTap: () => taxController.addTaxGroupBottomSheet(context),
+                    child: DottedBorder(
+                      color: Color(0xFF343A40),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // 14.wd,
-                                CustomText(
-                                  text: taxGroup.name,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white,
-                                ),
-
-                                CustomText(
-                                  text: taxGroup.taxID.toString(),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white,
-                                ),
-
-                                CustomText(
-                                  text: "${taxGroup.rate}%",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white70,
-                                ),
-                                // 14.wd,
-                              ]),
-                          Divider(color: Color(0xFF343A40),),
+                          Icon(
+                            Icons.add,
+                            color: Colors.white70,
+                          ),
+                          4.wd,
+                          CustomText(
+                            text: 'Add New',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
                         ],
                       ),
                     ),
-                  ) : Text('No tax found');
-                },
-              ),
-            ],
+                  ),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: vatList.length,
+                  itemBuilder: (context, index) {
+                    final taxGroup = vatList[index];
+                    return
+
+
+
+                    vatList.isNotEmpty ?
+
+
+                      GestureDetector(
+                      onTap: () {
+                        vatCategoryNameController.text = taxGroup.name;
+                        vatCategoryPercentageController.text = taxGroup.rate;
+                        vatCategoryTaxIDController.text = taxGroup.taxID;
+                        Navigator.pop(context);
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 14.w),
+                        child: Column(
+                          children: [
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // 14.wd,
+                                  CustomText(
+                                    text: taxGroup.name,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+
+                                  CustomText(
+                                    text: taxGroup.taxID.toString(),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+
+                                  CustomText(
+                                    text: "${taxGroup.rate}%",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white70,
+                                  ),
+                                  // 14.wd,
+                                ]),
+                            Divider(color: Color(0xFF343A40),),
+                          ],
+                        ),
+                      ),
+                    ) : Text('No tax found');
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -255,80 +257,82 @@ class AddItemController extends GetxController {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 14.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.h,horizontal: 14.w),
-                child: GestureDetector(
-                  onTap: () => taxController.addTaxGroupBottomSheet(context),
-                  child: DottedBorder(
-                    color: Color(0xFF343A40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          color: Colors.white70,
-                        ),
-                        4.wd,
-                        CustomText(
-                          text: 'Add New',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white70,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: vatList.length,
-                itemBuilder: (context, index) {
-                  final taxGroup = vatList[index];
-                  return
-
-                  vatList.isNotEmpty ?
-
-                    GestureDetector(
-                    onTap: () {
-                      editVatCategoryNameController.text = taxGroup.name;
-                      editVatCategoryPercentageController.text = taxGroup.rate;
-                      editVatCategoryTaxIDController.text = taxGroup.taxID;
-                      Navigator.pop(context);
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 14.w),
-                      child: Column(
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h,horizontal: 14.w),
+                  child: GestureDetector(
+                    onTap: () => taxController.addTaxGroupBottomSheet(context),
+                    child: DottedBorder(
+                      color: Color(0xFF343A40),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // 14.wd,
-                                CustomText(
-                                  text: taxGroup.name,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white,
-                                ),
-                                CustomText(
-                                  text: "${taxGroup.rate}%",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white70,
-                                ),
-                                // 14.wd,
-                              ]),
-                          Divider(color: Color(0xFF343A40),),
+                          Icon(
+                            Icons.add,
+                            color: Colors.white70,
+                          ),
+                          4.wd,
+                          CustomText(
+                            text: 'Add New',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
                         ],
                       ),
                     ),
-                  ) : Text('No tax found');
-                },
-              ),
-            ],
+                  ),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: vatList.length,
+                  itemBuilder: (context, index) {
+                    final taxGroup = vatList[index];
+                    return
+
+                    vatList.isNotEmpty ?
+
+                      GestureDetector(
+                      onTap: () {
+                        editVatCategoryNameController.text = taxGroup.name;
+                        editVatCategoryPercentageController.text = taxGroup.rate;
+                        editVatCategoryTaxIDController.text = taxGroup.taxID;
+                        Navigator.pop(context);
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 14.w),
+                        child: Column(
+                          children: [
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // 14.wd,
+                                  CustomText(
+                                    text: taxGroup.name,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+                                  CustomText(
+                                    text: "${taxGroup.rate}%",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white70,
+                                  ),
+                                  // 14.wd,
+                                ]),
+                            Divider(color: Color(0xFF343A40),),
+                          ],
+                        ),
+                      ),
+                    ) : Text('No tax found');
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },

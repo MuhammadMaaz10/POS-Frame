@@ -34,114 +34,67 @@ class AddInvoicesScreen extends StatelessWidget {
           child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 20.h),
-          child: GetBuilder<AddInvoicesController>(builder: (controller) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                TitleAndInput(
-                  controller: controller.invoiceIDController,
-                  titletext: "Invoice Number",
-                  labeltext: controller.invoiceIDController.text,
-                  suffixtext: "Auto Generated",
-                  isdisabled: true,
-                ),
-                16.ht,
-
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: CustomText(
-                    text: "Currency ",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white70,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 20.h),
+            child: GetBuilder<AddInvoicesController>(builder: (controller) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  TitleAndInput(
+                    controller: controller.invoiceIDController,
+                    titletext: "Invoice Number",
+                    labeltext: controller.invoiceIDController.text,
+                    suffixtext: "Auto Generated",
+                    isdisabled: true,
                   ),
-                ),
-                10.ht,
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w,),
-                  decoration: BoxDecoration(
-                      color: AppColors.secondaryClr,
-                      borderRadius: BorderRadius.circular(8.r)
-                  ),
-                  child: DropdownButton<String>(
-                    dropdownColor: AppColors.bgClr,
-                    isExpanded: true,
-                    underline: SizedBox(),
-                    value: controller.selectedCurrency.value,
-                    items: ['USD', 'ZWG'].map((currency) {
-                      return DropdownMenuItem<String>(
-                        value: currency,
-                        child: CustomText(text:currency,fontWeight: FontWeight.w500,fontSize: 14.sp,),
-                      );
-                    }).toList(),
-                    onChanged: controller.updateSelectedCurrency,
-                  ),
-                ),
+                  16.ht,
 
-                16.ht,
-                TitleAndInput(
-                  ontap: () => controller.showCustomerBottomSheet(context),
-                  titletext: "Customer",
-                  labeltext: "",
-                  suffixtext:
-                  controller.selectedCustomer.value != null ? "Change" : "",
-                  underline: true,
-                  secondary: GestureDetector(
-                    onTap: () => controller.showCustomerBottomSheet(context),
-                    child: Obx(
-                          () => controller.selectedCustomer.value == null
-                          ? Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 20.h),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: AppColors.secondaryClr,
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              size: 20.sp,
-                              Icons.person_add_alt_1_sharp,
-                              color: Colors.white70,
-                            ),
-                            7.ht,
-                            CustomText(
-                              text: "Select Customer",
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white70,
-                            ),
-                          ],
-                        ),
-                      )
-                          : ItemsCustomListTile(
-
-                        leftPadding: 15.w,
-                        titleText: controller.selectedCustomer.value!.name,
-                        subTitleText:
-                        controller.selectedCustomer.value!.email,
-                        isTrailing: false,
-                      ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: CustomText(
+                      text: "Currency ",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
                     ),
                   ),
-                ),
+                  10.ht,
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w,),
+                    decoration: BoxDecoration(
+                        color: AppColors.secondaryClr,
+                        borderRadius: BorderRadius.circular(8.r)
+                    ),
+                    child: DropdownButton<String>(
+                      dropdownColor: AppColors.bgClr,
+                      isExpanded: true,
+                      underline: SizedBox(),
+                      value: controller.selectedCurrency.value,
+                      items: ['USD', 'ZWG'].map((currency) {
+                        return DropdownMenuItem<String>(
+                          value: currency,
+                          child: CustomText(text:currency,fontWeight: FontWeight.w500,fontSize: 14.sp,),
+                        );
+                      }).toList(),
+                      onChanged: controller.updateSelectedCurrency,
+                    ),
+                  ),
 
-                16.ht,
-
-                TitleAndInput(
-                  ontap: () => controller.showItemBottomSheet(context),
-                  titletext: "Item",
-                  labeltext: "",
-                  suffixtext: controller.selectedItemsWithQuantity.isNotEmpty ? "Change" : "",
-                  underline: true,
-                  secondary: GestureDetector(
-                    onTap: () => controller.showItemBottomSheet(context),
-                    child: Obx(() {
-                      if (controller.selectedItemsWithQuantity.isEmpty) {
-                        return Container(
+                  16.ht,
+                  TitleAndInput(
+                    ontap: () => controller.showCustomerBottomSheet(context),
+                    titletext: "Customer",
+                    labeltext: "",
+                    suffixtext:
+                    controller.selectedCustomer.value != null ? "Change" : "",
+                    underline: true,
+                    secondary: GestureDetector(
+                      onTap: () => controller.showCustomerBottomSheet(context),
+                      child: Obx(
+                            () => controller.selectedCustomer.value == null
+                            ? Container(
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(vertical: 20.h),
                           decoration: BoxDecoration(
@@ -150,101 +103,236 @@ class AddInvoicesScreen extends StatelessWidget {
                           ),
                           child: Column(
                             children: [
-                              SvgPicture.asset(AppImages.itemIcon, height: 16.6.h),
+                              Icon(
+                                size: 20.sp,
+                                Icons.person_add_alt_1_sharp,
+                                color: Colors.white70,
+                              ),
                               7.ht,
                               CustomText(
-                                text: "Select Item",
+                                text: "Select Customer",
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white70,
                               ),
                             ],
                           ),
-                        );
-                      }
+                        )
+                            : ItemsCustomListTile(
 
-                      return Column(
-                        children: controller.selectedItemsWithQuantity.entries.map((entry) {
-                          final item = entry.key;
-                          final qty = entry.value;
+                          leftPadding: 15.w,
+                          titleText: controller.selectedCustomer.value!.name,
+                          subTitleText:
+                          controller.selectedCustomer.value!.email,
+                          isTrailing: false,
+                        ),
+                      ),
+                    ),
+                  ),
 
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: ItemsCustomListTile(
-                              imageUrl: null,
-                              leftPadding: 10.w,
-                              titleText: item.itemName,
-                              subTitleText: "${item.itemCategory} • Qty: $qty",
-                              amount: item.unitPrice,
-                              isTrailing: true,
+                  16.ht,
+
+                  TitleAndInput(
+                    ontap: () => controller.showItemBottomSheet(context),
+                    titletext: "Item",
+                    labeltext: "",
+                    suffixtext: controller.selectedItemsWithQuantity.isNotEmpty ? "Change" : "",
+                    underline: true,
+                    secondary: GestureDetector(
+                      onTap: () => controller.showItemBottomSheet(context),
+                      child: Obx(() {
+                        if (controller.selectedItemsWithQuantity.isEmpty) {
+                          return Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(vertical: 20.h),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: AppColors.secondaryClr,
+                            ),
+                            child: Column(
+                              children: [
+                                SvgPicture.asset(AppImages.itemIcon, height: 16.6.h),
+                                7.ht,
+                                CustomText(
+                                  text: "Select Item",
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white70,
+                                ),
+                              ],
                             ),
                           );
-                        }).toList(),
-                      );
-                    }),
-                  ),
-                ),
+                        }
 
-                16.ht,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: size.width * 0.44,
-                      child: TitleAndInput(
-                        suffixIcon: Icons.calendar_month,
-                        controller: controller.dateController,
-                        titletext: "Invoice Date",
-                        labeltext: controller.dateController.text.isEmpty
-                            ? "Select Date"
-                            : controller.dateController.text,
-                        ontap: () => controller.selectDate(context, isInvoiceDate: true),
+                        return Column(
+                          children: controller.selectedItemsWithQuantity.entries.map((entry) {
+                            final item = entry.key;
+                            final qty = entry.value;
 
-                      ),
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 10.h),
+                              child: ItemsCustomListTile(
+                                imageUrl: null,
+                                leftPadding: 10.w,
+                                titleText: item.itemName,
+                                subTitleText: "${item.itemCategory} • Qty: $qty",
+                                amount: item.unitPrice,
+                                isTrailing: true,
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
                     ),
-                    10.wd,
-                    SizedBox(
-                      width: size.width * 0.44,
-                      child: TitleAndInput(
-                        suffixIcon: Icons.calendar_month,
-                        controller: controller.dueDateController,
-                        titletext: "Due Date",
-                        labeltext: controller.dueDateController.text.isEmpty
-                            ? "Select Date"
-                            : controller.dueDateController.text,
-                        ontap: () =>
-                            controller.selectDate(context, isInvoiceDate: false),
-                      ),
-                    ),
-                  ],
-                ),
-                16.ht,
-                TitleAndInput(
-                  controller: controller.notesController,
-                  titletext: "Notes",
-                  labeltext: "Enter notes",
-                  minLines: 4,
-                ),
-                16.ht,
-                TitleAndInput(
-                  controller: controller.addressController,
-                  titletext: "Terms and Conditions",
-                  labeltext: "Enter terms and conditions",
-                  minLines: 4,
-                ),
-                60.ht,
-                Padding(
-                  padding: EdgeInsets.only(left: 174.w),
-                  child: CustomButton(
-                    text: "Generate Invoice",
-                    onPressed: () {
-                      controller.createInvoice();
-                    }
                   ),
-                ),
-              ],
-            );
-          },),
+
+                  16.ht,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Invoice Date
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: "Invoice Date",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                      ),
+                      10.ht,
+                          SizedBox(
+                            width: size.width * 0.44,
+                            child: GestureDetector(
+                              onTap: () => controller.selectDate(context, isInvoiceDate: true),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF172349),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.transparent),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      controller.dateController.text.isEmpty
+                                          ? "Select Date"
+                                          : controller.dateController.text,
+                                      style: TextStyle(color: AppColors.white,fontSize: 14.sp, fontWeight: FontWeight.w500),
+                                    ),
+                                    Icon(Icons.calendar_month, color: Colors.white70,size: 18.sp,),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      10.wd,
+
+                      // Due Date
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: "Due Date",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                      ),
+                      10.ht,
+                          SizedBox(
+                            width: size.width * 0.44,
+                            child: GestureDetector(
+                              onTap: () => controller.selectDate(context, isInvoiceDate: false),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF172349),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.transparent),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      controller.dueDateController.text.isEmpty
+                                          ? "Select Date"
+                                          : controller.dueDateController.text,
+                                      style: TextStyle(color: AppColors.white,fontSize: 14.sp, fontWeight: FontWeight.w500),
+                                    ),
+                                    Icon(Icons.calendar_month, color: Colors.white70,size: 18.sp,),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     SizedBox(
+                  //       width: size.width * 0.44,
+                  //       child: TitleAndInput(
+                  //         suffixIcon: Icons.calendar_month,
+                  //         controller: controller.dateController,
+                  //         titletext: "Invoice Date",
+                  //         labeltext: controller.dateController.text.isEmpty
+                  //             ? "Select Date"
+                  //             : controller.dateController.text,
+                  //         ontap: () => controller.selectDate(context, isInvoiceDate: true),
+                  //
+                  //       ),
+                  //     ),
+                  //     10.wd,
+                  //     SizedBox(
+                  //       width: size.width * 0.44,
+                  //       child: TitleAndInput(
+                  //         suffixIcon: Icons.calendar_month,
+                  //         controller: controller.dueDateController,
+                  //         titletext: "Due Date",
+                  //         labeltext: controller.dueDateController.text.isEmpty
+                  //             ? "Select Date"
+                  //             : controller.dueDateController.text,
+                  //         ontap: () =>
+                  //             controller.selectDate(context, isInvoiceDate: false),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  16.ht,
+                  TitleAndInput(
+                    controller: controller.notesController,
+                    titletext: "Notes",
+                    labeltext: "Enter notes",
+                    minLines: 4,
+                  ),
+                  16.ht,
+                  TitleAndInput(
+                    controller: controller.addressController,
+                    titletext: "Terms and Conditions",
+                    labeltext: "Enter terms and conditions",
+                    minLines: 4,
+                  ),
+                  60.ht,
+                  Padding(
+                    padding: EdgeInsets.only(left: 174.w),
+                    child: CustomButton(
+                      text: "Generate Invoice",
+                      onPressed: () {
+                        controller.createInvoice();
+                      }
+                    ),
+                  ),
+                ],
+              );
+            },),
+          ),
         ),
       ),
     );

@@ -7,13 +7,16 @@ import 'package:frame_virtual_fiscilation/widgets/app_logo.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FiscalDeviceManagementScreen extends StatelessWidget {
-  const FiscalDeviceManagementScreen({Key? key}) : super(key: key);
+   FiscalDeviceManagementScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Get.put(FiscalDeviceManagementController()).getFiscalDayData();
+
 
     return Scaffold(
       backgroundColor: AppColors.bgClr,
@@ -30,14 +33,16 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
           child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
         ),
         actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 18.w),
-            child: syncIcon(
-              onTap: () {
-                // controller.processReceiptsSequentially();
-              },
-            ),
-          )
+          GetBuilder<FiscalDeviceManagementController>(builder: (controller) {
+            return Padding(
+              padding: EdgeInsets.only(right: 18.w),
+              child: syncIcon(
+                onTap: () {
+                  controller.getFiscalDayData();
+                },
+              ),
+            );
+          },)
         ],
       ),
       body: SafeArea(
@@ -93,23 +98,39 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                           ),
                         ),
                       50.ht,
-                      Obx(() {
-                        return Center(
-                          child: Skeletonizer(
-                            enabled: controller.isLoading,
-                            containersColor: AppColors.bgClr,
-                            child: Text(
-                              controller.countdownText.value,
-                              // countDownTimerFromAPI,
-                              style: const TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.green,
-                              ),
+
+                      Center(
+                        child: Skeletonizer(
+                          enabled: controller.isLoading,
+                          containersColor: AppColors.bgClr,
+                          child: Text(
+                            controller.countdownText.value,
+                            // countDownTimerFromAPI,
+                            style: const TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.green,
                             ),
                           ),
-                        );
-                      }),
+                        ),
+                      ),
+                      // Obx(() {
+                      //   return Center(
+                      //     child: Skeletonizer(
+                      //       enabled: controller.isLoading,
+                      //       containersColor: AppColors.bgClr,
+                      //       child: Text(
+                      //         controller.countdownText.value,
+                      //         // countDownTimerFromAPI,
+                      //         style: const TextStyle(
+                      //           fontSize: 36,
+                      //           fontWeight: FontWeight.bold,
+                      //           color: AppColors.green,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   );
+                      // }),
                       const Spacer(),
                       // Progress Bar at the bottom
                       Obx(() {
@@ -136,7 +157,7 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                 CustomText(
                     text: "Once day is closed, invoices can’t be created.",
                     color: Colors.white70),
-                SizedBox(height: 278.h),
+                SizedBox(height: 235.h),
                 CustomActionButton(
                   loading: fiscalDayStatus != "FiscalDayOpened"
                       ? controller.isLoading2
@@ -145,35 +166,18 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                   color: fiscalDayStatus != "FiscalDayOpened" ?  AppColors.green : AppColors.redClr,
                   icon:fiscalDayStatus != "FiscalDayOpened" ? Icons.play_arrow : Icons.stop,
                   onTap: () {
+                    final nextDay = (controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo ?? 0) + 1;
+
+
+
                     fiscalDayStatus != "FiscalDayOpened"
-                        ? controller.openDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString())
+                        ? controller.openDay(day: nextDay.toString())
                         : controller.closeDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString());
                     print("${controller.isLoading3}");
                   },
                 ),
-                // Row(
-                //   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                //   children: [
-                //     CustomActionButton(
-                //       text: controller.isLoading3 == true ?  "Loading...." :"Close Day",
-                //       color: AppColors.redClr,
-                //       icon: Icons.stop,
-                //       onTap: () {
-                //         controller.closeDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString());
-                //         print("${controller.isLoading3}");
-                //       },
-                //     ),
-                //     8.wd,
-                //     CustomActionButton(
-                //       text: controller.isLoading2 == true ?  "Loading...." : "Open Day ",
-                //       color: AppColors.green,
-                //       icon: Icons.play_arrow,
-                //       onTap: () {
-                //         controller.openDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString());
-                //       },
-                //     ),
-                //   ],
-                // ),
+                SizedBox(height: 20.h),
+                SupportText(),
                 SizedBox(height: 20.h),
               ],
             );
@@ -233,3 +237,48 @@ class CustomActionButton extends StatelessWidget {
     );
   }
 }
+
+class SupportText extends StatelessWidget {
+  const SupportText({super.key});
+
+  Future<void> _launchEmail() async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'support@frame.co.zw',
+      queryParameters: {
+        'subject': 'Support Request',
+        'body': 'Hello, I need help with...',
+      },
+    );
+
+    if (!await launchUrl(
+      emailUri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $emailUri');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: TextStyle(color: Colors.white70, fontSize: 14.sp, fontWeight: FontWeight.normal),
+        children: [
+          const TextSpan(text: "Please contact support at ",style: TextStyle(color: Colors.white70)),
+          TextSpan(
+            text: "support@frame.co.zw",
+            style: const TextStyle(
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+            ),
+            recognizer: TapGestureRecognizer()..onTap = _launchEmail,
+          ),
+          const TextSpan(text: " if you experience any challenges.",style: TextStyle(color: Colors.white70)),
+        ],
+      ),
+    );
+  }
+}
+

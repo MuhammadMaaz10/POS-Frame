@@ -55,11 +55,11 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () => Get.to(TaxGroupScreen()),
                     iconPath: AppImages.taxIcon
                   ),
-                  customTile(
-                      onTap: () => Get.to(PrinterScreen()),
-                    title: "Bluetooth Printer Setup",
-                      iconPath: AppImages.printerIcon
-                  ),
+                  // customTile(
+                  //     onTap: () => Get.to(PrinterScreen()),
+                  //   title: "Bluetooth Printer Setup",
+                  //     iconPath: AppImages.printerIcon
+                  // ),
                   customTile(
                     title: "Configure FDMS",
                     onTap: () {
@@ -100,7 +100,7 @@ class SettingsScreen extends StatelessWidget {
                 ],
               )
             ),
-              220.ht,
+              250.ht,
             GestureDetector(
               onTap: () => controller.logout(),
               child: Container(
