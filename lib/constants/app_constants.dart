@@ -8,6 +8,7 @@ String singleInvoiceQrURL = '';
  var fiscalDayStatus = "";
  var fiscalDayNumber = "";
  var fiscalDeviceID = "";
+ var fiscalApiKey = "";
  var lastInvoiceNumber = "";
  var countDownTimerFromAPI = "";
 

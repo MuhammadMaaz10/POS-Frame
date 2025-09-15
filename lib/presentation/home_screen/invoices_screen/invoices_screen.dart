@@ -54,14 +54,11 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                   color: Colors.white70,
                   fontWeight: FontWeight.w500,
                 ),
-                GestureDetector(
-                  onTap: () => homeController.clearQrUrlsFromHive(),
-                  child: CustomText(
-                      text: fiscalDayStatus,
-                    color: Colors.white,
-                    // fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                CustomText(
+                    text: fiscalDayStatus,
+                  color: Colors.white,
+                  // fontSize: 18,
+                  fontWeight: FontWeight.w700,
                 ),
               ],
             ),

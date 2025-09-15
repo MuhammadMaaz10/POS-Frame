@@ -1,3 +1,162 @@
+
+class FiscalDeviceModel {
+  ServerResponse? serverResponse;
+  String? lastUsedInvoiceNumber;
+  String? timeUntilDayClosure;
+
+  FiscalDeviceModel({
+    this.serverResponse,
+    this.lastUsedInvoiceNumber,
+    this.timeUntilDayClosure,
+  });
+
+  /// Factory to create instance from JSON
+  factory FiscalDeviceModel.fromJson(Map<String, dynamic> json) {
+    return FiscalDeviceModel(
+      serverResponse: json['serverResponse'] != null
+          ? ServerResponse.fromJson(json['serverResponse'])
+          : null,
+      lastUsedInvoiceNumber: json['lastUsedInvoiceNumber'],
+      timeUntilDayClosure: json['timeUntilDayClosure'],
+    );
+  }
+
+  /// Convert instance to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'serverResponse': serverResponse?.toJson(),
+      'lastUsedInvoiceNumber': lastUsedInvoiceNumber,
+      'timeUntilDayClosure': timeUntilDayClosure,
+    };
+  }
+}
+
+class ServerResponse {
+  String? fiscalDayStatus;
+  String? fiscalDayReconciliationMode;
+  FiscalDayServerSignature? fiscalDayServerSignature;
+  String? fiscalDayClosed;
+  List<int>? fiscalDayCounter; // ✅ changed from int? to List<int>?
+  int? lastFiscalDayNo;
+  int? lastReceiptGlobalNo;
+  List<FiscalDayDocumentQuantity>? fiscalDayDocumentQuantities; // ✅ changed
+  String? operationID;
+  dynamic fiscalDayClosingErrorCode;
+
+  ServerResponse({
+    this.fiscalDayStatus,
+    this.fiscalDayReconciliationMode,
+    this.fiscalDayServerSignature,
+    this.fiscalDayClosed,
+    this.fiscalDayCounter,
+    this.lastFiscalDayNo,
+    this.lastReceiptGlobalNo,
+    this.fiscalDayDocumentQuantities,
+    this.operationID,
+    this.fiscalDayClosingErrorCode,
+  });
+
+  factory ServerResponse.fromJson(Map<String, dynamic> json) {
+    return ServerResponse(
+      fiscalDayStatus: json['fiscalDayStatus'],
+      fiscalDayReconciliationMode: json['fiscalDayReconciliationMode'],
+      fiscalDayServerSignature: json['fiscalDayServerSignature'] != null
+          ? FiscalDayServerSignature.fromJson(json['fiscalDayServerSignature'])
+          : null,
+      fiscalDayClosed: json['fiscalDayClosed'],
+      fiscalDayCounter: (json['fiscalDayCounter'] as List?)
+          ?.map((e) => e as int)
+          .toList(),
+      lastFiscalDayNo: json['lastFiscalDayNo'],
+      lastReceiptGlobalNo: json['lastReceiptGlobalNo'],
+      fiscalDayDocumentQuantities: (json['fiscalDayDocumentQuantities'] as List?)
+          ?.map((e) => FiscalDayDocumentQuantity.fromJson(e))
+          .toList(),
+      operationID: json['operationID'],
+      fiscalDayClosingErrorCode: json['fiscalDayClosingErrorCode'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fiscalDayStatus': fiscalDayStatus,
+      'fiscalDayReconciliationMode': fiscalDayReconciliationMode,
+      'fiscalDayServerSignature': fiscalDayServerSignature?.toJson(),
+      'fiscalDayClosed': fiscalDayClosed,
+      'fiscalDayCounter': fiscalDayCounter,
+      'lastFiscalDayNo': lastFiscalDayNo,
+      'lastReceiptGlobalNo': lastReceiptGlobalNo,
+      'fiscalDayDocumentQuantities':
+      fiscalDayDocumentQuantities?.map((e) => e.toJson()).toList(),
+      'operationID': operationID,
+      'fiscalDayClosingErrorCode': fiscalDayClosingErrorCode,
+    };
+  }
+}
+
+class FiscalDayServerSignature {
+  String? certificateThumbprint;
+  String? hash;
+  String? signature;
+
+  FiscalDayServerSignature({
+    this.certificateThumbprint,
+    this.hash,
+    this.signature,
+  });
+
+  factory FiscalDayServerSignature.fromJson(Map<String, dynamic> json) {
+    return FiscalDayServerSignature(
+      certificateThumbprint: json['certificateThumbprint'],
+      hash: json['hash'],
+      signature: json['signature'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'certificateThumbprint': certificateThumbprint,
+      'hash': hash,
+      'signature': signature,
+    };
+  }
+}
+
+class FiscalDayDocumentQuantity {
+  String? receiptType;
+  String? receiptCurrency;
+  int? receiptQuantity;
+  double? receiptTotalAmount;
+
+  FiscalDayDocumentQuantity({
+    this.receiptType,
+    this.receiptCurrency,
+    this.receiptQuantity,
+    this.receiptTotalAmount,
+  });
+
+  factory FiscalDayDocumentQuantity.fromJson(Map<String, dynamic> json) {
+    return FiscalDayDocumentQuantity(
+      receiptType: json['receiptType'],
+      receiptCurrency: json['receiptCurrency'],
+      receiptQuantity: json['receiptQuantity'],
+      receiptTotalAmount: (json['receiptTotalAmount'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'receiptType': receiptType,
+      'receiptCurrency': receiptCurrency,
+      'receiptQuantity': receiptQuantity,
+      'receiptTotalAmount': receiptTotalAmount,
+    };
+  }
+}
+
+
+
+
 // class FiscalDeviceModel {
 //   ServerResponse? serverResponse;
 //   var lastUsedInvoiceNumber;
@@ -107,123 +266,4 @@
 //     return data;
 //   }
 // }
-
-
-class FiscalDeviceModel {
-  ServerResponse? serverResponse;
-  String? lastUsedInvoiceNumber;
-  String? timeUntilDayClosure;
-
-  FiscalDeviceModel({
-    this.serverResponse,
-    this.lastUsedInvoiceNumber,
-    this.timeUntilDayClosure,
-  });
-
-  /// Factory to create instance from JSON
-  factory FiscalDeviceModel.fromJson(Map<String, dynamic> json) {
-    return FiscalDeviceModel(
-      serverResponse: json['serverResponse'] != null
-          ? ServerResponse.fromJson(json['serverResponse'])
-          : null,
-      lastUsedInvoiceNumber: json['lastUsedInvoiceNumber'],
-      timeUntilDayClosure: json['timeUntilDayClosure'],
-    );
-  }
-
-  /// Convert instance to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'serverResponse': serverResponse?.toJson(),
-      'lastUsedInvoiceNumber': lastUsedInvoiceNumber,
-      'timeUntilDayClosure': timeUntilDayClosure,
-    };
-  }
-}
-
-class ServerResponse {
-  String? fiscalDayStatus;
-  String? fiscalDayReconciliationMode;
-  FiscalDayServerSignature? fiscalDayServerSignature;
-  String? fiscalDayClosed;
-  int? fiscalDayCounter;
-  int? lastFiscalDayNo;
-  int? lastReceiptGlobalNo;
-  dynamic fiscalDayDocumentQuantities;
-  String? operationID;
-  dynamic fiscalDayClosingErrorCode;
-
-  ServerResponse({
-    this.fiscalDayStatus,
-    this.fiscalDayReconciliationMode,
-    this.fiscalDayServerSignature,
-    this.fiscalDayClosed,
-    this.fiscalDayCounter,
-    this.lastFiscalDayNo,
-    this.lastReceiptGlobalNo,
-    this.fiscalDayDocumentQuantities,
-    this.operationID,
-    this.fiscalDayClosingErrorCode,
-  });
-
-  factory ServerResponse.fromJson(Map<String, dynamic> json) {
-    return ServerResponse(
-      fiscalDayStatus: json['fiscalDayStatus'],
-      fiscalDayReconciliationMode: json['fiscalDayReconciliationMode'],
-      fiscalDayServerSignature: json['fiscalDayServerSignature'] != null
-          ? FiscalDayServerSignature.fromJson(json['fiscalDayServerSignature'])
-          : null,
-      fiscalDayClosed: json['fiscalDayClosed'],
-      fiscalDayCounter: json['fiscalDayCounter'],
-      lastFiscalDayNo: json['lastFiscalDayNo'],
-      lastReceiptGlobalNo: json['lastReceiptGlobalNo'],
-      fiscalDayDocumentQuantities: json['fiscalDayDocumentQuantities'],
-      operationID: json['operationID'],
-      fiscalDayClosingErrorCode: json['fiscalDayClosingErrorCode'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'fiscalDayStatus': fiscalDayStatus,
-      'fiscalDayReconciliationMode': fiscalDayReconciliationMode,
-      'fiscalDayServerSignature': fiscalDayServerSignature?.toJson(),
-      'fiscalDayClosed': fiscalDayClosed,
-      'fiscalDayCounter': fiscalDayCounter,
-      'lastFiscalDayNo': lastFiscalDayNo,
-      'lastReceiptGlobalNo': lastReceiptGlobalNo,
-      'fiscalDayDocumentQuantities': fiscalDayDocumentQuantities,
-      'operationID': operationID,
-      'fiscalDayClosingErrorCode': fiscalDayClosingErrorCode,
-    };
-  }
-}
-
-class FiscalDayServerSignature {
-  String? certificateThumbprint;
-  String? hash;
-  String? signature;
-
-  FiscalDayServerSignature({
-    this.certificateThumbprint,
-    this.hash,
-    this.signature,
-  });
-
-  factory FiscalDayServerSignature.fromJson(Map<String, dynamic> json) {
-    return FiscalDayServerSignature(
-      certificateThumbprint: json['certificateThumbprint'],
-      hash: json['hash'],
-      signature: json['signature'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'certificateThumbprint': certificateThumbprint,
-      'hash': hash,
-      'signature': signature,
-    };
-  }
-}
 

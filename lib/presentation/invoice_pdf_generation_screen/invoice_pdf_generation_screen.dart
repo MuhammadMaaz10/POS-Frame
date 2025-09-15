@@ -21,6 +21,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/custom_text.dart';
 
@@ -289,7 +290,35 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                 ),
               ),
               const SizedBox(height: 8),
-               Center(child: CustomText2('You can verify this receipt manually at https://receipt.zimra.org/')),
+               Center(child: CustomText2('You can verify this receipt manually at')),
+
+              GestureDetector(
+                onTap: () => _launchUrl(widget.qrUrl),
+                child: CustomText2(
+                  "https://fdmstest.zimra.co.zw/",
+                  color: Colors.blue,
+                ),
+              ),
+
+              CustomText2(
+                "Verification Code: \n${getVerificationCode(widget.qrUrl)}",
+                fontWeight: FontWeight.w600,
+                // style: const TextStyle(fontSize: 10, color: Colors.black),
+              ),
+              const SizedBox(height: 6),
+              CustomText2(
+                "Fiscalised by Frame Inc",
+                // style: TextStyle(fontSize: 10, color: Colors.white),
+              ),
+
+              /// Clickable link
+              GestureDetector(
+                onTap: () => _launchUrl("https://www.frame.co.zw"),
+                child: CustomText2(
+                  "www.frame.co.zw",
+                    color: Colors.blue,
+                ),
+              ),
               16.ht,
               CustomButton(text: "Share as Pdf", onPressed: () => generateInvoicePdf(context)),
               46.ht,
@@ -299,6 +328,25 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
       ),
     );
   }
+  // helper function
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw "Could not launch $url";
+    }
+  }
+
+  String getVerificationCode(String url) {
+    try {
+      final uri = Uri.parse(url);
+      return uri.queryParameters['ReceiptQrData'] ?? url.split('/').last;
+    } catch (_) {
+      return url.split('/').last;
+    }
+  }
+
 
   Future<void> generateInvoicePdf(BuildContext context) async {
     await loadFonts();
@@ -314,188 +362,12 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
     ).toImageData(200);
 
     /// 1st version
-    // pdf.addPage(
-    //   pw.Page(
-    //     pageFormat: PdfPageFormat(
-    //       58 * PdfPageFormat.mm, // 👉 58mm paper width
-    //       double.infinity,       // 👉 auto height
-    //       marginAll: 4 * PdfPageFormat.mm,
-    //     ),
-    //     build: (pw.Context context) {
-    //       return pw.Column(
-    //         crossAxisAlignment: pw.CrossAxisAlignment.start,
-    //         children: [
-    //           // HEADER
-    //           pw.Center(
-    //             child: pw.Text(
-    //               'FISCAL TAX INVOICE',
-    //               style: pw.TextStyle(
-    //                 fontSize: 10, font: satoshiBold, fontWeight: pw.FontWeight.bold,
-    //               ),
-    //               textAlign: pw.TextAlign.center,
-    //             ),
-    //           ),
-    //           pw.SizedBox(height: 4),
-    //           pw.Center(
-    //             child: pw.Text(
-    //               "TIN: ${widget.previewModel.buyerData?.buyerTIN ?? ''}",
-    //               style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
-    //             ),
-    //           ),
-    //           pw.Center(
-    //             child: pw.Text(
-    //               '${widget.previewModel.buyerData?.buyerAddress?.houseNumber ?? ''}, '
-    //                   '${widget.previewModel.buyerData?.buyerAddress?.street ?? ''}, '
-    //                   '${widget.previewModel.buyerData?.buyerAddress?.city ?? ''}, '
-    //                   '${widget.previewModel.buyerData?.buyerAddress?.province ?? ''}',
-    //               style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
-    //               textAlign: pw.TextAlign.center,
-    //             ),
-    //           ),
-    //           pw.Center(child: pw.Text('Email: zimbra@email.com', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
-    //           pw.Center(child: pw.Text('Phone: (0242) 758 891-5', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
-    //           pw.Divider(thickness: 0.5),
-    //
-    //           // BUYER DETAILS
-    //           pw.SizedBox(height: 4),
-    //           pw.Center(child: pw.Text('Buyer', style: pw.TextStyle(fontSize: 9, font: satoshiMedium))),
-    //           pw.Center(child: pw.Text(widget.previewModel.buyerData?.buyerRegisterName ?? '', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
-    //           pw.Center(child: pw.Text('TIN: ${widget.previewModel.buyerData?.buyerTIN ?? ''}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
-    //           pw.Center(child: pw.Text('VAT No: ', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
-    //           pw.Divider(thickness: 0.5),
-    //
-    //           // INVOICE INFO
-    //           pw.SizedBox(height: 4),
-    //           pw.Text('Invoice Info:', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
-    //           pw.Row(
-    //             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //             children: [
-    //               pw.Text('Invoice No: ${widget.previewModel.invoiceNo}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //             ],
-    //           ),
-    //           pw.Text('Fiscal day No: 45', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //           pw.Text('Customer reference No: ${widget.previewModel.invoiceNo}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //           pw.Text('Device Serial No: mobiletest', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //           pw.Text('Device ID: ', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //           pw.Text('Date: ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //           pw.Divider(thickness: 0.5),
-    //
-    //           // ITEMS
-    //           pw.SizedBox(height: 4),
-    //           pw.Row(
-    //             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //             children: [
-    //               pw.Text('Description', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
-    //               pw.Text('Amount', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
-    //             ],
-    //           ),
-    //           pw.Divider(thickness: 0.5),
-    //
-    //           pw.ListView.builder(
-    //             itemCount: widget.previewModel.receiptLines?.length ?? 0,
-    //             itemBuilder: (context, index) {
-    //               final data = widget.previewModel.receiptLines![index];
-    //               return pw.Row(
-    //                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //                 children: [
-    //                   pw.Expanded(
-    //                     child: pw.Text(
-    //                       '${data.receiptLineName} x ${data.receiptLineQuantity}',
-    //                       style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
-    //                     ),
-    //                   ),
-    //                   pw.Text('${data.receiptLineTotal} ${widget.previewModel.receiptCurrency}',
-    //                       style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //                 ],
-    //               );
-    //             },
-    //           ),
-    //
-    //           pw.Divider(thickness: 0.5),
-    //
-    //           // TOTALS
-    //           pw.Row(
-    //             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //             children: [
-    //               pw.Text('Total ${widget.previewModel.receiptCurrency}', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
-    //               pw.Text('${widget.previewModel.receiptTotal}', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
-    //             ],
-    //           ),
-    //           pw.Row(
-    //             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //             children: [
-    //               pw.Text('${widget.previewModel.receiptCurrency} Cash', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //               pw.Text('${widget.previewModel.receiptTotal}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //             ],
-    //           ),
-    //           pw.Divider(thickness: 0.5),
-    //
-    //           // NUMBER OF ITEMS
-    //           pw.Row(
-    //             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    //             children: [
-    //               pw.Text('Number of Items', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
-    //               pw.Text(
-    //                 '${widget.previewModel.receiptLines?.fold<int>(0, (sum, line) => sum + (line.receiptLineQuantity ?? 0)) ?? 0}',
-    //                 style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold),
-    //               ),
-    //             ],
-    //           ),
-    //           pw.Divider(thickness: 0.5),
-    //
-    //           // TAX DETAILS (per line)
-    //           ...(widget.previewModel.receiptLines ?? []).map((data) {
-    //             final tax = calculateTax((data.receiptLineTotal ?? 0).toDouble(), (data.taxPercent ?? 0).toDouble());
-    //             final netAmount = (data.receiptLineTotal ?? 0) - tax;
-    //             return pw.Column(
-    //               crossAxisAlignment: pw.CrossAxisAlignment.start,
-    //               children: [
-    //                 pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-    //                   pw.Text('Net Amount', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //                   pw.Text(netAmount.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //                 ]),
-    //                 pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-    //                   pw.Text('VAT (${data.taxPercent ?? 0}%)', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //                   pw.Text(tax.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //                 ]),
-    //                 pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-    //                   pw.Text('Gross Amount', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //                   pw.Text('${data.receiptLineTotal}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-    //                 ]),
-    //                 pw.Divider(thickness: 0.5),
-    //               ],
-    //             );
-    //           }).toList(),
-    //
-    //           pw.SizedBox(height: 8),
-    //           pw.Center(child: pw.Text('Invoice is issued after purchasing goods', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
-    //           pw.SizedBox(height: 8),
-    //
-    //           // QR
-    //           if (qrCode != null)
-    //             pw.Center(
-    //               child: pw.Image(
-    //                 pw.MemoryImage(qrCode.buffer.asUint8List()),
-    //                 width: 60,
-    //                 height: 60,
-    //               ),
-    //             ),
-    //           pw.SizedBox(height: 4),
-    //           pw.Center(child: pw.Text('Verify at https://receipt.zimra.org/', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
-    //         ],
-    //       );
-    //     },
-    //   ),
-    // );
-
-
-    ///  2nd version
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat(
-          58 * PdfPageFormat.mm, // 58mm paper width
-          double.infinity,       // dynamic height
-          marginAll: 3 * PdfPageFormat.mm, // narrow margins
+          58 * PdfPageFormat.mm, // 👉 58mm paper width
+          double.infinity,       // 👉 auto height
+          marginAll: 4 * PdfPageFormat.mm,
         ),
         build: (pw.Context context) {
           return pw.Column(
@@ -506,9 +378,7 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                 child: pw.Text(
                   'FISCAL TAX INVOICE',
                   style: pw.TextStyle(
-                    fontSize: 10,
-                    font: satoshiBold,
-                    fontWeight: pw.FontWeight.bold,
+                    fontSize: 10, font: satoshiBold, fontWeight: pw.FontWeight.bold,
                   ),
                   textAlign: pw.TextAlign.center,
                 ),
@@ -535,56 +405,68 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
               pw.Divider(thickness: 0.5),
 
               // BUYER DETAILS
-              pw.Text('Buyer:', style: pw.TextStyle(fontSize: 9, font: satoshiBold)),
-              pw.Text(widget.previewModel.buyerData?.buyerRegisterName ?? '', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-              pw.Text('TIN: ${widget.previewModel.buyerData?.buyerTIN ?? ''}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-              pw.Text('VAT No: ', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              pw.SizedBox(height: 4),
+              pw.Center(child: pw.Text('Buyer', style: pw.TextStyle(fontSize: 9, font: satoshiMedium))),
+              pw.Center(child: pw.Text(widget.previewModel.buyerData?.buyerRegisterName ?? '', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
+              pw.Center(child: pw.Text('TIN: ${widget.previewModel.buyerData?.buyerTIN ?? ''}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
+              pw.Center(child: pw.Text('VAT No: ', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),
               pw.Divider(thickness: 0.5),
 
               // INVOICE INFO
-              pw.Text('Invoice Info:', style: pw.TextStyle(fontSize: 9, font: satoshiBold)),
-              pw.Text('Invoice No: ${widget.previewModel.invoiceNo}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              pw.SizedBox(height: 4),
+              pw.Text('Invoice Info:', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('Invoice No: ${widget.previewModel.invoiceNo}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                ],
+              ),
               pw.Text('Fiscal day No: 45', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-              pw.Text('Customer Ref No: ${widget.previewModel.invoiceNo}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              pw.Text('Customer reference No: ${widget.previewModel.invoiceNo}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
               pw.Text('Device Serial No: mobiletest', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
               pw.Text('Device ID: ', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
               pw.Text('Date: ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
               pw.Divider(thickness: 0.5),
 
               // ITEMS
+              pw.SizedBox(height: 4),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text('Description', style: pw.TextStyle(fontSize: 8, font: satoshiBold)),
-                  pw.Text('Amount', style: pw.TextStyle(fontSize: 8, font: satoshiBold)),
+                  pw.Text('Description', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
+                  pw.Text('Amount', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
                 ],
               ),
               pw.Divider(thickness: 0.5),
-              ...(widget.previewModel.receiptLines ?? []).map((data) {
-                return pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Expanded(
-                      child: pw.Text(
-                        '${data.receiptLineName} x ${data.receiptLineQuantity}',
-                        style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
+
+              pw.ListView.builder(
+                itemCount: widget.previewModel.receiptLines?.length ?? 0,
+                itemBuilder: (context, index) {
+                  final data = widget.previewModel.receiptLines![index];
+                  return pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Expanded(
+                        child: pw.Text(
+                          '${data.receiptLineName} x ${data.receiptLineQuantity}',
+                          style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
+                        ),
                       ),
-                    ),
-                    pw.Text(
-                      '${data.receiptLineTotal} ${widget.previewModel.receiptCurrency}',
-                      style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
-                    ),
-                  ],
-                );
-              }),
+                      pw.Text('${data.receiptLineTotal} ${widget.previewModel.receiptCurrency}',
+                          style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                    ],
+                  );
+                },
+              ),
+
               pw.Divider(thickness: 0.5),
 
               // TOTALS
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text('Total ${widget.previewModel.receiptCurrency}', style: pw.TextStyle(fontSize: 9, font: satoshiBold)),
-                  pw.Text('${widget.previewModel.receiptTotal}', style: pw.TextStyle(fontSize: 9, font: satoshiBold)),
+                  pw.Text('Total ${widget.previewModel.receiptCurrency}', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
+                  pw.Text('${widget.previewModel.receiptTotal}', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
                 ],
               ),
               pw.Row(
@@ -600,10 +482,10 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text('Number of Items', style: pw.TextStyle(fontSize: 8, font: satoshiBold)),
+                  pw.Text('Number of Items', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
                   pw.Text(
                     '${widget.previewModel.receiptLines?.fold<int>(0, (sum, line) => sum + (line.receiptLineQuantity ?? 0)) ?? 0}',
-                    style: pw.TextStyle(fontSize: 8, font: satoshiBold),
+                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, font: satoshiBold),
                   ),
                 ],
               ),
@@ -642,21 +524,61 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                 pw.Center(
                   child: pw.Image(
                     pw.MemoryImage(qrCode.buffer.asUint8List()),
-                    width: 60,
-                    height: 60,
+                    width: 80,
+                    height: 80,
                   ),
                 ),
               pw.SizedBox(height: 4),
-              pw.Center(child: pw.Text('Verify at https://receipt.zimra.org/', style: pw.TextStyle(fontSize: 7, font: satoshiRegular))),
+              pw.Center(
+                child:  pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.SizedBox(height: 8),
+                    pw.Text("Verify Manually at:",
+                        style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
+                        textAlign: pw.TextAlign.center),
+                    pw.UrlLink(
+                      destination: widget.qrUrl,
+                      child: pw.Text(
+                        "https://fdmstest.zimra.co.zw/",
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          color: PdfColors.blue,
+                          decoration: pw.TextDecoration.underline,
+                        ),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                    ),
+                    pw.Text("Verification Code: ${getVerificationCode(widget.qrUrl)}",
+                        style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
+                        textAlign: pw.TextAlign.center),
+                    pw.SizedBox(height: 6),
+                    pw.Text("Fiscalised by Frame Inc",
+                        style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
+                        textAlign: pw.TextAlign.center),
+                    pw.UrlLink(
+                      destination: "https://www.frame.co.zw/",
+                      child: pw.Text(
+                        "www.frame.co.zw",
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          color: PdfColors.blue,
+                          decoration: pw.TextDecoration.underline,
+                        ),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+
             ],
           );
         },
       ),
     );
 
-
-
-    // Save and preview/share
     final Uint8List pdfBytes = await pdf.save();
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/invoice.pdf');
@@ -693,21 +615,32 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                   await Printing.sharePdf(bytes: pdfBytes, filename: 'invoice.pdf');
                 },
               ),
-              IconButton(
-                icon: const Icon(CupertinoIcons.printer),
-                onPressed: () {
-                  // 👉 Open Bluetooth search screen and print like earlier code
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BluetoothPrintPage(
-                        previewModel: widget.previewModel,
-                        qrUrl: widget.qrUrl,
-                      ),
-                    ),
-                  );
-                },
-              ),
+
+              // IconButton(
+              //   icon: const Icon(CupertinoIcons.printer),
+              //   onPressed: () {
+              //     // 👉 Open Bluetooth search screen and print like earlier code
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (_) => BluetoothPrintPage(
+              //           previewModel: widget.previewModel,
+              //           qrUrl: widget.qrUrl,
+              //         ),
+              //       ),
+              //     );
+              //   },
+              // ),
+              //
+              // IconButton(
+              //   icon: const Icon(CupertinoIcons.printer),
+              //   onPressed: () async {
+              //     await Printing.layoutPdf(
+              //       onLayout: (PdfPageFormat format) async => pdfBytes,
+              //     );
+              //   },
+              // ),
+
             ],
             allowSharing: false,
             build: (format) => pdfBytes,
@@ -748,7 +681,14 @@ class _BluetoothPrintPageState extends State<BluetoothPrintPage> {
   List<BluetoothDevice> _devices = [];
   String _devicesMsg = "Scanning...";
   final f = NumberFormat("#,##0.00");
-
+  String getVerificationCode(String url) {
+    try {
+      final uri = Uri.parse(url);
+      return uri.queryParameters['ReceiptQrData'] ?? url.split('/').last;
+    } catch (_) {
+      return url.split('/').last;
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -831,7 +771,45 @@ class _BluetoothPrintPageState extends State<BluetoothPrintPage> {
 
       // Footer
       list.add(LineText(type: LineText.TYPE_TEXT, content: "Invoice is issued after purchasing goods", align: LineText.ALIGN_CENTER, linefeed: 1));
-      list.add(LineText(type: LineText.TYPE_TEXT, content: "Verify at https://receipt.zimra.org/", align: LineText.ALIGN_CENTER, linefeed: 1));
+      // QR Code
+      list.add(LineText(
+        type: LineText.TYPE_QRCODE,
+        content: widget.qrUrl,
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1,
+      ));
+      list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: "Verify Manually at:",
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1,
+      ));
+      list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: "https://fdmstest.zimra.co.zw/",
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1,
+      ));
+      list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: "Verification Code: ${getVerificationCode(widget.qrUrl)}",
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1,
+      ));
+      list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: "Fiscalised by Frame Inc",
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1,
+      ));
+      list.add(LineText(
+        type: LineText.TYPE_TEXT,
+        content: "www.frame.co.zw",
+        align: LineText.ALIGN_CENTER,
+        linefeed: 1,
+      ));
+
+      // list.add(LineText(type: LineText.TYPE_TEXT, content: "Verify at https://receipt.zimra.org/", align: LineText.ALIGN_CENTER, linefeed: 1));
       list.add(LineText(linefeed: 2)); // feed a couple of lines
 
       await bluetoothPrint.printReceipt(config, list);
@@ -843,6 +821,7 @@ class _BluetoothPrintPageState extends State<BluetoothPrintPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Print failed: $e')));
     } finally {
       try {
+        await Future.delayed(const Duration(seconds: 5));
         await bluetoothPrint.disconnect();
       } catch (_) {}
     }

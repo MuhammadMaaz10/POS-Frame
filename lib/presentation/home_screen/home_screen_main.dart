@@ -9,6 +9,7 @@ import 'package:frame_virtual_fiscilation/presentation/add_item/add_item_screen.
 import 'package:frame_virtual_fiscilation/presentation/home_screen/controller/home_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/home_screen/customers_screen/customers_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/home_screen/items_screen/items_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/settings/controller/settings_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/settings/settings_screen.dart';
 import 'package:frame_virtual_fiscilation/widgets/app_logo.dart';
 import 'package:get/get.dart';
@@ -27,10 +28,15 @@ class _HomeScreenMainState extends State<HomeScreenMain>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final controller = Get.put(HomeScreenController());
+  final controller2 = Get.put(SettingsController());
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller2.checkFDMSConfig(context);
+    });
+
   }
 
   @override

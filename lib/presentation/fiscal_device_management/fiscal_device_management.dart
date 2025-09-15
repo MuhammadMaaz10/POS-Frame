@@ -14,9 +14,16 @@ import 'package:url_launcher/url_launcher.dart';
 class FiscalDeviceManagementScreen extends StatelessWidget {
    FiscalDeviceManagementScreen({Key? key}) : super(key: key);
 
+   final FiscalDeviceManagementController controller =
+   Get.put(FiscalDeviceManagementController()); // <-- important
+
   @override
   Widget build(BuildContext context) {
-
+    print("fiscalDayStatus --------> ${fiscalDayStatus} ");
+    final isDayClosed = fiscalDayStatus == "FiscalDayClosed"
+        || fiscalDayStatus == null
+        || fiscalDayStatus == "null"
+        || fiscalDayStatus.isEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.bgClr,
@@ -33,16 +40,14 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
           child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
         ),
         actions: [
-          GetBuilder<FiscalDeviceManagementController>(builder: (controller) {
-            return Padding(
-              padding: EdgeInsets.only(right: 18.w),
-              child: syncIcon(
-                onTap: () {
-                  controller.getFiscalDayData();
-                },
+          Padding(
+            padding: EdgeInsets.only(right: 18.w),
+            child: GetBuilder<FiscalDeviceManagementController>(
+              builder: (controller) => syncIcon(
+                onTap: controller.getFiscalDayData,
               ),
-            );
-          },)
+            ),
+          ),
         ],
       ),
       body: SafeArea(
@@ -99,13 +104,12 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                         ),
                       50.ht,
 
-                      Center(
+                      Obx(() => Center(
                         child: Skeletonizer(
                           enabled: controller.isLoading,
                           containersColor: AppColors.bgClr,
                           child: Text(
                             controller.countdownText.value,
-                            // countDownTimerFromAPI,
                             style: const TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
@@ -113,24 +117,8 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
-                      // Obx(() {
-                      //   return Center(
-                      //     child: Skeletonizer(
-                      //       enabled: controller.isLoading,
-                      //       containersColor: AppColors.bgClr,
-                      //       child: Text(
-                      //         controller.countdownText.value,
-                      //         // countDownTimerFromAPI,
-                      //         style: const TextStyle(
-                      //           fontSize: 36,
-                      //           fontWeight: FontWeight.bold,
-                      //           color: AppColors.green,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   );
-                      // }),
+                      )),
+
                       const Spacer(),
                       // Progress Bar at the bottom
                       Obx(() {
@@ -157,20 +145,30 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                 CustomText(
                     text: "Once day is closed, invoices can’t be created.",
                     color: Colors.white70),
-                SizedBox(height: 235.h),
+                220.ht,
+
+                fiscalApiKey == "fiscalDaycloseFailed"
+                    ? Center(
+                  child: CustomText(
+                      text: "failed to close day, please request manual day closure",
+                      color: Colors.red),
+                )
+                    : SizedBox(),
+
+                10.ht,
                 CustomActionButton(
-                  loading: fiscalDayStatus != "FiscalDayOpened"
+                  loading: isDayClosed
                       ? controller.isLoading2
                       : controller.isLoading3,
-                  text: fiscalDayStatus != "FiscalDayOpened" ?  "Open Day" :"Close Day",
-                  color: fiscalDayStatus != "FiscalDayOpened" ?  AppColors.green : AppColors.redClr,
-                  icon:fiscalDayStatus != "FiscalDayOpened" ? Icons.play_arrow : Icons.stop,
+                  text: isDayClosed  ?  "Open Day" :"Close Day",
+                  color: isDayClosed  ?  AppColors.green : AppColors.redClr,
+                  icon:isDayClosed  ? Icons.play_arrow : Icons.stop,
                   onTap: () {
-                    final nextDay = (controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo ?? 0) + 1;
+                    final nextDay = (controller.fiscalDayModel?.serverResponse!.lastFiscalDayNo ?? 0) + 1;
 
 
 
-                    fiscalDayStatus != "FiscalDayOpened"
+                    isDayClosed
                         ? controller.openDay(day: nextDay.toString())
                         : controller.closeDay(day: controller.fiscalDayModel!.serverResponse!.lastFiscalDayNo.toString());
                     print("${controller.isLoading3}");

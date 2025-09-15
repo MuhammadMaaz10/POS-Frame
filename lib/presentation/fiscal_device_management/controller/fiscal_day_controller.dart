@@ -115,13 +115,18 @@ class FiscalDeviceManagementController extends GetxController {
     try {
       final url = Uri.parse(baseUrl+getFiscalDayUrl);
       print("🌐 API URL: $url");
+      print("🌐 API key: $fiscalApiKey");
+      final headers = {
+        "Accept": "application/json",
+        "apiKey": fiscalApiKey,
+      };
+
       final response = await http.post(
         url,
-        headers: {
-          "Content-Type": "application/json",
-          "apiKey": "6ec430c2-9aa1-456a-a265-271c517d31da"
-        },
+        headers: headers,
       );
+
+      print("🌐 Headers Sent: $headers");
 
       print("📡 getFiscalDay  Status Code: ${response.statusCode}");
 
@@ -140,6 +145,7 @@ class FiscalDeviceManagementController extends GetxController {
         fiscalDayNumber = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
         lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null)!;
         await saveLastInvoiceNumberOnce(lastInvoiceNumber);
+        update();
 
         final apiTime = fiscalDayModel?.timeUntilDayClosure ?? "";
 
@@ -166,31 +172,28 @@ class FiscalDeviceManagementController extends GetxController {
     }
   }
 
-
-  /// Function of openDay
-  Future<void> openDay({required String day})
-  async {
+  Future<void> openDay({required String day}) async {
     _setLoading2(true);
     print("XXXXXXXXXXXXXX 🔄 Starting openDay API call... XXXXXXXXXXXXXXXXXXX");
     try {
-      final url = Uri.parse(baseUrl+openDayUrl+day);
+      final url = Uri.parse("$baseUrl$openDayUrl$day");
       print("🌐 API URL: $url");
+      print("🌐 API key: $fiscalApiKey");
+
       final response = await http.post(
         url,
         headers: {
-          "Content-Type": "application/json",
-          "apiKey": "6ec430c2-9aa1-456a-a265-271c517d31da"
+          'Accept': 'application/json',
+          'apiKey': fiscalApiKey,  // ✅ use the same key as Postman
         },
       );
 
-      print("📡 openDay  Status Code: ${response.statusCode}");
+      print("📡 openDay Status Code: ${response.statusCode}");
 
-
-      if (response.statusCode == 202) {
+      if (response.statusCode == 200 || response.statusCode == 202) {
         final data = jsonDecode(response.body);
         print("✅ openDay Response: ${response.body}");
         getFiscalDayData();
-
       } else {
         print("❌ Failed openDay Response: ${response.body}");
       }
@@ -202,6 +205,7 @@ class FiscalDeviceManagementController extends GetxController {
   }
 
 
+
   /// Function of closeDay
   Future<void> closeDay({required String day})
   async {
@@ -210,11 +214,14 @@ class FiscalDeviceManagementController extends GetxController {
     try {
       final url = Uri.parse(baseUrl+closeDayUrl+day);
       print("🌐 API URL: $url");
+      print("🌐 API key: $fiscalApiKey");
+
+
       final response = await http.post(
         url,
         headers: {
-          "Content-Type": "application/json",
-          "apiKey": "6ec430c2-9aa1-456a-a265-271c517d31da"
+          "Accept": "application/json",
+          'apiKey': fiscalApiKey,
         },
       );
 
