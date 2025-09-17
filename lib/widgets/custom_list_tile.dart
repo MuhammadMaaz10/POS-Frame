@@ -133,7 +133,7 @@ class InvoiceCustomListTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CustomText(text: "Type: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
+              CustomText(text: "Document Type: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
               CustomText(text: "$invoiceType",fontSize: 12,color: inoiveTypeTextcolor ?? AppColors.buttonClr,fontWeight: FontWeight.w500,),
             ],
           ),

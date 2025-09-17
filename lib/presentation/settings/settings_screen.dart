@@ -133,6 +133,8 @@ class SettingsScreen extends StatelessWidget {
   }
 
 }
+
+
 customTile({bool showDivider = true,required String title, String? iconPath, Widget? leading,void Function()? onTap}){
   return Column(
     children: [

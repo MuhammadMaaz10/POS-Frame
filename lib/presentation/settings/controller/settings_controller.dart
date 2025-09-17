@@ -2,11 +2,13 @@
 import 'dart:convert';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/controller/fiscal_day_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/qr_code_scanner/qr_code_scanner_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/splash_screen/splash_screen.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart';
 import 'package:frame_virtual_fiscilation/routes/app_routes.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
@@ -318,7 +320,10 @@ class SettingsController extends GetxController {
                     // Save button
                     CustomButton(
                       text: "Save",
-                      onPressed: () => saveAPIkey(),
+                      onPressed: () {
+                        saveAPIkey();
+                        // Phoenix.rebirth(context); // 🔥 restarts the whole app
+                        },
                     ),
                     20.ht,
                   ],
@@ -362,9 +367,13 @@ class SettingsController extends GetxController {
           backgroundColor: AppColors.buttonClr,
         );
 
+
+
+
         await Future.delayed(const Duration(seconds: 5));
         loadAndPrintConfigs();
 
+        Get.offAll(() => SplashScreen());
         // Clear fields
         clientIDController.clear();
         deviceIDController.clear();

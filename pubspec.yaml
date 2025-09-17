@@ -50,6 +50,7 @@ dependencies:
 #  esc_pos_utils:
   location:
   bluetooth_print: ^4.3.0
+  flutter_phoenix: ^1.1.1
 
 
 dev_dependencies:

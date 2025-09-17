@@ -8,18 +8,18 @@ import '../presentation/add_invoices_screen/add_invoices_screen.dart';
 import '../presentation/home_screen/home_screen_main.dart';
 import '../presentation/login_screen/login_screen.dart';
 import '../presentation/splash_screen/splash_screen.dart';
-import '../presentation/unknown_page.dart';
+// import '../presentation/unknown_page.dart';
 import '../presentation/verify_otp_screen/verify_otp_screen.dart';
 import 'app_routes.dart';
 
 class AppRouter {
-  static getUnknownRoute() {
-    return GetPage(
-      name: noPageFound,
-      page: () => const UnknownRoutePage(),
-      transition: Transition.zoom,
-    );
-  }
+  // static getUnknownRoute() {
+  //   return GetPage(
+  //     name: noPageFound,
+  //     page: () => const UnknownRoutePage(),
+  //     transition: Transition.zoom,
+  //   );
+  // }
 
   static getInitialRoute() {
     return splashScreen;
@@ -72,14 +72,14 @@ class AppRouter {
       GetPage(
         name: homeScreen,
         page: () => HomeScreenMain(),
-        // transition: Transition.cupertino,
-        // transitionDuration: 100.milliseconds,
+        // transition: Transition.fadeIn,
+        // transitionDuration: 2.seconds,
       ),
       GetPage(
         name: addInvoicesScreen,
         page: () => AddInvoicesScreen(),
-        // transition: Transition.cupertino,
-        // transitionDuration: 100.milliseconds,
+        // transition: Transition.fadeIn,
+        // transitionDuration: 10.seconds,
       ),
     ];
   }

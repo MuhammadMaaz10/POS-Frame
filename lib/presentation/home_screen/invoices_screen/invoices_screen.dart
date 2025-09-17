@@ -28,7 +28,6 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
 
    final invoiceController = Get.put(AddInvoicesController());
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -282,6 +281,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
        },
      );
    }
+
    void launchQR(String qrUrl) async {
      final uri = Uri.parse(qrUrl);
      if (await canLaunchUrl(uri)) {

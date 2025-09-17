@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/local_storage/qrUrlsList_model.g.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart'; // Ensure this path is correct
@@ -56,7 +57,9 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]).then((_) {
     runApp(
-        const MyApp());
+      Phoenix(
+        child: MyApp(),
+      ),);
     // DevicePreview(
     //   enabled: true,
     //   builder: (context) => MyApp(), // Wrap your app

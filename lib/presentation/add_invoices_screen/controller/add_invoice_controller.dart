@@ -44,6 +44,7 @@ class AddInvoicesController extends GetxController {
 
   /// create invoice controllers
   final invoiceNumber = ''.obs;
+  String invoiceNumber2 = '';
   final selectedCustomer = Rxn<CustomerModel>();
   final selectedItem = Rxn<ItemModel>();
   final invoiceIDController = TextEditingController();
@@ -54,38 +55,17 @@ class AddInvoicesController extends GetxController {
 
   int _invoiceCounter = 1; // Start from 1, will be loaded from Hive
 
-  AddInvoicesController(){
+  AddInvoicesController() {
     print("----- on init called ----- ");
-
-    // First initialize, then generate
-    initInvoiceCounter().then((_) {
-      generateInvoiceNumber();
-    });
-
-    // Load last invoice number from SharedPreferences
-    _loadLastInvoiceNumber();
-    // optionally also load Hive counter if needed
-    // _loadInvoiceCounter();
+    _loadLastInvoiceNumber();  // this will generate after load
   }
 
-/// not using
-  Future<void> _loadInvoiceCounter() async {
-    var settingsBox = await Hive.openBox('settings');
-    var username = settingsBox.get('loggedInUser');
-    final counterBox = await Hive.openBox('invoice_counter_$username');
-    _invoiceCounter = counterBox.get('counter', defaultValue: 1);
-    print("📊 Loaded invoice counter: $_invoiceCounter for user: $username");
-  }
-  /// not using
-  Future<void> _saveInvoiceCounter() async {
-    var settingsBox = await Hive.openBox('settings');
-    var username = settingsBox.get('loggedInUser');
-    final counterBox = await Hive.openBox('invoice_counter_$username');
-    await counterBox.put('counter', _invoiceCounter);
-    print("💾 Saved invoice counter: $_invoiceCounter for user: $username");
-  } // start from 1
 
+
+  var isInvoiceReady = false.obs;
   Future<void> _loadLastInvoiceNumber() async {
+
+    print("isInvoiceReady ---in start-------> ${isInvoiceReady.value}");
     final prefs = await SharedPreferences.getInstance();
     lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
 
@@ -98,6 +78,12 @@ class AddInvoicesController extends GetxController {
       _invoiceCounter = 1;
       print("📄 No saved invoice number, counter reset to 1");
     }
+
+    // ✅ Now generate after loading
+    generateInvoiceNumber();
+    isInvoiceReady.value = true;
+    print("isInvoiceReady ---at end-------> ${isInvoiceReady.value}");
+    // update();
   }
 
 
@@ -121,8 +107,11 @@ class AddInvoicesController extends GetxController {
   void generateInvoiceNumber() {
     print("---------- generateInvoiceNumber is called ------------ ");
     invoiceNumber.value = 'INV-FR-${_invoiceCounter.toString().padLeft(5, '0')}';
+    invoiceNumber2 = 'INV-FR-${_invoiceCounter.toString().padLeft(5, '0')}';
     print("📋 Generated invoice number: ${invoiceNumber.value}");
-    invoiceIDController.text = invoiceNumber.value.toString();
+    print("📋 Generated invoice number 2: ${invoiceNumber2}");
+    invoiceIDController.text = invoiceNumber2;
+    // invoiceIDController.text = invoiceNumber.value.toString();
     print("📋 Generated invoice number in controller: ${invoiceIDController.text}");
     update();
     _invoiceCounter++;
