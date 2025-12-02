@@ -32,6 +32,8 @@ class CustomerModel extends HiveObject {
   @HiveField(8)
   dynamic? tinNumber;
 
+  @HiveField(9)
+  dynamic? vatNumber;
 
   CustomerModel({
     required this.name,
@@ -43,6 +45,7 @@ class CustomerModel extends HiveObject {
     required this.street,
     required this.houseNumber,
     this.tinNumber,
+    this.vatNumber,
   });
 }
 

@@ -24,6 +24,7 @@ class CompanySetupController extends GetxController{
   TextEditingController provinceController=TextEditingController();
   TextEditingController addressController=TextEditingController();
   TextEditingController contactController=TextEditingController();
+  TextEditingController emailController=TextEditingController();  // ✅ ADD THIS
   //
   // void checkEmailAndNavigate(String email) {
   //   final box = Hive.box<UserModel>('users');
@@ -86,6 +87,44 @@ class CompanySetupController extends GetxController{
 
     AppRouter.offAllTo(homeScreen);
 
+  }
+
+  // ✅ ADD THIS METHOD for updating company
+  Future<void> updateCompany(CompanyModel company) async {
+    var settingsBox = await Hive.openBox('settings');
+    var username = settingsBox.get('loggedInUser');
+    final box = Hive.box<CompanyModel>('companies_$username');
+    
+    if (box.isNotEmpty) {
+      // Update the first company record
+      final key = box.keys.first;
+      await box.put(key, company);
+      
+      CustomGetSnackBar.show(
+        title: "Success!",
+        message: "Company profile updated successfully",
+        backgroundColor: AppColors.buttonClr,
+        snackPosition: SnackPosition.TOP,
+      );
+      
+      Get.back();
+    }
+  }
+
+  // ✅ ADD THIS METHOD to load existing company data
+  Future<CompanyModel?> loadCompany() async {
+    try {
+      var settingsBox = await Hive.openBox('settings');
+      var username = settingsBox.get('loggedInUser');
+      final box = Hive.box<CompanyModel>('companies_$username');
+      
+      if (box.isNotEmpty) {
+        return box.values.first;
+      }
+    } catch (e) {
+      print('Error loading company: $e');
+    }
+    return null;
   }
 
 

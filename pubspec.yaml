@@ -41,15 +41,16 @@ dependencies:
   printing: ^5.13.5
   share_plus: ^11.1.0
   qr_flutter: ^4.1.0
-  skeletonizer:
+#  skeletonizer:
+  skeletonizer: ^2.1.1
   mobile_scanner: ^4.0.0
 #  bluetooth_print: ^4.3.0
-  flutter_bluetooth_printer:
+#  flutter_bluetooth_printer:
   device_preview:
   image:
 #  esc_pos_utils:
   location:
-  bluetooth_print: ^4.3.0
+#  bluetooth_print: ^4.3.0
   flutter_phoenix: ^1.1.1
 
 

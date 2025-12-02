@@ -441,12 +441,26 @@ class AddItemController extends GetxController {
 
   @override
   void onClose() {
+    // ✅ Dispose all add item controllers
     hsCodeController.dispose();
     nameController.dispose();
     categoryController.dispose();
     descriptionController.dispose();
     priceController.dispose();
     vatCategoryNameController.dispose();
+    vatCategoryPercentageController.dispose();
+    vatCategoryTaxIDController.dispose();
+    
+    // ✅ Dispose all edit item controllers
+    editHsCodeController.dispose();
+    editNameController.dispose();
+    editCategoryController.dispose();
+    editDescriptionController.dispose();
+    editPriceController.dispose();
+    editVatCategoryNameController.dispose();
+    editVatCategoryPercentageController.dispose();
+    editVatCategoryTaxIDController.dispose();
+    
     super.onClose();
   }
 }

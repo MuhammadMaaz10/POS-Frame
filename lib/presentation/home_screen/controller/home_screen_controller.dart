@@ -457,7 +457,7 @@ class HomeScreenController extends GetxController {
         receiptLineQuantity: item.quantity is String
             ? (double.tryParse(item.quantity) ?? 1.0).toInt()
             : item.quantity,
-        receiptLineTotal: (double.tryParse(item.price) ?? 0.0).toInt(),
+        receiptLineTotal: (double.tryParse(item.price) ?? 0.0).toDouble(),
         taxPercent: item.taxPercentage is String
             ? (double.tryParse(item.taxPercentage) ?? 0).toInt()
             : item.taxPercentage,
@@ -468,6 +468,7 @@ class HomeScreenController extends GetxController {
     final buyerData = BuyerData(
       buyerRegisterName: invoiceModel.customer.name,
       buyerTIN: invoiceModel.customer.tinNumber ?? "0000000000",
+      buyerVAT: invoiceModel.customer.vatNumber ?? "",
       buyerAddress: BuyerAddress(
         houseNumber: invoiceModel.customer.houseNumber,
         street: invoiceModel.customer.street,
@@ -494,7 +495,7 @@ class HomeScreenController extends GetxController {
           paymentAmount: receiptTotal.toInt(),
         )
       ],
-      receiptTotal: receiptTotal.toInt(),
+      receiptTotal: receiptTotal.toDouble(),
       receiptTaxAmount: receiptTaxAmount,
       receiptPrintForm: "Receipt48",
     );
@@ -545,6 +546,7 @@ class HomeScreenController extends GetxController {
       final buyerData = {
         "buyerRegisterName": invoiceModel.customer.name,
         "buyerTIN": invoiceModel.customer.tinNumber ?? "0000000000",
+        "buyerVAT": invoiceModel.customer.vatNumber ?? "",
         "buyerAddress": {
           "houseNumber": invoiceModel.customer.houseNumber,
           "street": invoiceModel.customer.street,
@@ -581,11 +583,15 @@ class HomeScreenController extends GetxController {
       if (invoiceModel.invoiceType != "FiscalInvoice") {
         requestBody.addAll({
           "receiptNotes": controller.editNotesController.text,
+          // "creditDebitNote": {
+          //   "originalInvoice": invoiceModel.invoiceNo
+          // },
           "creditDebitNote": {
             "deviceID": 25811,
             "receiptGlobalNo": 4,
             "fiscalDayNo": fiscalDayNumber,
           },
+
         });
       }
 
@@ -1117,6 +1123,7 @@ class HomeScreenController extends GetxController {
 //     final buyerData = BuyerData(
 //       buyerRegisterName: invoiceModel.customer.name,
 //       buyerTIN: invoiceModel.customer.tinNumber ?? "0000000000",
+//       buyerVAT: invoiceModel.customer.vatNumber ?? "",  // ✅ ADD THIS
 //       buyerAddress: BuyerAddress(
 //         houseNumber: invoiceModel.customer.houseNumber,
 //         street: invoiceModel.customer.street,
@@ -1203,6 +1210,7 @@ class HomeScreenController extends GetxController {
 //       final buyerData = {
 //         "buyerRegisterName": invoiceModel.customer.name,
 //         "buyerTIN": invoiceModel.customer.tinNumber ?? "0000000000",
+//         "buyerVAT": invoiceModel.customer.vatNumber ?? "",  // ✅ ADD THIS
 //         "buyerAddress": {
 //           "houseNumber": invoiceModel.customer.houseNumber,
 //           "street": invoiceModel.customer.street,

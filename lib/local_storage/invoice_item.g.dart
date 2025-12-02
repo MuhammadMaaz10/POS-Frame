@@ -38,19 +38,16 @@ class InvoiceItemAdapter extends TypeAdapter<InvoiceItem> {
       ..write(obj.category)
       ..writeByte(2)
       ..write(obj.price)
-    ..writeByte(3)
+      ..writeByte(3)
       ..write(obj.quantity)
-    ..writeByte(4)
+      ..writeByte(4)
       ..write(obj.taxName)
-    ..writeByte(5)
+      ..writeByte(5)
       ..write(obj.taxPercentage)
-    ..writeByte(6)
+      ..writeByte(6)
       ..write(obj.taxID)
       ..writeByte(7)
-      ..write(obj.hsCode)
-
-
-    ;
+      ..write(obj.hsCode);
   }
 
   @override

@@ -7,7 +7,7 @@ class invoicePdfPreviewModel {
   bool? receiptLinesTaxInclusive;
   List<ReceiptLines>? receiptLines;
   List<ReceiptPayments>? receiptPayments;
-  int? receiptTotal;
+  double? receiptTotal;
   double? receiptTaxAmount;
   String? receiptPrintForm;
 
@@ -77,13 +77,15 @@ class invoicePdfPreviewModel {
 class BuyerData {
   String? buyerRegisterName;
   String? buyerTIN;
+  String? buyerVAT;
   BuyerAddress? buyerAddress;
 
-  BuyerData({this.buyerRegisterName, this.buyerTIN, this.buyerAddress});
+  BuyerData({this.buyerRegisterName, this.buyerTIN, this.buyerVAT, this.buyerAddress});
 
   BuyerData.fromJson(Map<String, dynamic> json) {
     buyerRegisterName = json['buyerRegisterName'];
     buyerTIN = json['buyerTIN'];
+    buyerVAT = json['buyerVAT'];
     buyerAddress = json['buyerAddress'] != null
         ? new BuyerAddress.fromJson(json['buyerAddress'])
         : null;
@@ -93,6 +95,7 @@ class BuyerData {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['buyerRegisterName'] = this.buyerRegisterName;
     data['buyerTIN'] = this.buyerTIN;
+    data['buyerVAT'] = this.buyerVAT;
     if (this.buyerAddress != null) {
       data['buyerAddress'] = this.buyerAddress!.toJson();
     }
@@ -131,7 +134,7 @@ class ReceiptLines {
   int? receiptLineNo;
   String? receiptLineName;
   int? receiptLineQuantity;
-  int? receiptLineTotal;
+  double? receiptLineTotal;
   int? taxPercent;
   String? taxID;
 

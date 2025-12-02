@@ -26,13 +26,14 @@ class InvoiceCustomerAdapter extends TypeAdapter<InvoiceCustomer> {
       street: fields[6] as String,
       houseNumber: fields[7] as String,
       tinNumber: fields[8] as dynamic,
+      vatNumber: fields[9] as dynamic,
     );
   }
 
   @override
   void write(BinaryWriter writer, InvoiceCustomer obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class InvoiceCustomerAdapter extends TypeAdapter<InvoiceCustomer> {
       ..writeByte(7)
       ..write(obj.houseNumber)
       ..writeByte(8)
-      ..write(obj.tinNumber);
+      ..write(obj.tinNumber)
+      ..writeByte(9)
+      ..write(obj.vatNumber);
   }
 
   @override

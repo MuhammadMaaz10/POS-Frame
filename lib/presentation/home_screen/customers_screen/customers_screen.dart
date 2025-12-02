@@ -62,6 +62,7 @@ class CustomersScreen extends StatelessWidget {
                       customerController.editStreetController.text = item.street.toString() ?? "";
                       customerController.editHouseNumberController.text = item.houseNumber.toString() ?? "";
                       customerController.editTinNumberController.text = item.tinNumber.toString() ?? "";
+                      customerController.editVatNumberController.text = item.vatNumber.toString() ?? "";
                       customerController.editPhoneController.text = item.phone.toString() ?? "";
                        customerController.ediSelectedImage.value = (File(item.imagePath!));
                       Get.to(EditCustomerScreen());

@@ -24,6 +24,7 @@ class CustomerController extends GetxController {
   final editStreetController = TextEditingController();
   final editHouseNumberController = TextEditingController();
   final editTinNumberController = TextEditingController();
+  final editVatNumberController = TextEditingController();
   final ediSelectedImage = Rxn<File>();
   // final isLoading = false.obs;
   // final selectedImage = Rxn<File>();
@@ -39,6 +40,7 @@ class CustomerController extends GetxController {
   final streetController = TextEditingController();
   final houseNumberController = TextEditingController();
   final tinNumberController = TextEditingController();
+  final vatNumberController = TextEditingController();
   final isLoading = false.obs;
   final selectedImage = Rxn<File>();
 
@@ -123,6 +125,12 @@ class CustomerController extends GetxController {
     if (value == null || value.isEmpty) {
       return 'HouseNumber is required';
     }
+    return null;
+  }
+
+  String? validateVatNumber(String? value) {
+    // VAT number is optional, so no validation required
+    // But you can add validation if needed
     return null;
   }
 
@@ -252,6 +260,7 @@ class CustomerController extends GetxController {
     required String street,
     required String houseNumber,
     String? tiNNumber,
+    String? vatNumber,
   })
   async {
     try {
@@ -268,6 +277,7 @@ class CustomerController extends GetxController {
         street: street,
         houseNumber: houseNumber,
         tinNumber: tiNNumber ?? "",
+        vatNumber: vatNumber ?? "",
       );
       await customerBox.add(customer);
     } catch (e) {
@@ -333,6 +343,7 @@ class CustomerController extends GetxController {
             street: streetController.text,
             houseNumber: houseNumberController.text,
             tiNNumber: tinNumberController.text,
+            vatNumber: vatNumberController.text,
           );
 
           Get.find<HomeScreenController>().loadCustomer();
@@ -354,6 +365,7 @@ class CustomerController extends GetxController {
           streetController.clear();
           houseNumberController.clear();
           tinNumberController.clear();
+          vatNumberController.clear();
           selectedImage.value = null;
         } catch (e) {
           CustomGetSnackBar.show(
@@ -393,6 +405,7 @@ class CustomerController extends GetxController {
             street: editStreetController.text?? "",
             houseNumber: editHouseNumberController.text?? "",
             tinNumber: editTinNumberController.text ?? "",
+            vatNumber: editVatNumberController.text ?? "",
           );
           var settingsBox = await Hive.openBox('settings');
           var username = settingsBox.get('loggedInUser');
@@ -419,6 +432,7 @@ class CustomerController extends GetxController {
           streetController.clear();
           houseNumberController.clear();
           tinNumberController.clear();
+          editVatNumberController.clear();
           ediSelectedImage.value = null;
         } catch (e) {
           CustomGetSnackBar.show(
@@ -462,6 +476,8 @@ class CustomerController extends GetxController {
     emailController.dispose();
     phoneController.dispose();
     addressController.dispose();
+    vatNumberController.dispose();
+    editVatNumberController.dispose();
     super.onClose();
   }
 }

@@ -41,6 +41,7 @@ class CompanySetupScreen extends StatelessWidget {
           province: companySetupController.provinceController.text.trim(),
           address: companySetupController.addressController.text.trim(),
           contactNumber: companySetupController.contactController.text.trim(),
+          email: companySetupController.emailController.text.trim(),
         ),
       );
     }
@@ -260,6 +261,15 @@ class CompanySetupScreen extends StatelessWidget {
                       //   // }
                       //   return null;
                       // },
+                    ),
+                    10.ht,
+                    CustomTextField(
+                      keyboardType: TextInputType.emailAddress,
+                      controller: companySetupController.emailController,
+                      hintText: 'Company Email',
+                      prefixIcon: Icons.email_outlined,
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
                     ),
                     62.ht,
                     CustomButton(

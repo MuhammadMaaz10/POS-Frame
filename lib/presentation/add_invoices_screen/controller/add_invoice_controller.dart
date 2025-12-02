@@ -324,6 +324,7 @@ class AddInvoicesController extends GetxController {
                                pic: customer.imagePath ?? AppImages.demo,
                                email: customer.email,
                              tinNumber: customer.tinNumber,
+                             vatNumber: customer.vatNumber,  // ✅ ADD THIS
                              phoneNumber: customer.phone,
                              provience: customer.province,
                              city: customer.city,
@@ -982,6 +983,7 @@ class AddInvoicesController extends GetxController {
     required String customerPic,
     required String customerEmail,
     required String customerTinNumber,
+    String? customerVatNumber,  // ✅ ADD THIS
     required String customerPhoneNumber,
     required String customerProvinceNumber,
     required String customerCityNumber,
@@ -1000,6 +1002,7 @@ class AddInvoicesController extends GetxController {
       pic: customerPic,
       email: customerEmail,
       tinNumber: customerTinNumber,
+      vatNumber: customerVatNumber,  // ✅ ADD THIS
       phoneNumber:customerPhoneNumber,
       provience: customerProvinceNumber,
       city: customerCityNumber,
@@ -1123,6 +1126,7 @@ class AddInvoicesController extends GetxController {
       customerStreetNumber: selectedCustomer.value!.street,
       customerHouseNumber: selectedCustomer.value!.houseNumber,
       customerTinNumber: selectedCustomer.value!.tinNumber,
+      customerVatNumber: selectedCustomer.value!.vatNumber,  // ✅ ADD THIS
       items: selectedItems,
       invoiceDate: dateController.text,
       invoiceDueDate: dueDateController.text,
@@ -1221,6 +1225,7 @@ class AddInvoicesController extends GetxController {
       pic: editSelectedCustomer.value!.pic,
       email: editSelectedCustomer.value!.email,
       tinNumber: editSelectedCustomer.value!.tinNumber,
+      vatNumber: editSelectedCustomer.value!.vatNumber,  // ✅ ADD THIS
       phoneNumber: editSelectedCustomer.value!.phoneNumber,
       provience: editSelectedCustomer.value!.provience,
       city: editSelectedCustomer.value!.city,
@@ -1254,7 +1259,7 @@ class AddInvoicesController extends GetxController {
       invoiceDueDate: editDueDateController.text,
       notes: editNotesController.text,
       termsAndConditions: editAddressController.text,
-      currency: editSelectedCurrency.toString(),
+      currency: editSelectedCurrency.value,
       invoiceType: editInvoiceType.toString()
     );
 
@@ -1419,6 +1424,7 @@ class AddInvoicesController extends GetxController {
       pic: editSelectedCustomer.value!.pic,
       email: editSelectedCustomer.value!.email,
       tinNumber: editSelectedCustomer.value!.tinNumber,
+      vatNumber: editSelectedCustomer.value!.vatNumber,  // ✅ ADD THIS
       phoneNumber: editSelectedCustomer.value!.phoneNumber,
       provience: editSelectedCustomer.value!.provience,
       city: editSelectedCustomer.value!.city,

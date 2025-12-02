@@ -89,6 +89,23 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
                 10.ht,
                 CustomText(
+                  text: "VAT Number",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white70,
+                ),
+                10.ht,
+                CustomTextField(
+                  controller: controller.vatNumberController,
+                  hintText: "Enter VAT number (optional)",
+                  keyboardType: TextInputType.text,
+                  borderColor: Colors.transparent,
+                  selectedBorderColor: AppColors.buttonClr,
+                  validator: controller.validateVatNumber,
+                ),
+
+                10.ht,
+                CustomText(
                   text: "Customer Name",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

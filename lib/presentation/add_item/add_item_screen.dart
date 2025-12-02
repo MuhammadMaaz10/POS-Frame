@@ -19,7 +19,10 @@ class AddItemScreen extends StatefulWidget {
 }
 
 class _AddItemScreenState extends State<AddItemScreen> {
-  final controller = Get.put(AddItemController());
+  // ✅ Change from Get.put() to Get.find() or check first
+  final controller = Get.isRegistered<AddItemController>() 
+      ? Get.find<AddItemController>() 
+      : Get.put(AddItemController());
 
   // final _formKey = GlobalKey<FormState>();
 
@@ -161,6 +164,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // ✅ Don't dispose controller here - let GetX handle it
+    super.dispose();
   }
 }
 

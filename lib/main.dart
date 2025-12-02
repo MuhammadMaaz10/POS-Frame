@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
-import 'package:frame_virtual_fiscilation/local_storage/qrUrlsList_model.g.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart'; // Ensure this path is correct
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -19,6 +18,7 @@ import 'local_storage/invoice_model.dart';
 import 'local_storage/item_model.dart';
 import 'local_storage/user_model.dart';
 import 'local_storage/vat_category_model.dart';
+import 'local_storage/qrUrlsList_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 

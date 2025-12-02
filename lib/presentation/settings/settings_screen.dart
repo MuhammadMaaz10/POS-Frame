@@ -11,6 +11,7 @@ import 'package:frame_virtual_fiscilation/presentation/settings/controller/setti
 import 'package:frame_virtual_fiscilation/presentation/tax_group/tax_group_screen.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
+import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/edit_company_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -50,6 +51,11 @@ class SettingsScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  customTile(
+                    title: "Company Profile",
+                    onTap: () => Get.to(EditCompanyScreen()),
+                    iconPath: AppImages.infoIcon,
+                  ),
                   customTile(
                     title: "Tax Group Management",
                     onTap: () => Get.to(TaxGroupScreen()),

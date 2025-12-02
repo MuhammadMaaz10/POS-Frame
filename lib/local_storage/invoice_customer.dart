@@ -31,7 +31,8 @@ class InvoiceCustomer {
   @HiveField(8)
   final dynamic tinNumber;
 
-
+  @HiveField(9)
+  final dynamic? vatNumber;  // ✅ ADD THIS
 
   InvoiceCustomer({
     required this.name,
@@ -43,5 +44,6 @@ class InvoiceCustomer {
     required this.street,
     required this.houseNumber,
     required this.tinNumber,
+    this.vatNumber,  // ✅ ADD THIS
   });
 }

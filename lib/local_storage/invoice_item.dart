@@ -25,7 +25,7 @@ class InvoiceItem {
   @HiveField(6)
   final dynamic taxID;
 
-  @HiveField(6)
+  @HiveField(7)
   final dynamic hsCode;
 
   InvoiceItem({

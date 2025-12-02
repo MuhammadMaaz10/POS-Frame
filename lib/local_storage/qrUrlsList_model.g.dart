@@ -1,12 +1,10 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-import 'package:frame_virtual_fiscilation/local_storage/qrUrlsList_model.dart';
-import 'package:hive/hive.dart';
+
+part of 'qrUrlsList_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
-
-
 
 class QrUrlsModelAdapter extends TypeAdapter<QrUrlsModel> {
   @override
@@ -21,7 +19,6 @@ class QrUrlsModelAdapter extends TypeAdapter<QrUrlsModel> {
     return QrUrlsModel(
       username: fields[0] as String,
       qrUrls: (fields[1] as List).cast<dynamic>(),
-
     );
   }
 
@@ -41,7 +38,7 @@ class QrUrlsModelAdapter extends TypeAdapter<QrUrlsModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is QrUrlsModelAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is QrUrlsModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

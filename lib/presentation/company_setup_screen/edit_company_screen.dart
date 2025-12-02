@@ -1,0 +1,290 @@
+import 'dart:io';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:frame_virtual_fiscilation/constants/app_color.dart';
+import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
+import 'package:frame_virtual_fiscilation/constants/app_images.dart';
+import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/controller/company_setup_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
+import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
+import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
+import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+
+import '../../local_storage/company_model.dart';
+
+class EditCompanyScreen extends StatefulWidget {
+  EditCompanyScreen({super.key});
+
+  @override
+  _EditCompanyScreenState createState() => _EditCompanyScreenState();
+}
+
+class _EditCompanyScreenState extends State<EditCompanyScreen> {
+  final CompanySetupController companySetupController =
+      Get.put(CompanySetupController());
+  final _formKey = GlobalKey<FormState>();
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompanyData();
+  }
+
+  Future<void> _loadCompanyData() async {
+    final company = await companySetupController.loadCompany();
+    if (company != null) {
+      setState(() {
+        companySetupController.companyNameController.text = company.companyName;
+        companySetupController.cityController.text = company.city;
+        companySetupController.provinceController.text = company.province;
+        companySetupController.addressController.text = company.address;
+        companySetupController.contactController.text = company.contactNumber;
+        companySetupController.emailController.text = company.email;
+        if (company.logoPath.isNotEmpty) {
+          companySetupController.logoImagePath = company.logoPath;
+        }
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _updateCompany() {
+    if (_formKey.currentState!.validate()) {
+      companySetupController.updateCompany(
+        CompanyModel(
+          logoPath: companySetupController.logoImagePath,
+          companyName: companySetupController.companyNameController.text.trim(),
+          city: companySetupController.cityController.text.trim(),
+          province: companySetupController.provinceController.text.trim(),
+          address: companySetupController.addressController.text.trim(),
+          contactNumber: companySetupController.contactController.text.trim(),
+          email: companySetupController.emailController.text.trim(),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.bgClr,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: AppColors.bgClr,
+      appBar: AppBar(
+        leading: InkWell(
+          onTap: () => Get.back(),
+          child: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
+        backgroundColor: AppColors.bgClr,
+        elevation: 0,
+        title: CustomText(
+          text: "Edit Company",
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+      ),
+      body: SafeArea(
+        child: GetBuilder(
+          init: CompanySetupController(),
+          builder: (_) {
+            return Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 18.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    30.ht,
+                    CustomText(
+                      text: "Edit Company Profile",
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    10.ht,
+                    CustomText(
+                      text: "Update your company information.",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    20.ht,
+                    CustomText(
+                      text: "Company Logo",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    10.ht,
+                    DottedBorder(
+                      dashPattern: [10, 5],
+                      radius: Radius.circular(30.r),
+                      color: Color(0xFF343A40),
+                      child: InkWell(
+                        onTap: () async {
+                          final path = await companySetupController.pickImageFromGallery();
+                        },
+                        child: companySetupController.logoImagePath == ''
+                            ? Container(
+                          height: 147.h,
+                          padding: EdgeInsets.symmetric(vertical: 30.h),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF172349),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                AppImages.uploadIcon,
+                                height: 36.h,
+                                width: 33.w,
+                              ),
+                              6.ht,
+                              Text(
+                                "Upload Logo",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              5.ht,
+                              Text(
+                                "Max 10 MB in .jpg/.jpeg/.png format",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                            : Container(
+                          height: 147.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF172349),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Image.file(
+                            File(companySetupController.logoImagePath!),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                    ),
+                    16.ht,
+                    CustomTextField(
+                      controller: companySetupController.companyNameController,
+                      hintText: 'Company Name*',
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Company Name is required';
+                        }
+                        if (value.trim().length < 2) {
+                          return 'Company Name must be at least 2 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    16.ht,
+                    CustomText(
+                      text: "Business Location",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    10.ht,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 173.w,
+                          child: CustomTextField(
+                            controller: companySetupController.cityController,
+                            hintText: 'City*',
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'City is required';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: 173.w,
+                          child: CustomTextField(
+                            controller: companySetupController.provinceController,
+                            hintText: 'Province*',
+                            borderColor: Colors.transparent,
+                            selectedBorderColor: AppColors.buttonClr,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Province is required';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    10.ht,
+                    CustomTextField(
+                      keyboardType: TextInputType.streetAddress,
+                      controller: companySetupController.addressController,
+                      hintText: 'Company Address',
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                    ),
+                    10.ht,
+                    CustomTextField(
+                      keyboardType: TextInputType.phone,
+                      controller: companySetupController.contactController,
+                      hintText: 'Contact Number',
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                    ),
+                    10.ht,
+                    CustomTextField(
+                      keyboardType: TextInputType.emailAddress,
+                      controller: companySetupController.emailController,
+                      hintText: 'Company Email',
+                      prefixIcon: Icons.email_outlined,
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                    ),
+                    62.ht,
+                    CustomButton(
+                      text: 'Update',
+                      onPressed: _updateCompany,
+                      color: AppColors.buttonClr,
+                    ),
+                    20.ht,
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
