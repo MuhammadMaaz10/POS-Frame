@@ -586,6 +586,7 @@ class HomeScreenController extends GetxController {
           // "creditDebitNote": {
           //   "originalInvoice": invoiceModel.invoiceNo
           // },
+
           "creditDebitNote": {
             "deviceID": 25811,
             "receiptGlobalNo": 4,
