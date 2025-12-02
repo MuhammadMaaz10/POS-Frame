@@ -172,11 +172,12 @@ class FiscalDeviceManagementController extends GetxController {
     }
   }
 
-  Future<void> openDay({required String day}) async {
+  Future<void> openDay({required String day})
+  async {
     _setLoading2(true);
     print("XXXXXXXXXXXXXX 🔄 Starting openDay API call... XXXXXXXXXXXXXXXXXXX");
     try {
-      final url = Uri.parse("$baseUrl$openDayUrl$day");
+      final url = Uri.parse("$baseUrl$openDayUrl");
       print("🌐 API URL: $url");
       print("🌐 API key: $fiscalApiKey");
 
@@ -212,7 +213,7 @@ class FiscalDeviceManagementController extends GetxController {
     _setLoading3(true);
     print("🔄 Starting closeDay api call...");
     try {
-      final url = Uri.parse(baseUrl+closeDayUrl+day);
+      final url = Uri.parse(baseUrl+closeDayUrl);
       print("🌐 API URL: $url");
       print("🌐 API key: $fiscalApiKey");
 
