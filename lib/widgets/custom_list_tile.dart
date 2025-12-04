@@ -76,6 +76,17 @@ class ItemsCustomListTile extends StatelessWidget {
 
 
 class InvoiceCustomListTile extends StatelessWidget {
+  String? invoiceID;
+  Color? inoiveTypeTextcolor;
+  String? invoiceType;
+  String? titleText;
+  String? date;
+  ImageProvider? imageUrl;
+  bool? paid;
+  double? amount;
+  bool? isTrailing;
+  void Function()? onTap;
+
   InvoiceCustomListTile({
     super.key,
     this.invoiceID = "INV-001",
@@ -89,17 +100,6 @@ class InvoiceCustomListTile extends StatelessWidget {
     this.onTap,
     this.inoiveTypeTextcolor,
   });
-
-  String? invoiceID;
-  Color? inoiveTypeTextcolor;
-  String? invoiceType;
-  String? titleText;
-  String? date;
-  ImageProvider? imageUrl;
-  bool? paid;
-  double? amount;
-  bool? isTrailing;
-  void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +150,7 @@ class InvoiceCustomListTile extends StatelessWidget {
             color: paid! ? Colors.green : AppColors.redClr,
             fontWeight: FontWeight.w500,),
           CustomText(
-            text: "\$$amount",
+            text: "\$${amount?.toStringAsFixed(2)}",
               // fontSize: 14.sp,
               fontWeight: FontWeight.w700,
           ),

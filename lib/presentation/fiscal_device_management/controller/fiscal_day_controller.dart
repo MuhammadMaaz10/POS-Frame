@@ -17,6 +17,11 @@ class FiscalDeviceManagementController extends GetxController {
   final int totalSeconds = 24 * 60 * 60; // 24 hours in seconds
   var progress = 1.0.obs; // for progress bar (1.0 = full)
 
+  // ✅ Add these observable variables for fiscal day status
+  var fiscalDayStatus = "".obs;
+  var fiscalDayNumber = "".obs;
+  var lastInvoiceNumber = "".obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -138,19 +143,23 @@ class FiscalDeviceManagementController extends GetxController {
         // Create instance of your model and store API response
          fiscalDayModel = FiscalDeviceModel.fromJson(data);
 
-        // Optionally store it in a variable for later use
-        // this.fiscalDayModel = fiscalDayData;
-
-        fiscalDayStatus = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
-        fiscalDayNumber = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
-        lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null)!;
-        await saveLastInvoiceNumberOnce(lastInvoiceNumber);
+        // ✅ Update observable variables instead of global variables
+        fiscalDayStatus.value = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
+        fiscalDayNumber.value = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
+        lastInvoiceNumber.value = (fiscalDayModel?.lastUsedInvoiceNumber ?? null) ?? "";
+        
+        // ✅ Also update global variables for backward compatibility (if needed elsewhere)
+        fiscalDayStatus = fiscalDayStatus.value as RxString;
+        fiscalDayNumber = fiscalDayNumber.value as RxString;
+        lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null)! as RxString;
+        
+        await saveLastInvoiceNumberOnce(lastInvoiceNumber.value);
         update();
 
         final apiTime = fiscalDayModel?.timeUntilDayClosure ?? "";
 
-        print("📦 fiscalDayStatus: $fiscalDayStatus");
-        print("📦 lastInvoiceNumber: $lastInvoiceNumber");
+        print("📦 fiscalDayStatus: ${fiscalDayStatus.value}");
+        print("📦 lastInvoiceNumber: ${lastInvoiceNumber.value}");
         print("📦 timeUntilDayClosure: $apiTime");
 
         if (apiTime.isNotEmpty) {

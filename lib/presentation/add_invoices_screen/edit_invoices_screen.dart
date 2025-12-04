@@ -80,7 +80,7 @@ class _EditInvoicesScreenState extends State<EditInvoicesScreen> {
                       titletext: "Invoice Number",
                       labeltext: controller.editInvoiceNumber.value,
                       suffixtext: "Auto Generated",
-                      isdisabled: true,
+                      isdisabled: false,
                     ),
                     16.ht,
 

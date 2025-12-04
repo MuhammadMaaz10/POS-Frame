@@ -49,7 +49,7 @@ class CustomTextField extends StatelessWidget {
       onTap: onTap,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(fontSize: 14.sp,fontWeight: FontWeight.w500,color: Colors.white70),
+        hintStyle: TextStyle(fontSize: 14.sp,fontWeight: FontWeight.w500,color: Colors.white38),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Colors.white70) : null,
         suffixIcon: suffixIcon != null
             ? IconButton(

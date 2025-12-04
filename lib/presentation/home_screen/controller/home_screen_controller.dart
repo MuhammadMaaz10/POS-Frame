@@ -105,7 +105,9 @@ class HomeScreenController extends GetxController {
       print('Device ID: ${fiscalDeviceID}');
       if(fiscalDeviceID != ""){
         print("--------------- fiscalDeviceID is ${fiscalDeviceID} --------");
-        Get.put(FiscalDeviceManagementController()).getFiscalDayData();
+        // ✅ Use Get.find or Get.put to ensure controller is accessible
+        final fiscalController = Get.put(FiscalDeviceManagementController());
+        await fiscalController.getFiscalDayData();
       }else{
         print("--------------- fiscalDeviceID is empty --------");
       }

@@ -47,7 +47,7 @@ class AddInvoicesScreen extends StatelessWidget {
                     titletext: "Invoice Number",
                     labeltext: controller.invoiceIDController.text,
                     suffixtext: "Auto Generated",
-                    isdisabled: true,
+                    isdisabled: false,
                   ),
                   16.ht,
 
