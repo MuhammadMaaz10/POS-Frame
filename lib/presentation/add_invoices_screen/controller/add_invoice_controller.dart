@@ -1382,7 +1382,7 @@ class AddInvoicesController extends GetxController {
     }
 
     // Generate new invoice number
-    generateInvoiceNumber(); // Reuse existing method to get new number
+    // generateInvoiceNumber(); // Reuse existing method to get new number
     String newInvoiceNo = invoiceNumber.value;
     print("📋 Generated new invoice number for duplicate: $newInvoiceNo");
 
@@ -1464,7 +1464,7 @@ class AddInvoicesController extends GetxController {
     print("✅ Saved duplicate invoice $newInvoiceNo");
 
     // ✅ Generate the next invoice number immediately
-    generateInvoiceNumber();
+    // generateInvoiceNumber();
 
 
 
