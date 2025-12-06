@@ -19,11 +19,11 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("fiscalDayStatus --------> ${fiscalDayStatus} ");
-    final isDayClosed = fiscalDayStatus == "FiscalDayClosed"
-        || fiscalDayStatus == null
-        || fiscalDayStatus == "null"
-        || fiscalDayStatus.isEmpty;
+    print("fiscalDayStatus --------> ${AppConstant.fiscalDayStatus} ");
+    final isDayClosed = AppConstant.fiscalDayStatus == "FiscalDayClosed"
+        || AppConstant.fiscalDayStatus == null
+        || AppConstant.fiscalDayStatus == "null"
+        || AppConstant.fiscalDayStatus.isEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.bgClr,

@@ -592,7 +592,7 @@ class HomeScreenController extends GetxController {
           "creditDebitNote": {
             "deviceID": 25811,
             "receiptGlobalNo": 4,
-            "fiscalDayNo": fiscalDayNumber,
+            "fiscalDayNo": AppConstant.fiscalDayNumber,
           },
 
         });

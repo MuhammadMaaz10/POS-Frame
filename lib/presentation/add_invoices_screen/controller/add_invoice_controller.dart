@@ -57,7 +57,12 @@ class AddInvoicesController extends GetxController {
 
   AddInvoicesController() {
     print("----- on init called ----- ");
-    _loadLastInvoiceNumber();  // this will generate after load
+    if (AppConstant.isAppConfigured == true){
+      print('--- load the invoice number app is configured ---');
+    _loadLastInvoiceNumber();
+    }else{
+      print('--- cannot load the invoice number app is not configured yet---');
+    }  // this will generate after load
   }
 
 
@@ -67,13 +72,13 @@ class AddInvoicesController extends GetxController {
 
     print("isInvoiceReady ---in start-------> ${isInvoiceReady.value}");
     final prefs = await SharedPreferences.getInstance();
-    lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    AppConstant.lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
 
-    if (lastInvoiceNumber != null && lastInvoiceNumber.startsWith('INV-FR-')) {
-      final numberPart = lastInvoiceNumber.replaceAll('INV-FR-', '');
+    if (AppConstant.lastInvoiceNumber != null && AppConstant.lastInvoiceNumber.startsWith('INV-FR-')) {
+      final numberPart = AppConstant.lastInvoiceNumber.replaceAll('INV-FR-', '');
       final parsed = int.tryParse(numberPart) ?? 0;
       _invoiceCounter = parsed + 1;
-      print("📄 Loaded last invoice number: $lastInvoiceNumber, counter set to $_invoiceCounter");
+      print("📄 Loaded last invoice number: ${AppConstant.lastInvoiceNumber}, counter set to $_invoiceCounter");
     } else {
       _invoiceCounter = 1;
       print("📄 No saved invoice number, counter reset to 1");
@@ -89,17 +94,17 @@ class AddInvoicesController extends GetxController {
 
   Future<void> initInvoiceCounter() async {
     final prefs = await SharedPreferences.getInstance();
-    lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    AppConstant.lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
 
-    if (lastInvoiceNumber.isNotEmpty && lastInvoiceNumber.startsWith('INV-FR-')) {
-      final numberPart = lastInvoiceNumber.replaceAll('INV-FR-', '');
+    if (AppConstant.lastInvoiceNumber.isNotEmpty && AppConstant.lastInvoiceNumber.startsWith('INV-FR-')) {
+      final numberPart = AppConstant.lastInvoiceNumber.replaceAll('INV-FR-', '');
       final parsed = int.tryParse(numberPart) ?? 0;
       _invoiceCounter = parsed + 1;
     } else {
       _invoiceCounter = 1; // fallback if no invoice found
     }
 
-    print("🔢 Initialized _invoiceCounter = $_invoiceCounter from lastInvoiceNumber = $lastInvoiceNumber");
+    print("🔢 Initialized _invoiceCounter = $_invoiceCounter from lastInvoiceNumber = ${AppConstant.lastInvoiceNumber}");
   }
 
 
@@ -1170,9 +1175,9 @@ class AddInvoicesController extends GetxController {
   /// saving new invoice number when invoice generate successfully
   Future<void> saveLastInvoiceNumber(String invoiceNumber) async {
     final prefs = await SharedPreferences.getInstance();
-    lastInvoiceNumber = invoiceNumber; // update global variable
-    await prefs.setString('lastInvoiceNumber', lastInvoiceNumber);
-    print("💾 Saved lastInvoiceNumber globally: $lastInvoiceNumber");
+    AppConstant.lastInvoiceNumber = invoiceNumber; // update global variable
+    await prefs.setString('lastInvoiceNumber', AppConstant.lastInvoiceNumber);
+    print("💾 Saved lastInvoiceNumber globally: ${AppConstant.lastInvoiceNumber}");
     _loadLastInvoiceNumber();
 
   }

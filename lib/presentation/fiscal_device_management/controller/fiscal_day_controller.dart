@@ -6,6 +6,8 @@ import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../constants/app_constants.dart';
+
 class FiscalDeviceManagementController extends GetxController {
   var isDayOpen = false.obs;
   var isServerOnline = true.obs;
@@ -90,7 +92,7 @@ class FiscalDeviceManagementController extends GetxController {
   void _setLoading(bool value) {
     isLoading = value;
     update();  // notify GetBuilder
-    print("loading state --------------> ${isLoading}");
+    // print("loading state --------------> ${isLoading}");
   }
 
 
@@ -100,7 +102,7 @@ class FiscalDeviceManagementController extends GetxController {
   void _setLoading2(bool value) {
     isLoading2 = value;
     update(); // <-- This triggers the GetBuilder to rebuild
-    print("loading state --------------> ${isLoading2}");
+    // print("loading state --------------> ${isLoading2}");
   }
 
   /// Setters loading for closeDay API
@@ -143,23 +145,25 @@ class FiscalDeviceManagementController extends GetxController {
         // Create instance of your model and store API response
          fiscalDayModel = FiscalDeviceModel.fromJson(data);
 
+
         // ✅ Update observable variables instead of global variables
         fiscalDayStatus.value = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
         fiscalDayNumber.value = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
         lastInvoiceNumber.value = (fiscalDayModel?.lastUsedInvoiceNumber ?? null) ?? "";
-        
+
         // ✅ Also update global variables for backward compatibility (if needed elsewhere)
-        fiscalDayStatus = fiscalDayStatus.value as RxString;
-        fiscalDayNumber = fiscalDayNumber.value as RxString;
-        lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null)! as RxString;
-        
+        AppConstant.fiscalDayStatus = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
+        AppConstant.fiscalDayNumber = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
+        AppConstant.lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null) ?? "";
+
         await saveLastInvoiceNumberOnce(lastInvoiceNumber.value);
         update();
 
         final apiTime = fiscalDayModel?.timeUntilDayClosure ?? "";
 
-        print("📦 fiscalDayStatus: ${fiscalDayStatus.value}");
-        print("📦 lastInvoiceNumber: ${lastInvoiceNumber.value}");
+        print("📦 fiscalDayStatus: ${AppConstant.fiscalDayStatus}");
+        print("📦 fiscalDayNumber: ${AppConstant.fiscalDayNumber}");
+        print("📦 lastInvoiceNumber: ${AppConstant.lastInvoiceNumber}");
         print("📦 timeUntilDayClosure: $apiTime");
 
         if (apiTime.isNotEmpty) {
@@ -180,6 +184,7 @@ class FiscalDeviceManagementController extends GetxController {
       _setLoading(false);
     }
   }
+
 
   Future<void> openDay({required String day})
   async {

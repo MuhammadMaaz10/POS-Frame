@@ -134,8 +134,8 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
   // }
   
   String _getFiscalDayNumber() {
-    return fiscalDayNumber.isNotEmpty && fiscalDayNumber != "null" 
-        ? fiscalDayNumber 
+    return AppConstant.fiscalDayNumber.isNotEmpty && AppConstant.fiscalDayNumber != "null"
+        ? AppConstant.fiscalDayNumber
         : 'N/A';
   }
   

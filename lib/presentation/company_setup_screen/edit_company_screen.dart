@@ -22,8 +22,7 @@ class EditCompanyScreen extends StatefulWidget {
 }
 
 class _EditCompanyScreenState extends State<EditCompanyScreen> {
-  final CompanySetupController companySetupController =
-      Get.put(CompanySetupController());
+  final CompanySetupController companySetupController = Get.put(CompanySetupController());
   final _formKey = GlobalKey<FormState>();
   bool isLoading = true;
 
@@ -97,9 +96,8 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
         ),
       ),
       body: SafeArea(
-        child: GetBuilder(
-          init: CompanySetupController(),
-          builder: (_) {
+        child: GetBuilder<CompanySetupController>(
+          builder: (controller) {
             return Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -134,9 +132,9 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                       color: Color(0xFF343A40),
                       child: InkWell(
                         onTap: () async {
-                          final path = await companySetupController.pickImageFromGallery();
+                          final path = await controller.pickImageFromGallery();
                         },
-                        child: companySetupController.logoImagePath == ''
+                        child: controller.logoImagePath == ''
                             ? Container(
                           height: 147.h,
                           padding: EdgeInsets.symmetric(vertical: 30.h),
@@ -181,7 +179,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Image.file(
-                            File(companySetupController.logoImagePath!),
+                            File(controller.logoImagePath!),
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -189,7 +187,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                     ),
                     16.ht,
                     CustomTextField(
-                      controller: companySetupController.companyNameController,
+                      controller: controller.companyNameController,
                       hintText: 'Company Name*',
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
@@ -217,7 +215,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                         SizedBox(
                           width: 173.w,
                           child: CustomTextField(
-                            controller: companySetupController.cityController,
+                            controller: controller.cityController,
                             hintText: 'City*',
                             borderColor: Colors.transparent,
                             selectedBorderColor: AppColors.buttonClr,
@@ -232,7 +230,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                         SizedBox(
                           width: 173.w,
                           child: CustomTextField(
-                            controller: companySetupController.provinceController,
+                            controller: controller.provinceController,
                             hintText: 'Province*',
                             borderColor: Colors.transparent,
                             selectedBorderColor: AppColors.buttonClr,
@@ -249,7 +247,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                     10.ht,
                     CustomTextField(
                       keyboardType: TextInputType.streetAddress,
-                      controller: companySetupController.addressController,
+                      controller: controller.addressController,
                       hintText: 'Company Address',
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
@@ -257,7 +255,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                     10.ht,
                     CustomTextField(
                       keyboardType: TextInputType.phone,
-                      controller: companySetupController.contactController,
+                      controller: controller.contactController,
                       hintText: 'Contact Number',
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
@@ -265,7 +263,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                     10.ht,
                     CustomTextField(
                       keyboardType: TextInputType.emailAddress,
-                      controller: companySetupController.emailController,
+                      controller: controller.emailController,
                       hintText: 'Company Email',
                       prefixIcon: Icons.email_outlined,
                       borderColor: Colors.transparent,

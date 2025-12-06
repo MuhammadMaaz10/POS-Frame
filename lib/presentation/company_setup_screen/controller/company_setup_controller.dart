@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:frame_virtual_fiscilation/presentation/settings/settings_screen.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart';
 import 'package:frame_virtual_fiscilation/routes/app_routes.dart';
 import 'package:get/get.dart';
@@ -24,28 +25,7 @@ class CompanySetupController extends GetxController{
   TextEditingController provinceController=TextEditingController();
   TextEditingController addressController=TextEditingController();
   TextEditingController contactController=TextEditingController();
-  TextEditingController emailController=TextEditingController();  // ✅ ADD THIS
-  //
-  // void checkEmailAndNavigate(String email) {
-  //   final box = Hive.box<UserModel>('users');
-  //   final user = box.values.firstWhereOrNull((u) => u.username == email);
-  //
-  //   if (user == null) {
-  //     CustomGetSnackBar.show(
-  //       title: "Email Not Found",
-  //       message: "No account exists for this email",
-  //       backgroundColor: AppColors.buttonClr,
-  //       snackPosition: SnackPosition.TOP,
-  //     );
-  //   } else {
-  //
-  //     final resetPassController=Get.put(ResetPasswordController());
-  //     resetPassController.email=email;
-  //     // Navigate to reset password screen and pass the email
-  //     Get.to(ResetPasswordScreen());
-  //     // AppRouter.to(resetPassScreen);
-  //   }
-  // }
+  TextEditingController emailController=TextEditingController();
 
    String logoImagePath='';
   Future<String?> pickImageFromGallery() async {
@@ -89,27 +69,46 @@ class CompanySetupController extends GetxController{
 
   }
 
-  // ✅ ADD THIS METHOD for updating company
+  // ✅ ADD THIS METHOD for updating company WITH DEBUG PRINTS
   Future<void> updateCompany(CompanyModel company) async {
+    print('updateCompany() called ------');
+
     var settingsBox = await Hive.openBox('settings');
     var username = settingsBox.get('loggedInUser');
+    print("Logged-in username: $username");
+
     final box = Hive.box<CompanyModel>('companies_$username');
-    
-    if (box.isNotEmpty) {
-      // Update the first company record
-      final key = box.keys.first;
-      await box.put(key, company);
-      
-      CustomGetSnackBar.show(
-        title: "Success!",
-        message: "Company profile updated successfully",
-        backgroundColor: AppColors.buttonClr,
-        snackPosition: SnackPosition.TOP,
-      );
-      
-      Get.back();
+    print("Company box name: companies_$username");
+    print("Company box length: ${box.length}");
+    print("Company box keys: ${box.keys.toList()}");
+
+    if (box.isEmpty) {
+      print("⚠️ Box is EMPTY → update block will NOT run.");
+      return;
     }
+
+    print("Box is NOT empty → Proceeding to update.");
+
+    // Update the first company record
+    final key = box.keys.first;
+    print("Updating company with key: $key");
+
+    await box.put(key, company);
+    print("Company updated successfully in Hive.");
+
+    print("Trying to show snackbar...");
+    CustomGetSnackBar.show(
+      title: "Success!",
+      message: "Company profile updated successfully",
+      backgroundColor: AppColors.buttonClr,
+      snackPosition: SnackPosition.TOP,
+    );
+
+
+    Get.to(SettingsScreen());
+    print("Get.back() executed.");
   }
+
 
   // ✅ ADD THIS METHOD to load existing company data
   Future<CompanyModel?> loadCompany() async {
