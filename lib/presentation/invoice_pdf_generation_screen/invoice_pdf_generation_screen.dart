@@ -146,6 +146,21 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
   @override
   Widget build(BuildContext context) {
 
+    double totalNet = 0;
+    double totalVat = 0;
+    double totalGross = 0;
+
+    for (var item in widget.previewModel.receiptLines!) {
+      final gross = item.receiptLineTotal?.toDouble() ?? 0;
+      final vat = calculateTax(gross, item.taxPercent?.toDouble() ?? 0);
+      final net = gross - vat;
+
+      totalNet += net;
+      totalVat += vat;
+      totalGross += gross;
+    }
+
+
     // ✅ calculating totalQuantity once at the top
     totalQuantity = widget.previewModel.receiptLines
         ?.fold<int>(0, (sum, line) => sum + (line.receiptLineQuantity ?? 0)) ??
@@ -268,7 +283,7 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                               width: 200.w,
                               child: CustomText2(textAlign: TextAlign.start, '${data.receiptLineName} x ${data.receiptLineQuantity}'),
                             ),
-                            CustomText2("${data.receiptLineTotal}"),
+                            CustomText2("${data.receiptLineTotal?.toStringAsFixed(2)}"),
                           ],
                         );
                       },
@@ -284,12 +299,12 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                           CustomText2('Total ${widget.previewModel.receiptCurrency}',
                               color: Colors.black, fontWeight: FontWeight.w600),
-                          CustomText2('${widget.previewModel.receiptTotal}',
+                          CustomText2('${widget.previewModel.receiptTotal?.toStringAsFixed(2)}',
                               color: Colors.black, fontWeight: FontWeight.w600),
                         ]),
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                           CustomText2('${widget.previewModel.receiptCurrency} Cash'),
-                          CustomText2('${widget.previewModel.receiptTotal}'),
+                          CustomText2('${widget.previewModel.receiptTotal?.toStringAsFixed(2)}'),
                         ]),
                       ],
                     ),
@@ -310,41 +325,70 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                     4.ht,
                     const Divider(thickness: 1, color: Colors.black),
                     4.ht,
-                    const Divider(thickness: 1, color: Colors.black),
-                    4.ht,
 
-                    ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      reverse: true,
-                      itemCount: widget.previewModel.receiptLines!.length,
-                      itemBuilder: (context, index) {
-                        final data = widget.previewModel.receiptLines![index];
+                    // ListView.builder(
+                    //   physics: const NeverScrollableScrollPhysics(),
+                    //   shrinkWrap: true,
+                    //   reverse: true,
+                    //   itemCount: widget.previewModel.receiptLines!.length,
+                    //   itemBuilder: (context, index) {
+                    //     final data = widget.previewModel.receiptLines![index];
+                    //
+                    //     double tax = calculateTax(data.receiptLineTotal!.toDouble(), data.taxPercent!.toDouble());
+                    //     final netAmount = (data.receiptLineTotal ?? 0) - tax;
+                    //
+                    //     return Column(
+                    //       children: [
+                    //         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    //            CustomText2('Net Amount ', textAlign: TextAlign.start),
+                    //           CustomText2(netAmount.toStringAsFixed(2)),
+                    //         ]),
+                    //         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    //           CustomText2('VAT (${data.taxPercent})', textAlign: TextAlign.start),
+                    //           CustomText2(tax.toStringAsFixed(2)),
+                    //         ]),
+                    //         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    //            CustomText2('Gross Amount', textAlign: TextAlign.start),
+                    //           CustomText2('${data.receiptLineTotal?.toStringAsFixed(2)}'),
+                    //         ]),
+                    //
+                    //         const Divider(thickness: 1, color: Colors.black),
+                    //         4.ht,
+                    //       ],
+                    //     );
+                    //   },
+                    // ),
 
-                        double tax = calculateTax(data.receiptLineTotal!.toDouble(), data.taxPercent!.toDouble());
-                        final netAmount = (data.receiptLineTotal ?? 0) - tax;
-
-                        return Column(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                               CustomText2('Net Amount ', textAlign: TextAlign.start),
-                              CustomText2(netAmount.toStringAsFixed(2)),
-                            ]),
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                              CustomText2('VAT (${data.taxPercent})', textAlign: TextAlign.start),
-                              CustomText2(tax.toStringAsFixed(2)),
-                            ]),
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                               CustomText2('Gross Amount', textAlign: TextAlign.start),
-                              CustomText2('${data.receiptLineTotal}'),
-                            ]),
-
-                            const Divider(thickness: 1, color: Colors.black),
-                            4.ht,
+                            CustomText2('Total Net Amount'),
+                            CustomText2(totalNet.toStringAsFixed(2)),
                           ],
-                        );
-                      },
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText2('Total VAT'),
+                            CustomText2(totalVat.toStringAsFixed(2)),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText2('Total Gross Amount'),
+                            CustomText2(totalGross.toStringAsFixed(2)),
+                          ],
+                        ),
+                        const Divider(thickness: 1, color: Colors.black),
+                        4.ht,
+                      ],
                     ),
+
+
 
                     5.ht,
                      Center(child: CustomText2('Invoice is issued after purchasing goods')),
@@ -405,6 +449,7 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
             ),
     );
   }
+
   // helper function
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
@@ -437,6 +482,23 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
       emptyColor: const Color(0xFFFFFFFF),
       gapless: false,
     ).toImageData(200);
+
+
+
+    double totalNet = 0.0;
+    double totalVat = 0.0;
+    double totalGross = 0.0;
+
+    for (var line in widget.previewModel.receiptLines ?? []) {
+      final gross = (line.receiptLineTotal ?? 0).toDouble();
+      final vat = calculateTax(gross, (line.taxPercent ?? 0).toDouble());
+      final net = gross - vat;
+
+      totalNet += net;
+      totalVat += vat;
+      totalGross += gross;
+    }
+
 
     /// Updated PDF generation with real data
     pdf.addPage(
@@ -580,14 +642,14 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Text('Total ${widget.previewModel.receiptCurrency}', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
-                  pw.Text('${widget.previewModel.receiptTotal}', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
+                  pw.Text('${widget.previewModel.receiptTotal?.toStringAsFixed(2)}', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, font: satoshiBold)),
                 ],
               ),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Text('${widget.previewModel.receiptCurrency} Cash', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-                  pw.Text('${widget.previewModel.receiptTotal}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                  pw.Text('${widget.previewModel.receiptTotal?.toStringAsFixed(2)}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
                 ],
               ),
               pw.Divider(thickness: 0.5),
@@ -605,29 +667,54 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
               ),
               pw.Divider(thickness: 0.5),
 
-              // TAX DETAILS (per line)
-              ...(widget.previewModel.receiptLines ?? []).map((data) {
-                final tax = calculateTax((data.receiptLineTotal ?? 0).toDouble(), (data.taxPercent ?? 0).toDouble());
-                final netAmount = (data.receiptLineTotal ?? 0) - tax;
-                return pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-                      pw.Text('Net Amount', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-                      pw.Text(netAmount.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-                    ]),
-                    pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-                      pw.Text('VAT (${data.taxPercent ?? 0}%)', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-                      pw.Text(tax.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-                    ]),
-                    pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-                      pw.Text('Gross Amount', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-                      pw.Text('${data.receiptLineTotal}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
-                    ]),
-                    pw.Divider(thickness: 0.5),
-                  ],
-                );
-              }).toList(),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text("Total Net Amount", style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                  pw.Text(totalNet.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                ],
+              ),
+
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text("Total VAT", style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                  pw.Text(totalVat.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                ],
+              ),
+
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text("Total Gross Amount", style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                  pw.Text(totalGross.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+                ],
+              ),
+              pw.Divider(thickness: 0.5),
+
+
+              // ...(widget.previewModel.receiptLines ?? []).map((data) {
+              //   final tax = calculateTax((data.receiptLineTotal ?? 0).toDouble(), (data.taxPercent ?? 0).toDouble());
+              //   final netAmount = (data.receiptLineTotal ?? 0) - tax;
+              //   return pw.Column(
+              //     crossAxisAlignment: pw.CrossAxisAlignment.start,
+              //     children: [
+              //       pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+              //         pw.Text('Net Amount', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              //         pw.Text(netAmount.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              //       ]),
+              //       pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+              //         pw.Text('VAT (${data.taxPercent ?? 0}%)', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              //         pw.Text(tax.toStringAsFixed(2), style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              //       ]),
+              //       pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+              //         pw.Text('Gross Amount', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              //         pw.Text('${data.receiptLineTotal}', style: pw.TextStyle(fontSize: 8, font: satoshiRegular)),
+              //       ]),
+              //       pw.Divider(thickness: 0.5),
+              //     ],
+              //   );
+              // }).toList(),
 
               pw.SizedBox(height: 8),
               pw.Center(child: pw.Text('Invoice is issued after purchasing goods', style: pw.TextStyle(fontSize: 8, font: satoshiRegular))),

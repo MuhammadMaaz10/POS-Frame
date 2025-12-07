@@ -11,8 +11,8 @@ class ItemsCustomListTile extends StatelessWidget {
     this.isTrailing = true,
     this.imageUrl,
     this.subTitleText,
-    this.titleText = "Ahmed Ali",
-    this.amount = 728,
+    this.titleText = "Empty",
+    this.amount = 00,
     this.leftPadding,
     this.onTap,
     this.tileColor
@@ -61,7 +61,7 @@ class ItemsCustomListTile extends StatelessWidget {
       trailing: isTrailing! ? Padding(
         padding: EdgeInsets.only(top: 8.h),
         child: Text(
-          "\$$amount",
+          "\$${amount?.toStringAsFixed(2)}",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -72,7 +72,6 @@ class ItemsCustomListTile extends StatelessWidget {
     );
   }
 }
-
 
 
 class InvoiceCustomListTile extends StatelessWidget {
@@ -133,8 +132,8 @@ class InvoiceCustomListTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CustomText(text: "Document Type: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
-              CustomText(text: "$invoiceType",fontSize: 12,color: inoiveTypeTextcolor ?? AppColors.buttonClr,fontWeight: FontWeight.w500,),
+              CustomText(text: "Document Type:",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
+              CustomText(text: " $invoiceType",fontSize: 12,color: inoiveTypeTextcolor ?? AppColors.buttonClr,fontWeight: FontWeight.w500,),
             ],
           ),
         ],
