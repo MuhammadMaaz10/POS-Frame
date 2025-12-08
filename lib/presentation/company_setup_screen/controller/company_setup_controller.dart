@@ -26,6 +26,8 @@ class CompanySetupController extends GetxController{
   TextEditingController addressController=TextEditingController();
   TextEditingController contactController=TextEditingController();
   TextEditingController emailController=TextEditingController();
+  TextEditingController tinNumberController=TextEditingController();
+  TextEditingController vatNumberController=TextEditingController();
 
    String logoImagePath='';
   Future<String?> pickImageFromGallery() async {
@@ -105,7 +107,7 @@ class CompanySetupController extends GetxController{
     );
 
 
-    Get.to(SettingsScreen());
+    Get.off(SettingsScreen());
     print("Get.back() executed.");
   }
 
@@ -141,5 +143,16 @@ class CompanySetupController extends GetxController{
     }
   }
 
-
+  @override
+  void onClose() {
+    companyNameController.dispose();
+    cityController.dispose();
+    provinceController.dispose();
+    addressController.dispose();
+    contactController.dispose();
+    emailController.dispose();
+    tinNumberController.dispose();
+    vatNumberController.dispose();
+    super.onClose();
+  }
 }

@@ -97,8 +97,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 10.ht,
                 CustomTextField(
                   controller: controller.vatNumberController,
-                  hintText: "Enter VAT number (optional)",
-                  keyboardType: TextInputType.text,
+                  hintText: "Enter VAT number",
+                  keyboardType: TextInputType.number,
                   borderColor: Colors.transparent,
                   selectedBorderColor: AppColors.buttonClr,
                   validator: controller.validateVatNumber,
@@ -121,13 +121,6 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   validator: controller.validateName,
                 ),
                 10.ht,
-                // CustomText(
-                //   text: "Customer Contact",
-                //   fontSize: 14,
-                //   fontWeight: FontWeight.w500,
-                //   color: Colors.white70,
-                // ),
-                // 10.ht,
                 CustomText(
                   text: "Email",
                   fontSize: 14,
@@ -162,23 +155,6 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   validator: controller.validatePhone,
                 ),
                 10.ht,
-
-                // CustomText(
-                //   text: "Address",
-                //   fontSize: 14,
-                //   fontWeight: FontWeight.w500,
-                //   color: Colors.white70,
-                // ),
-                // 10.ht,
-                // CustomTextField(
-                //   controller: controller.addressController,
-                //   hintText: "Enter address",
-                //   keyboardType: TextInputType.streetAddress,
-                //   borderColor: Colors.transparent,
-                //   selectedBorderColor: AppColors.buttonClr,
-                //   maxLines: 2,
-                //   validator: controller.validateAddress,
-                // ),
 
                 Row(
                   children: [

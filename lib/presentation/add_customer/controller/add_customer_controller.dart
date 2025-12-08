@@ -129,8 +129,14 @@ class CustomerController extends GetxController {
   }
 
   String? validateVatNumber(String? value) {
-    // VAT number is optional, so no validation required
-    // But you can add validation if needed
+    if (value == null || value.isEmpty) {
+      return 'Vat Number is required';
+    }
+    final trimmed = value.trim();
+
+    if (trimmed.length != 9) {
+      return 'Vat Number must be exactly 9 characters';
+    }
     return null;
   }
 

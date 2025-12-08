@@ -573,11 +573,11 @@ class HomeScreenController extends GetxController {
         "receiptPayments": [
           {
             "moneyTypeCode": "CASH",
-            "paymentAmount": receiptTotal,
+            "paymentAmount": receiptTotal.toStringAsFixed(2),
           }
         ],
-        "receiptTotal": receiptTotal,
-        "receiptTaxAmount": receiptTaxAmount,
+        "receiptTotal": receiptTotal.toStringAsFixed(2),
+        "receiptTaxAmount": receiptTaxAmount.toStringAsFixed(2),
         "receiptPrintForm": "Receipt48",
       };
 

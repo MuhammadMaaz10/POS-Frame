@@ -195,8 +195,11 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                     ),
                     8.ht,
                     // Company TIN - you may need to add this to CompanyModel
-                    CustomText2('TIN: ${widget.previewModel.buyerData!.buyerTIN}'),
-                    Center(child: CustomText2('VAT No: ${widget.previewModel.buyerData?.buyerVAT ?? ''}')), // Add VAT number to CompanyModel if needed
+                    // CustomText2('TIN: ${widget.previewModel.buyerData!.buyerTIN}'),
+                    // Center(child: CustomText2('VAT No: ${widget.previewModel.buyerData?.buyerVAT ?? ''}')), // Add VAT number to CompanyModel if needed
+
+                    CustomText2('TIN: ${companyData?.tinNumber ?? ''}'),
+                    Center(child: CustomText2('VAT No: ${companyData?.vatNumber ?? ''}')), // Add VAT number to CompanyModel if needed
                     Center(child: CustomText2('${companyData?.companyName ?? 'N/A'}')),
 
                     5.ht,

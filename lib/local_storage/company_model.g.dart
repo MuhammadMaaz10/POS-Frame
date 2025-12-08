@@ -24,13 +24,15 @@ class CompanyModelAdapter extends TypeAdapter<CompanyModel> {
       address: fields[4] as String,
       contactNumber: fields[5] as String,
       email: fields[6] as String,
+      tinNumber: fields[7] as String?,
+      vatNumber: fields[8] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CompanyModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.logoPath)
       ..writeByte(1)
@@ -44,7 +46,11 @@ class CompanyModelAdapter extends TypeAdapter<CompanyModel> {
       ..writeByte(5)
       ..write(obj.contactNumber)
       ..writeByte(6)
-      ..write(obj.email);
+      ..write(obj.email)
+      ..writeByte(7)
+      ..write(obj.tinNumber)
+      ..writeByte(8)
+      ..write(obj.vatNumber);
   }
 
   @override
