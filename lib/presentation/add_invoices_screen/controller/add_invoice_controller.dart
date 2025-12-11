@@ -1185,6 +1185,7 @@ class AddInvoicesController extends GetxController {
 
 
   late int editIndexInvoice;
+  String? editOriginalInvoiceNo; // Add this to store the original invoice's originalInvoiceNo
 
   /////////////////////// edit invoice //////////////////////////////
   Future<void> saveEditedInvoice() async {
@@ -1230,7 +1231,7 @@ class AddInvoicesController extends GetxController {
       pic: editSelectedCustomer.value!.pic,
       email: editSelectedCustomer.value!.email,
       tinNumber: editSelectedCustomer.value!.tinNumber,
-      vatNumber: editSelectedCustomer.value!.vatNumber,  // ✅ ADD THIS
+      vatNumber: editSelectedCustomer.value!.vatNumber,
       phoneNumber: editSelectedCustomer.value!.phoneNumber,
       provience: editSelectedCustomer.value!.provience,
       city: editSelectedCustomer.value!.city,
@@ -1255,7 +1256,9 @@ class AddInvoicesController extends GetxController {
       }).toList();
     }
 
-
+    // Get the original invoice to preserve its originalInvoiceNo
+    final existingInvoice = invoiceBox.getAt(editIndexInvoice);
+    
     final updatedInvoice = InvoiceModel(
       invoiceNo: editInvoiceNumber.value,
       customer: updatedCustomer,
@@ -1265,7 +1268,8 @@ class AddInvoicesController extends GetxController {
       notes: editNotesController.text,
       termsAndConditions: editAddressController.text,
       currency: editSelectedCurrency.value,
-      invoiceType: editInvoiceType.toString()
+      invoiceType: editInvoiceType.toString(),
+      originalInvoiceNo: existingInvoice?.originalInvoiceNo ?? editInvoiceNumber.value, // Preserve original, or use current for normal invoices
     );
 
 
@@ -1337,6 +1341,7 @@ class AddInvoicesController extends GetxController {
     editNotesController.text = invoice.notes ?? '';
     editAddressController.text = invoice.termsAndConditions ?? '';
     editSelectedCurrency.value = invoice.currency ?? 'USD';
+    editOriginalInvoiceNo = invoice.originalInvoiceNo; // Store the original invoice's originalInvoiceNo
 
 
     print("📝 this function is calling again and again");
@@ -1447,13 +1452,15 @@ class AddInvoicesController extends GetxController {
       customer: newCustomer,
       items: editSelectedItem.value,
       invoiceDate: todayDate,
-      // invoiceDate: editDateController.text,
       invoiceDueDate: editDueDateController.text,
       notes: editNotesController.text,
       termsAndConditions: editAddressController.text,
       currency: editSelectedCurrency.value,
       invoiceType: newInvoiceType,
       qrUrl: null, // Explicitly set to null
+      originalInvoiceNo: (newInvoiceType == "CreditNote" || newInvoiceType == "DebitNote") 
+          ? editOriginalInvoiceNo ?? editInvoiceNumber.value  // Use original invoice number for credit/debit notes
+          : newInvoiceNo, // For normal invoices, same as invoice number
     );
 
     // Save to Hive

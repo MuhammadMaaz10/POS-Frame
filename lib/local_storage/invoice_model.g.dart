@@ -27,13 +27,14 @@ class InvoiceModelAdapter extends TypeAdapter<InvoiceModel> {
       currency: fields[7] as dynamic,
       qrUrl: fields[8] as dynamic,
       invoiceType: fields[9] as dynamic,
+      originalInvoiceNo: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, InvoiceModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.invoiceNo)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class InvoiceModelAdapter extends TypeAdapter<InvoiceModel> {
       ..writeByte(8)
       ..write(obj.qrUrl)
       ..writeByte(9)
-      ..write(obj.invoiceType);
+      ..write(obj.invoiceType)
+      ..writeByte(10)
+      ..write(obj.originalInvoiceNo);
   }
 
   @override
