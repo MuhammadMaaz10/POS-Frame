@@ -6,6 +6,8 @@ import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../constants/app_constants.dart';
+
 class FiscalDeviceManagementController extends GetxController {
   var isDayOpen = false.obs;
   var isServerOnline = true.obs;
@@ -16,6 +18,11 @@ class FiscalDeviceManagementController extends GetxController {
 
   final int totalSeconds = 24 * 60 * 60; // 24 hours in seconds
   var progress = 1.0.obs; // for progress bar (1.0 = full)
+
+  // ✅ Add these observable variables for fiscal day status
+  var fiscalDayStatus = "".obs;
+  var fiscalDayNumber = "".obs;
+  var lastInvoiceNumber = "".obs;
 
   @override
   void onInit() {
@@ -85,7 +92,7 @@ class FiscalDeviceManagementController extends GetxController {
   void _setLoading(bool value) {
     isLoading = value;
     update();  // notify GetBuilder
-    print("loading state --------------> ${isLoading}");
+    // print("loading state --------------> ${isLoading}");
   }
 
 
@@ -95,7 +102,7 @@ class FiscalDeviceManagementController extends GetxController {
   void _setLoading2(bool value) {
     isLoading2 = value;
     update(); // <-- This triggers the GetBuilder to rebuild
-    print("loading state --------------> ${isLoading2}");
+    // print("loading state --------------> ${isLoading2}");
   }
 
   /// Setters loading for closeDay API
@@ -138,19 +145,25 @@ class FiscalDeviceManagementController extends GetxController {
         // Create instance of your model and store API response
          fiscalDayModel = FiscalDeviceModel.fromJson(data);
 
-        // Optionally store it in a variable for later use
-        // this.fiscalDayModel = fiscalDayData;
 
-        fiscalDayStatus = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
-        fiscalDayNumber = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
-        lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null)!;
-        await saveLastInvoiceNumberOnce(lastInvoiceNumber);
+        // ✅ Update observable variables instead of global variables
+        fiscalDayStatus.value = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
+        fiscalDayNumber.value = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
+        lastInvoiceNumber.value = (fiscalDayModel?.lastUsedInvoiceNumber ?? null) ?? "";
+
+        // ✅ Also update global variables for backward compatibility (if needed elsewhere)
+        AppConstant.fiscalDayStatus = fiscalDayModel?.serverResponse?.fiscalDayStatus ?? "null";
+        AppConstant.fiscalDayNumber = fiscalDayModel?.serverResponse?.lastFiscalDayNo.toString() ?? "null";
+        AppConstant.lastInvoiceNumber = (fiscalDayModel?.lastUsedInvoiceNumber ?? null) ?? "";
+
+        await saveLastInvoiceNumberOnce(lastInvoiceNumber.value);
         update();
 
         final apiTime = fiscalDayModel?.timeUntilDayClosure ?? "";
 
-        print("📦 fiscalDayStatus: $fiscalDayStatus");
-        print("📦 lastInvoiceNumber: $lastInvoiceNumber");
+        print("📦 fiscalDayStatus: ${AppConstant.fiscalDayStatus}");
+        print("📦 fiscalDayNumber: ${AppConstant.fiscalDayNumber}");
+        print("📦 lastInvoiceNumber: ${AppConstant.lastInvoiceNumber}");
         print("📦 timeUntilDayClosure: $apiTime");
 
         if (apiTime.isNotEmpty) {
@@ -172,11 +185,13 @@ class FiscalDeviceManagementController extends GetxController {
     }
   }
 
-  Future<void> openDay({required String day}) async {
+
+  Future<void> openDay({required String day})
+  async {
     _setLoading2(true);
     print("XXXXXXXXXXXXXX 🔄 Starting openDay API call... XXXXXXXXXXXXXXXXXXX");
     try {
-      final url = Uri.parse("$baseUrl$openDayUrl$day");
+      final url = Uri.parse("$baseUrl$openDayUrl");
       print("🌐 API URL: $url");
       print("🌐 API key: $fiscalApiKey");
 
@@ -212,7 +227,7 @@ class FiscalDeviceManagementController extends GetxController {
     _setLoading3(true);
     print("🔄 Starting closeDay api call...");
     try {
-      final url = Uri.parse(baseUrl+closeDayUrl+day);
+      final url = Uri.parse(baseUrl+closeDayUrl);
       print("🌐 API URL: $url");
       print("🌐 API key: $fiscalApiKey");
 

@@ -16,6 +16,7 @@ import '../../../constants/app_images.dart';
 import '../../../widgets/TextField.dart';
 import '../../../widgets/custom_list_tile.dart';
 import '../controller/home_screen_controller.dart';
+import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/controller/fiscal_day_controller.dart';
 
 class InvoicesScreen extends StatefulWidget {
 
@@ -27,6 +28,9 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
    final  homeController = Get.put(HomeScreenController());
 
    final invoiceController = Get.put(AddInvoicesController());
+   
+   // ✅ Get or create the fiscal day controller
+   final fiscalDayController = Get.put(FiscalDeviceManagementController());
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +49,8 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
             ),
             20.ht,
 
-            Row(
+            // ✅ Wrap with Obx to make it reactive
+            Obx(() => Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomText(
@@ -54,13 +59,15 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                   fontWeight: FontWeight.w500,
                 ),
                 CustomText(
-                    text: fiscalDayStatus,
+                    text: fiscalDayController.fiscalDayStatus.value.isEmpty 
+                        ? "Loading..." 
+                        : fiscalDayController.fiscalDayStatus.value,
                   color: Colors.white,
                   // fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
               ],
-            ),
+            )),
 
             20.ht,
 

@@ -99,10 +99,11 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                 CustomTextField(
                   controller: controller.editVatNumberController,
                   hintText: "Enter VAT number (optional)",
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.number,
                   borderColor: Colors.transparent,
                   selectedBorderColor: AppColors.buttonClr,
                   validator: controller.validateVatNumber,
+
                 ),
 
                 10.ht,

@@ -37,6 +37,9 @@ class InvoiceModel extends HiveObject {
   @HiveField(9)
   dynamic invoiceType;
 
+  @HiveField(10)
+  final String originalInvoiceNo;
+
   InvoiceModel({
     required this.invoiceNo,
     required this.customer,
@@ -48,5 +51,6 @@ class InvoiceModel extends HiveObject {
     this.currency = "USD",
     this.qrUrl,
     this.invoiceType,
-  });
+    String? originalInvoiceNo,
+  }) : originalInvoiceNo = originalInvoiceNo ?? invoiceNo;
 }

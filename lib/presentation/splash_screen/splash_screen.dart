@@ -61,12 +61,16 @@ class _SplashScreenState extends State<SplashScreen> {
     var box = await Hive.openBox('settings');
     bool isLoggedIn = box.get('isUserLoggedIn', defaultValue: false);
     bool isFromCompany = box.get('isFromCompany', defaultValue: false);
+    AppConstant.isAppConfigured = box.get('isFDMSConfigured', defaultValue: false);
     String? username = box.get('loggedInUser');
+
+    print(" AppConstant.isAppConfigured on splash: ${AppConstant.isAppConfigured}");
+
 
     // 🔹 Load lastInvoiceNumber from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
-    print('📄 Last Invoice Number: $lastInvoiceNumber');
+    AppConstant.lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    print('📄 Last Invoice Number: ${AppConstant.lastInvoiceNumber}');
 
     if (isLoggedIn && username != null) {
       final loginController = Get.put(LoginScreenController());

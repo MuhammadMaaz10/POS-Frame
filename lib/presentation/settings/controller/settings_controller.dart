@@ -20,20 +20,43 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../local_storage/configured_fdms_model.dart';
+/// ---------------------------------------------------------------------------
+/// SETTINGS CONTROLLER
+/// ---------------------------------------------------------------------------
+/// Handles FDMS configuration, API key storage, QR scanning setup, validation,
+/// logout operations, permission requests, and loading saved configurations.
+/// Uses Hive for local storage and GetX for state management.
+/// ---------------------------------------------------------------------------
 
 class SettingsController extends GetxController {
-  /// Text Controllers
+  // ---------------------------------------------------------------------------
+  // TEXT CONTROLLERS
+  // ---------------------------------------------------------------------------
+
+  /// Input field for Client ID
   final clientIDController = TextEditingController();
+
+  /// Input field for Device ID
   final deviceIDController = TextEditingController();
+
+  /// Input field for API Key
   final apiKeyController = TextEditingController();
 
-  /// Reactive loading indicator
+  // ---------------------------------------------------------------------------
+  // REACTIVE STATE & VALIDATION
+  // ---------------------------------------------------------------------------
+
+  /// Loader for UI state (true = loading)
   final isLoading = false.obs;
 
-  /// Form validation keys
+  /// Form key for validation of manual API entry
   final formKey = GlobalKey<FormState>();
 
-  // ------------------ Validators ------------------
+  // ---------------------------------------------------------------------------
+  // INPUT VALIDATORS
+  // ---------------------------------------------------------------------------
+
+  /// Validates Client ID field
   String? validateClintID(String? value) {
     if (value == null || value.isEmpty) {
       return 'Client ID is required';
@@ -41,6 +64,7 @@ class SettingsController extends GetxController {
     return null;
   }
 
+  /// Validates Device ID field
   String? validateDeviceID(String? value) {
     if (value == null || value.isEmpty) {
       return 'Device ID is required';
@@ -48,6 +72,7 @@ class SettingsController extends GetxController {
     return null;
   }
 
+  /// Validates API key field
   String? validateAPIkey(String? value) {
     if (value == null || value.isEmpty) {
       return 'API key is required';
@@ -55,26 +80,140 @@ class SettingsController extends GetxController {
     return null;
   }
 
-  /// ✅ Check if FDMS is configured, if not, show dialog
+  // ---------------------------------------------------------------------------
+  // FDMS CONFIGURATION CHECK
+  // ---------------------------------------------------------------------------
+
+  /// Checks whether FDMS is configured.
+  /// If not configured → shows a dialog forcing user to configure first.
   Future<void> checkFDMSConfig(BuildContext context) async {
     print("🔍 checkFDMSConfig() called...");
 
-    var settingsBox = await Hive.openBox('settings');
-    bool isConfigured = settingsBox.get('isFDMSConfigured', defaultValue: false);
+    final settingsBox = await Hive.openBox('settings');
+    final bool isConfigured = settingsBox.get('isFDMSConfigured', defaultValue: false);
+
+    // AppConstant.isAppConfigured = isConfigured;
 
     print("📦 FDMS Configured status from Hive: $isConfigured");
+    print(" AppConstant.isAppConfigured: ${AppConstant.isAppConfigured}");
 
     if (!isConfigured) {
       print("⚠️ FDMS not configured → showing dialog...");
-      Future.delayed(const Duration(milliseconds: 300), () {
-        _showInitialConfigDialog(context);
-      });
+      Future.delayed(
+        const Duration(milliseconds: 300),
+            () => _showInitialConfigDialog(context),
+      );
     } else {
       print("✅ FDMS already configured → no dialog needed.");
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // SAVE API KEY & CONFIGURATION
+  // ---------------------------------------------------------------------------
 
+  /// Saves Client ID, Device ID, and API Key to Hive.
+  /// Marks FDMS as configured and refreshes app state.
+  void saveAPIkey() {
+    if (formKey.currentState!.validate()) {
+      isLoading.value = true;
+
+      Future.delayed(const Duration(seconds: 1), () async {
+        Get.back();
+        isLoading.value = false;
+
+        final settingsBox = await Hive.openBox('settings');
+        final username = settingsBox.get('loggedInUser');
+
+        final configBox =
+        await Hive.openBox<ConfiguredFDMs>('configured_fdms_$username');
+
+        final config = ConfiguredFDMs(
+          clientID: clientIDController.text,
+          deviceID: deviceIDController.text,
+          apiKey: apiKeyController.text,
+        );
+
+        // Save newest configuration
+        await configBox.put('apiConfig', config);
+
+        // Mark FDMS as configured
+        await settingsBox.put('isFDMSConfigured', true);
+
+        CustomGetSnackBar.show(
+          title: 'Success',
+          message: 'API key saved successfully!',
+          backgroundColor: AppColors.buttonClr,
+        );
+
+        loadAndPrintConfigs();
+
+        // Debug print
+        await Future.delayed(const Duration(seconds: 3));
+
+
+        // Restart to Splash → refresh everything
+        Get.offAll(() => SplashScreen());
+
+        // Clear fields after saving
+        clientIDController.clear();
+        deviceIDController.clear();
+        apiKeyController.clear();
+      });
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // LOAD & APPLY SAVED CONFIGURATIONS
+  // ---------------------------------------------------------------------------
+
+  /// Loads stored FDMS configurations and initializes the fiscal device.
+  Future<void> loadAndPrintConfigs() async {
+    print('-----------loadAndPrintConfigs--------------');
+
+    final settingsBox = await Hive.openBox('settings');
+    final username = settingsBox.get('loggedInUser');
+
+    final configBox =
+    await Hive.openBox<ConfiguredFDMs>('configured_fdms_$username');
+
+    // print('Total configs in box: ${configBox.length}');
+
+    if (configBox.isEmpty) {
+      print('⚠️ No configs found for user: $username');
+      return;
+    }
+
+    int index = 0;
+    for (var config in configBox.values) {
+      // print('Config #$index');
+      // print('Client ID: ${config.clientID}');
+      fiscalDeviceID = config.deviceID;
+      fiscalApiKey = config.apiKey;
+
+      print('client ID: $config.clientID');
+      print('Device ID: $fiscalDeviceID');
+      print('API Key: ${config.apiKey}');
+      print('-------------------------');
+
+      update();
+
+      if (fiscalDeviceID.isNotEmpty) {
+        // print("----- Valid Device ID Found → Fetching Fiscal Day --------");
+        Get.put(FiscalDeviceManagementController()).getFiscalDayData();
+      } else {
+        // print("----- fiscalDeviceID is EMPTY, skipping fiscal day call --------");
+      }
+
+      index++;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // INITIAL CONFIGURATION DIALOG (Blocking)
+  // ---------------------------------------------------------------------------
+
+  /// Shows a blocking dialog asking user to configure FDMS before using app.
   void _showInitialConfigDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
@@ -82,16 +221,13 @@ class SettingsController extends GetxController {
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF000D3A),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           title: const Text(
             "Configuration Required",
-            style: TextStyle(fontFamily: 'Satoshi',color: Colors.white),
+            style: TextStyle(fontFamily: 'Satoshi', color: Colors.white),
           ),
           content: const CustomText(
-            text:
-            "Please configure FDMS before using the app.",
+            text: "Please configure FDMS before using the app.",
             color: Colors.white70,
           ),
           actions: [
@@ -101,9 +237,9 @@ class SettingsController extends GetxController {
                 showConfigOptionSheet(context);
               },
               child: const CustomText(
-                  text: "OK",
-                  fontSize: 16,
-                  color: AppColors.buttonClr
+                text: "OK",
+                fontSize: 16,
+                color: AppColors.buttonClr,
               ),
             ),
           ],
@@ -112,11 +248,14 @@ class SettingsController extends GetxController {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // LOGOUT
+  // ---------------------------------------------------------------------------
 
-
-  // ------------------ Logout ------------------
+  /// Logs out user by resetting login flags and navigating to login screen.
   Future<void> logout() async {
-    var box = await Hive.openBox('settings');
+    final box = await Hive.openBox('settings');
+
     await box.put('isUserLoggedIn', false);
     await box.put('isFromCompany', false);
 
@@ -130,7 +269,11 @@ class SettingsController extends GetxController {
     AppRouter.offAllTo(loginScreen);
   }
 
-  // ------------------ show Options in Dialog ------------------
+  // ---------------------------------------------------------------------------
+  // CONFIG OPTION SHEET (QR or Manual Entry)
+  // ---------------------------------------------------------------------------
+
+  /// Shows bottom sheet to choose between QR scan or manual configuration.
   void showConfigOptionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -140,7 +283,7 @@ class SettingsController extends GetxController {
       ),
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.all(18),
+          padding: const EdgeInsets.all(18),
           child: SafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -174,19 +317,17 @@ class SettingsController extends GetxController {
                 ),
                 const SizedBox(height: 20),
 
-                // Scan QR Button
+                // Scan QR
                 CustomButton(
                   text: "Scan QR Code",
                   onPressed: () {
                     Get.back();
                     Get.to(QRScannerScreen());
-
-                    // openQRScanner(context);
                   },
                 ),
                 const SizedBox(height: 12),
 
-                // Manual Entry Button
+                // Manual Entry
                 CustomButton(
                   text: "Enter Manually",
                   onPressed: () {
@@ -194,7 +335,6 @@ class SettingsController extends GetxController {
                     addAPIkeyBottomSheet(context);
                   },
                 ),
-                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -203,14 +343,19 @@ class SettingsController extends GetxController {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // PERMISSIONS
+  // ---------------------------------------------------------------------------
 
-
+  /// Requests camera access for QR scanning.
   Future<void> requestCameraPermission() async {
-    var status = await Permission.camera.request();
+    final status = await Permission.camera.request();
     if (!status.isGranted) {
       Get.snackbar("Permission Denied", "Camera access is required for scanning.");
     }
   }
+
+  /// Alerts user about invalid QR format.
   void showInvalidQR() {
     Get.snackbar(
       "Error",
@@ -220,10 +365,17 @@ class SettingsController extends GetxController {
     );
   }
 
-  // ------------------ Bottom Sheet ------------------
-  void addAPIkeyBottomSheet(BuildContext context,
-      {Map<String, dynamic>? initialData}) {
-    // Prefill data if coming from QR
+  // ---------------------------------------------------------------------------
+  // MANUAL FDMS ENTRY (BOTTOM SHEET)
+  // ---------------------------------------------------------------------------
+
+  /// Opens bottom sheet allowing manual entry of Client ID, Device ID, API Key.
+  /// [initialData] is auto-filled when coming from QR scan.
+  void addAPIkeyBottomSheet(
+      BuildContext context, {
+        Map<String, dynamic>? initialData,
+      }) {
+    // Prefill values from QR
     if (initialData != null) {
       clientIDController.text = initialData["clientId"] ?? '';
       deviceIDController.text = initialData["deviceId"] ?? '';
@@ -252,7 +404,7 @@ class SettingsController extends GetxController {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Title row
+                    // Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -280,13 +432,12 @@ class SettingsController extends GetxController {
                       ],
                     ),
                     20.ht,
-                    // Input fields row
+
+                    // Client ID + Device ID
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: CustomTextField(
-                            maxLines: 1,
                             controller: clientIDController,
                             hintText: "Client ID",
                             borderColor: Colors.transparent,
@@ -297,7 +448,6 @@ class SettingsController extends GetxController {
                         8.wd,
                         Expanded(
                           child: CustomTextField(
-                            maxLines: 1,
                             controller: deviceIDController,
                             hintText: "Device ID",
                             borderColor: Colors.transparent,
@@ -307,8 +457,10 @@ class SettingsController extends GetxController {
                         ),
                       ],
                     ),
+
                     10.ht,
-                    // API key input
+
+                    // API Key
                     CustomTextField(
                       controller: apiKeyController,
                       hintText: "API Key",
@@ -316,15 +468,15 @@ class SettingsController extends GetxController {
                       selectedBorderColor: AppColors.buttonClr,
                       validator: validateAPIkey,
                     ),
+
                     30.ht,
-                    // Save button
+
+                    // SAVE BUTTON
                     CustomButton(
                       text: "Save",
-                      onPressed: () {
-                        saveAPIkey();
-                        // Phoenix.rebirth(context); // 🔥 restarts the whole app
-                        },
+                      onPressed: () => saveAPIkey(),
                     ),
+
                     20.ht,
                   ],
                 ),
@@ -336,93 +488,9 @@ class SettingsController extends GetxController {
     );
   }
 
-  // ------------------ Save API Key ------------------
-  void saveAPIkey() {
-    if (formKey.currentState!.validate()) {
-      isLoading.value = true;
-      Future.delayed(const Duration(seconds: 1), () async {
-        Get.back();
-        isLoading.value = false;
-
-        var settingsBox = await Hive.openBox('settings');
-        var username = settingsBox.get('loggedInUser');
-
-        final box = await Hive.openBox<ConfiguredFDMs>('configured_fdms_$username');
-
-        final config = ConfiguredFDMs(
-          clientID: clientIDController.text,
-          deviceID: deviceIDController.text,
-          apiKey: apiKeyController.text,
-        );
-
-        // ✅ Save in a single key (overwrite every time)
-        await box.put('apiConfig', config);
-
-        // ✅ Mark FDMS as configured (no need new function)
-        await settingsBox.put('isFDMSConfigured', true);
-
-        CustomGetSnackBar.show(
-          title: 'Success',
-          message: 'API key saved successfully!',
-          backgroundColor: AppColors.buttonClr,
-        );
-
-
-
-
-        await Future.delayed(const Duration(seconds: 5));
-        loadAndPrintConfigs();
-
-        Get.offAll(() => SplashScreen());
-        // Clear fields
-        clientIDController.clear();
-        deviceIDController.clear();
-        apiKeyController.clear();
-      });
-    }
-  }
-
-  Future<void> loadAndPrintConfigs() async {
-    print('-----------loadAndPrintConfigs--------------');
-    var settingsBox = await Hive.openBox('settings');
-    var username = settingsBox.get('loggedInUser');
-
-    final box = await Hive.openBox<ConfiguredFDMs>('configured_fdms_$username');
-
-    print('Total configs in box: ${box.length}');
-    // Clean if there are old entries from before
-
-
-    if (box.isEmpty) {
-      print('⚠️ No configs found for user: $username');
-      return;
-    }
-
-    int index = 0;
-    for (var config in box.values) {
-      print('Config #$index');
-      print('Client ID: ${config.clientID}');
-      fiscalDeviceID = config.deviceID;
-      fiscalApiKey = config.apiKey;
-      print('Device ID: ${fiscalDeviceID}');
-      update();
-      if(fiscalDeviceID != ""){
-        print("--------------- fiscalDeviceID is ${fiscalDeviceID} --------");
-        Get.put(FiscalDeviceManagementController()).getFiscalDayData();
-      }else{
-        print("--------------- fiscalDeviceID is empty --------");
-      }
-      print('API Key: ${config.apiKey}');
-      print('-------------------------');
-      index++;
-    }
-  }
-
-
-
-
-
-
+  // ---------------------------------------------------------------------------
+  // CONTROLLER CLEANUP
+  // ---------------------------------------------------------------------------
 
   @override
   void onClose() {

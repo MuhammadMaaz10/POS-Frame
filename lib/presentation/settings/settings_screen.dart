@@ -53,7 +53,7 @@ class SettingsScreen extends StatelessWidget {
                 children: [
                   customTile(
                     title: "Company Profile",
-                    onTap: () => Get.to(EditCompanyScreen()),
+                    onTap: () => Get.to(() => EditCompanyScreen()),
                     iconPath: AppImages.infoIcon,
                   ),
                   customTile(

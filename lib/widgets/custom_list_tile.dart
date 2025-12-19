@@ -11,8 +11,8 @@ class ItemsCustomListTile extends StatelessWidget {
     this.isTrailing = true,
     this.imageUrl,
     this.subTitleText,
-    this.titleText = "Ahmed Ali",
-    this.amount = 728,
+    this.titleText = "Empty",
+    this.amount = 00,
     this.leftPadding,
     this.onTap,
     this.tileColor
@@ -61,7 +61,7 @@ class ItemsCustomListTile extends StatelessWidget {
       trailing: isTrailing! ? Padding(
         padding: EdgeInsets.only(top: 8.h),
         child: Text(
-          "\$$amount",
+          "\$${amount?.toStringAsFixed(2)}",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -74,8 +74,18 @@ class ItemsCustomListTile extends StatelessWidget {
 }
 
 
-
 class InvoiceCustomListTile extends StatelessWidget {
+  String? invoiceID;
+  Color? inoiveTypeTextcolor;
+  String? invoiceType;
+  String? titleText;
+  String? date;
+  ImageProvider? imageUrl;
+  bool? paid;
+  double? amount;
+  bool? isTrailing;
+  void Function()? onTap;
+
   InvoiceCustomListTile({
     super.key,
     this.invoiceID = "INV-001",
@@ -89,17 +99,6 @@ class InvoiceCustomListTile extends StatelessWidget {
     this.onTap,
     this.inoiveTypeTextcolor,
   });
-
-  String? invoiceID;
-  Color? inoiveTypeTextcolor;
-  String? invoiceType;
-  String? titleText;
-  String? date;
-  ImageProvider? imageUrl;
-  bool? paid;
-  double? amount;
-  bool? isTrailing;
-  void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +132,8 @@ class InvoiceCustomListTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CustomText(text: "Document Type: ",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
-              CustomText(text: "$invoiceType",fontSize: 12,color: inoiveTypeTextcolor ?? AppColors.buttonClr,fontWeight: FontWeight.w500,),
+              CustomText(text: "Document Type:",fontSize: 12,color: Colors.white70,fontWeight: FontWeight.w400,),
+              CustomText(text: " $invoiceType",fontSize: 12,color: inoiveTypeTextcolor ?? AppColors.buttonClr,fontWeight: FontWeight.w500,),
             ],
           ),
         ],
@@ -150,7 +149,7 @@ class InvoiceCustomListTile extends StatelessWidget {
             color: paid! ? Colors.green : AppColors.redClr,
             fontWeight: FontWeight.w500,),
           CustomText(
-            text: "\$$amount",
+            text: "\$${amount?.toStringAsFixed(2)}",
               // fontSize: 14.sp,
               fontWeight: FontWeight.w700,
           ),

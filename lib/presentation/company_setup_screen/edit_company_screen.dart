@@ -10,7 +10,6 @@ import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '../../local_storage/company_model.dart';
 
@@ -22,8 +21,7 @@ class EditCompanyScreen extends StatefulWidget {
 }
 
 class _EditCompanyScreenState extends State<EditCompanyScreen> {
-  final CompanySetupController companySetupController =
-      Get.put(CompanySetupController());
+  final CompanySetupController companySetupController = Get.put(CompanySetupController());
   final _formKey = GlobalKey<FormState>();
   bool isLoading = true;
 
@@ -43,6 +41,9 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
         companySetupController.addressController.text = company.address;
         companySetupController.contactController.text = company.contactNumber;
         companySetupController.emailController.text = company.email;
+        companySetupController.tinNumberController.text = company.tinNumber ?? '';
+        companySetupController.vatNumberController.text = company.vatNumber ?? '';
+        companySetupController.selectedClientNumber = company.clientNumber;
         if (company.logoPath.isNotEmpty) {
           companySetupController.logoImagePath = company.logoPath;
         }
@@ -66,6 +67,13 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
           address: companySetupController.addressController.text.trim(),
           contactNumber: companySetupController.contactController.text.trim(),
           email: companySetupController.emailController.text.trim(),
+          tinNumber: companySetupController.tinNumberController.text.trim().isEmpty 
+              ? null 
+              : companySetupController.tinNumberController.text.trim(),
+          vatNumber: companySetupController.vatNumberController.text.trim().isEmpty 
+              ? null 
+              : companySetupController.vatNumberController.text.trim(),
+          clientNumber: companySetupController.selectedClientNumber,
         ),
       );
     }
@@ -97,9 +105,8 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
         ),
       ),
       body: SafeArea(
-        child: GetBuilder(
-          init: CompanySetupController(),
-          builder: (_) {
+        child: GetBuilder<CompanySetupController>(
+          builder: (controller) {
             return Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -134,9 +141,9 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                       color: Color(0xFF343A40),
                       child: InkWell(
                         onTap: () async {
-                          final path = await companySetupController.pickImageFromGallery();
+                          await controller.pickImageFromGallery();
                         },
-                        child: companySetupController.logoImagePath == ''
+                        child: controller.logoImagePath == ''
                             ? Container(
                           height: 147.h,
                           padding: EdgeInsets.symmetric(vertical: 30.h),
@@ -181,27 +188,73 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Image.file(
-                            File(companySetupController.logoImagePath!),
+                            File(controller.logoImagePath),
                             fit: BoxFit.fill,
                           ),
                         ),
                       ),
                     ),
                     16.ht,
+
+                    CustomText(
+                      text: "Company Name",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
                     CustomTextField(
-                      controller: companySetupController.companyNameController,
+                      controller: controller.companyNameController,
                       hintText: 'Company Name*',
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
+                        if (value == null || value
+                            .trim()
+                            .isEmpty) {
                           return 'Company Name is required';
                         }
-                        if (value.trim().length < 2) {
+                        if (value
+                            .trim()
+                            .length < 2) {
                           return 'Company Name must be at least 2 characters';
                         }
                         return null;
-                      },
+                      }
+                      ),
+                    16.ht,
+                    CustomText(
+                      text: "Client Number",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryClr,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: DropdownButton<int>(
+                        dropdownColor: AppColors.bgClr,
+                        isExpanded: true,
+                        underline: SizedBox(),
+                        iconEnabledColor: AppColors.white,
+                        iconDisabledColor: Colors.white38,
+                        value: controller.selectedClientNumber,
+                        items: List.generate(100, (index) => index + 1).map((clientNum) {
+                          return DropdownMenuItem<int>(
+                            value: clientNum,
+                            child: CustomText(
+                              text: clientNum.toString(),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.sp,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: null, // Disabled - client number cannot be changed after initial setup
+                      ),
                     ),
                     16.ht,
                     CustomText(
@@ -210,66 +263,170 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                       fontWeight: FontWeight.w500,
                       color: Colors.white70,
                     ),
-                    10.ht,
+                    5.ht,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          width: 173.w,
-                          child: CustomTextField(
-                            controller: companySetupController.cityController,
-                            hintText: 'City*',
-                            borderColor: Colors.transparent,
-                            selectedBorderColor: AppColors.buttonClr,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'City is required';
-                              }
-                              return null;
-                            },
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              text: "City",
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white70,
+                            ),
+                            5.ht,
+                            SizedBox(
+                              width: 173.w,
+                              child: CustomTextField(
+                                controller: controller.cityController,
+                                hintText: 'City*',
+                                borderColor: Colors.transparent,
+                                selectedBorderColor: AppColors.buttonClr,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'City is required';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          width: 173.w,
-                          child: CustomTextField(
-                            controller: companySetupController.provinceController,
-                            hintText: 'Province*',
-                            borderColor: Colors.transparent,
-                            selectedBorderColor: AppColors.buttonClr,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Province is required';
-                              }
-                              return null;
-                            },
-                          ),
+                        Column( crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              text: "Province",
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white70,
+                            ),
+                            5.ht,
+                            SizedBox(
+                              width: 173.w,
+                              child: CustomTextField(
+                                controller: controller.provinceController,
+                                hintText: 'Province*',
+                                borderColor: Colors.transparent,
+                                selectedBorderColor: AppColors.buttonClr,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Province is required';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     10.ht,
+
+                    CustomText(
+                      text: "Company Address",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
                     CustomTextField(
                       keyboardType: TextInputType.streetAddress,
-                      controller: companySetupController.addressController,
+                      controller: controller.addressController,
                       hintText: 'Company Address',
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
                     ),
                     10.ht,
+
+                    CustomText(
+                      text: "Contact Number",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
                     CustomTextField(
                       keyboardType: TextInputType.phone,
-                      controller: companySetupController.contactController,
+                      controller: controller.contactController,
                       hintText: 'Contact Number',
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
                     ),
                     10.ht,
+
+                    CustomText(
+                      text: "Company Email",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
                     CustomTextField(
                       keyboardType: TextInputType.emailAddress,
-                      controller: companySetupController.emailController,
+                      controller: controller.emailController,
                       hintText: 'Company Email',
                       prefixIcon: Icons.email_outlined,
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
+                    ),
+                    10.ht,
+
+                    CustomText(
+                      text: "TIN Number",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
+                    CustomTextField(
+                      keyboardType: TextInputType.number,
+                      controller: controller.tinNumberController,
+                      hintText: 'TIN Number',
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'TIN Number is required';
+                        }
+
+                        final trimmed = value.trim();
+
+                        if (trimmed.length != 10) {
+                          return 'TIN Number must be exactly 10 characters';
+                        }
+
+                        return null;
+                      },
+                    ),
+                    10.ht,
+
+                    CustomText(
+                      text: "VAT Number",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
+                    CustomTextField(
+                      keyboardType: TextInputType.number,
+                      controller: controller.vatNumberController,
+                      hintText: 'VAT Number',
+                      borderColor: Colors.transparent,
+                      selectedBorderColor: AppColors.buttonClr,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'VAT Number is required';
+                        }
+
+                        final trimmed = value.trim();
+
+                        if (trimmed.length != 9) {
+                          return 'VAT Number must be exactly 9 characters';
+                        }
+                        return null;
+                      },
                     ),
                     62.ht,
                     CustomButton(

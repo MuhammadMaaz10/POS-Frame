@@ -25,6 +25,15 @@ class CompanyModel extends HiveObject {
   @HiveField(6)
   String email;
 
+  @HiveField(7)
+  String? tinNumber;
+
+  @HiveField(8)
+  String? vatNumber;
+
+  @HiveField(9)
+  int clientNumber;
+
   CompanyModel({
     required this.logoPath,
     required this.companyName,
@@ -33,5 +42,8 @@ class CompanyModel extends HiveObject {
     required this.address,
     required this.contactNumber,
     this.email = '',
+    this.tinNumber,
+    this.vatNumber,
+    this.clientNumber = 1, // Default to 1
   });
 }

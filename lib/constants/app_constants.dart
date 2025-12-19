@@ -5,13 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 String deviceID = '';
 String singleInvoiceQrURL = '';
- var fiscalDayStatus = "";
- var fiscalDayNumber = "";
+
  var fiscalDeviceID = "";
  var fiscalApiKey = "";
- var lastInvoiceNumber = "";
  var countDownTimerFromAPI = "";
 
+
+ class AppConstant{
+  static var lastInvoiceNumber = "";
+  static var fiscalDayStatus = "";
+  static var fiscalDayNumber = "";
+
+  static bool isAppConfigured = false;
+ }
 
 Future<void> saveLastInvoiceNumberOnce(String lastInvoiceNumber) async {
   final prefs = await SharedPreferences.getInstance();
