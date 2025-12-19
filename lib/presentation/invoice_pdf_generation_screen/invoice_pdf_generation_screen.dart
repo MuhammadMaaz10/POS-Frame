@@ -526,20 +526,22 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                 ),
               ),
               pw.SizedBox(height: 4),
-              pw.Center(
-                child: pw.Text(
-                  "TIN: ${widget.previewModel.buyerData?.buyerTIN ?? ''}",
-                  style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
-                ),
-              ),
-              pw.Center(
-                child: pw.Text(
-                  "VAT No: ${widget.previewModel.buyerData?.buyerVAT ?? ''}",
-                  style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
-                ),
-              ),
+
               // Company Information
               if (companyData != null) ...[
+                pw.Center(
+                  child: pw.Text(
+                    "TIN: ${companyData!.tinNumber ?? ''}",
+                    style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
+                  ),
+                ),
+                pw.Center(
+                  child: pw.Text(
+                    "VAT No: ${companyData!.vatNumber ?? ''}",
+                    style: pw.TextStyle(fontSize: 8, font: satoshiRegular),
+                  ),
+                ),
+                pw.SizedBox(height: 2),
                 pw.Center(
                   child: pw.Text(
                     companyData!.companyName,

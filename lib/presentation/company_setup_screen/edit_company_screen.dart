@@ -10,7 +10,6 @@ import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '../../local_storage/company_model.dart';
 
@@ -44,6 +43,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
         companySetupController.emailController.text = company.email;
         companySetupController.tinNumberController.text = company.tinNumber ?? '';
         companySetupController.vatNumberController.text = company.vatNumber ?? '';
+        companySetupController.selectedClientNumber = company.clientNumber;
         if (company.logoPath.isNotEmpty) {
           companySetupController.logoImagePath = company.logoPath;
         }
@@ -73,6 +73,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
           vatNumber: companySetupController.vatNumberController.text.trim().isEmpty 
               ? null 
               : companySetupController.vatNumberController.text.trim(),
+          clientNumber: companySetupController.selectedClientNumber,
         ),
       );
     }
@@ -140,7 +141,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                       color: Color(0xFF343A40),
                       child: InkWell(
                         onTap: () async {
-                          final path = await controller.pickImageFromGallery();
+                          await controller.pickImageFromGallery();
                         },
                         child: controller.logoImagePath == ''
                             ? Container(
@@ -187,7 +188,7 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Image.file(
-                            File(controller.logoImagePath!),
+                            File(controller.logoImagePath),
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -208,14 +209,52 @@ class _EditCompanyScreenState extends State<EditCompanyScreen> {
                       borderColor: Colors.transparent,
                       selectedBorderColor: AppColors.buttonClr,
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
+                        if (value == null || value
+                            .trim()
+                            .isEmpty) {
                           return 'Company Name is required';
                         }
-                        if (value.trim().length < 2) {
+                        if (value
+                            .trim()
+                            .length < 2) {
                           return 'Company Name must be at least 2 characters';
                         }
                         return null;
-                      },
+                      }
+                      ),
+                    16.ht,
+                    CustomText(
+                      text: "Client Number",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryClr,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: DropdownButton<int>(
+                        dropdownColor: AppColors.bgClr,
+                        isExpanded: true,
+                        underline: SizedBox(),
+                        iconEnabledColor: AppColors.white,
+                        iconDisabledColor: Colors.white38,
+                        value: controller.selectedClientNumber,
+                        items: List.generate(100, (index) => index + 1).map((clientNum) {
+                          return DropdownMenuItem<int>(
+                            value: clientNum,
+                            child: CustomText(
+                              text: clientNum.toString(),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.sp,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: null, // Disabled - client number cannot be changed after initial setup
+                      ),
                     ),
                     16.ht,
                     CustomText(

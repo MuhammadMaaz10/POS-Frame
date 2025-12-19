@@ -13,8 +13,24 @@ import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
 
-class AddInvoicesScreen extends StatelessWidget {
+class AddInvoicesScreen extends StatefulWidget {
    AddInvoicesScreen({super.key});
+
+  @override
+  State<AddInvoicesScreen> createState() => _AddInvoicesScreenState();
+}
+
+class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh client number when screen is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = Get.find<AddInvoicesController>();
+      controller.refreshClientNumberAndInvoice();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;

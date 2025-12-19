@@ -24,6 +24,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../local_storage/invoice_customer.dart';
 import '../../../local_storage/invoice_item.dart';
 import '../../../local_storage/invoice_model.dart';
+import '../../../local_storage/company_model.dart';
 import '../../home_screen/controller/home_screen_controller.dart';
 
 class AddInvoicesController extends GetxController {
@@ -54,6 +55,7 @@ class AddInvoicesController extends GetxController {
   final addressController = TextEditingController();
 
   int _invoiceCounter = 1; // Start from 1, will be loaded from Hive
+  int _clientNumber = 1; // Default to 1, will be loaded from CompanyModel
 
   AddInvoicesController() {
     print("----- on init called ----- ");
@@ -66,26 +68,106 @@ class AddInvoicesController extends GetxController {
   }
 
 
+  /// Refresh client number from company data and regenerate invoice number
+  Future<void> refreshClientNumberAndInvoice() async {
+    print("🔄 Refreshing client number and invoice number...");
+    final newClientNumber = await _loadClientNumber();
+    
+    // Only refresh if client number has changed
+    if (newClientNumber != _clientNumber) {
+      print("📋 Client number changed from $_clientNumber to $newClientNumber");
+      _clientNumber = newClientNumber;
+      
+      // Reload invoice number with new client number (this will also regenerate)
+      await _loadLastInvoiceNumber();
+      update(); // Trigger UI update
+    } else {
+      // Even if client number hasn't changed, regenerate display to ensure it's correct
+      _regenerateInvoiceNumberDisplay();
+      update(); // Trigger UI update
+      print("📋 Client number unchanged: $_clientNumber, refreshed invoice number display");
+    }
+  }
+
+  /// Load client number from company data
+  Future<int> _loadClientNumber() async {
+    try {
+      var settingsBox = await Hive.openBox('settings');
+      var username = settingsBox.get('loggedInUser');
+      
+      if (username != null) {
+        final box = await Hive.openBox<CompanyModel>('companies_$username');
+        if (box.isNotEmpty) {
+          final company = box.values.first;
+          return company.clientNumber;
+        }
+      }
+    } catch (e) {
+      print('Error loading client number: $e');
+    }
+    return 1; // Default to 1 if not found
+  }
+
+
 
   var isInvoiceReady = false.obs;
   Future<void> _loadLastInvoiceNumber() async {
 
     print("isInvoiceReady ---in start-------> ${isInvoiceReady.value}");
+    
+    // Load client number from company data
+    _clientNumber = await _loadClientNumber();
+    print("📋 Loaded client number: $_clientNumber");
+    
     final prefs = await SharedPreferences.getInstance();
-    AppConstant.lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    
+    // Use client-specific key for SharedPreferences
+    final clientSpecificKey = 'lastInvoiceNumber_client_$_clientNumber';
+    AppConstant.lastInvoiceNumber = prefs.getString(clientSpecificKey) ?? "";
+    
+    // Try to load from old global key for backward compatibility
+    if (AppConstant.lastInvoiceNumber.isEmpty) {
+      AppConstant.lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    }
 
-    if (AppConstant.lastInvoiceNumber != null && AppConstant.lastInvoiceNumber.startsWith('INV-FR-')) {
-      final numberPart = AppConstant.lastInvoiceNumber.replaceAll('INV-FR-', '');
-      final parsed = int.tryParse(numberPart) ?? 0;
-      _invoiceCounter = parsed + 1;
-      print("📄 Loaded last invoice number: ${AppConstant.lastInvoiceNumber}, counter set to $_invoiceCounter");
+    // Parse invoice number - support both old and new formats
+    if (AppConstant.lastInvoiceNumber.isNotEmpty) {
+      // New format: INV-FR-{clientNumber}-{counter}
+      final newFormatRegex = RegExp(r'^INV-FR-(\d+)-(\d+)$');
+      final newFormatMatch = newFormatRegex.firstMatch(AppConstant.lastInvoiceNumber);
+      
+      if (newFormatMatch != null) {
+        // New format detected
+        final invoiceClientNumber = int.tryParse(newFormatMatch.group(1) ?? '1') ?? 1;
+        final counterPart = int.tryParse(newFormatMatch.group(2) ?? '0') ?? 0;
+        
+        // Only use if it's for the same client
+        if (invoiceClientNumber == _clientNumber) {
+          _invoiceCounter = counterPart + 1;
+          print("📄 Loaded last invoice number (new format): ${AppConstant.lastInvoiceNumber}, counter set to $_invoiceCounter");
+        } else {
+          _invoiceCounter = 1;
+          print("📄 Different client number detected, resetting counter to 1");
+        }
+      } else if (AppConstant.lastInvoiceNumber.startsWith('INV-FR-')) {
+        // Old format: INV-FR-{counter} - migrate to new format
+        final numberPart = AppConstant.lastInvoiceNumber.replaceAll('INV-FR-', '');
+        final parsed = int.tryParse(numberPart) ?? 0;
+        _invoiceCounter = parsed + 1;
+        print("📄 Loaded last invoice number (old format, migrating): ${AppConstant.lastInvoiceNumber}, counter set to $_invoiceCounter");
+      } else {
+        _invoiceCounter = 1;
+        print("📄 Invalid format, counter reset to 1");
+      }
     } else {
       _invoiceCounter = 1;
       print("📄 No saved invoice number, counter reset to 1");
     }
 
-    // ✅ Now generate after loading
-    generateInvoiceNumber();
+    // ✅ Now generate after loading (without incrementing counter)
+    // Use _regenerateInvoiceNumberDisplay() instead of generateInvoiceNumber()
+    // to avoid incrementing the counter during load
+    _regenerateInvoiceNumberDisplay();
     isInvoiceReady.value = true;
     print("isInvoiceReady ---at end-------> ${isInvoiceReady.value}");
     // update();
@@ -93,26 +175,61 @@ class AddInvoicesController extends GetxController {
 
 
   Future<void> initInvoiceCounter() async {
+    // Load client number from company data
+    _clientNumber = await _loadClientNumber();
+    
     final prefs = await SharedPreferences.getInstance();
-    AppConstant.lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    
+    // Use client-specific key for SharedPreferences
+    final clientSpecificKey = 'lastInvoiceNumber_client_$_clientNumber';
+    AppConstant.lastInvoiceNumber = prefs.getString(clientSpecificKey) ?? "";
+    
+    // Try to load from old global key for backward compatibility
+    if (AppConstant.lastInvoiceNumber.isEmpty) {
+      AppConstant.lastInvoiceNumber = prefs.getString('lastInvoiceNumber') ?? "";
+    }
 
-    if (AppConstant.lastInvoiceNumber.isNotEmpty && AppConstant.lastInvoiceNumber.startsWith('INV-FR-')) {
-      final numberPart = AppConstant.lastInvoiceNumber.replaceAll('INV-FR-', '');
-      final parsed = int.tryParse(numberPart) ?? 0;
-      _invoiceCounter = parsed + 1;
+    // Parse invoice number - support both old and new formats
+    if (AppConstant.lastInvoiceNumber.isNotEmpty) {
+      // New format: INV-FR-{clientNumber}-{counter}
+      final newFormatRegex = RegExp(r'^INV-FR-(\d+)-(\d+)$');
+      final newFormatMatch = newFormatRegex.firstMatch(AppConstant.lastInvoiceNumber);
+      
+      if (newFormatMatch != null) {
+        // New format detected
+        final invoiceClientNumber = int.tryParse(newFormatMatch.group(1) ?? '1') ?? 1;
+        final counterPart = int.tryParse(newFormatMatch.group(2) ?? '0') ?? 0;
+        
+        // Only use if it's for the same client
+        if (invoiceClientNumber == _clientNumber) {
+          _invoiceCounter = counterPart + 1;
+        } else {
+          _invoiceCounter = 1;
+        }
+      } else if (AppConstant.lastInvoiceNumber.startsWith('INV-FR-')) {
+        // Old format: INV-FR-{counter} - migrate to new format
+        final numberPart = AppConstant.lastInvoiceNumber.replaceAll('INV-FR-', '');
+        final parsed = int.tryParse(numberPart) ?? 0;
+        _invoiceCounter = parsed + 1;
+      } else {
+        _invoiceCounter = 1;
+      }
     } else {
       _invoiceCounter = 1; // fallback if no invoice found
     }
 
-    print("🔢 Initialized _invoiceCounter = $_invoiceCounter from lastInvoiceNumber = ${AppConstant.lastInvoiceNumber}");
+    print("🔢 Initialized _invoiceCounter = $_invoiceCounter from lastInvoiceNumber = ${AppConstant.lastInvoiceNumber} (client: $_clientNumber)");
   }
 
 
 
   void generateInvoiceNumber() {
     print("---------- generateInvoiceNumber is called ------------ ");
-    invoiceNumber.value = 'INV-FR-${_invoiceCounter.toString().padLeft(5, '0')}';
-    invoiceNumber2 = 'INV-FR-${_invoiceCounter.toString().padLeft(5, '0')}';
+    
+    // New format: INV-FR-{clientNumber}-{counter}
+    // Client number should already be loaded in _loadLastInvoiceNumber()
+    invoiceNumber.value = 'INV-FR-$_clientNumber-${_invoiceCounter.toString().padLeft(5, '0')}';
+    invoiceNumber2 = 'INV-FR-$_clientNumber-${_invoiceCounter.toString().padLeft(5, '0')}';
     print("📋 Generated invoice number: ${invoiceNumber.value}");
     print("📋 Generated invoice number 2: ${invoiceNumber2}");
     invoiceIDController.text = invoiceNumber2;
@@ -121,6 +238,15 @@ class AddInvoicesController extends GetxController {
     update();
     _invoiceCounter++;
     // _saveInvoiceCounter();
+  }
+
+  /// Regenerate invoice number display without incrementing counter (for refresh)
+  void _regenerateInvoiceNumberDisplay() {
+    print("🔄 Regenerating invoice number display (no counter increment)");
+    invoiceNumber.value = 'INV-FR-$_clientNumber-${_invoiceCounter.toString().padLeft(5, '0')}';
+    invoiceNumber2 = 'INV-FR-$_clientNumber-${_invoiceCounter.toString().padLeft(5, '0')}';
+    invoiceIDController.text = invoiceNumber2;
+    print("📋 Regenerated invoice number display: ${invoiceNumber.value}");
   }
 
   // void generateInvoiceNumber() {
@@ -1174,12 +1300,21 @@ class AddInvoicesController extends GetxController {
 
   /// saving new invoice number when invoice generate successfully
   Future<void> saveLastInvoiceNumber(String invoiceNumber) async {
+    // Ensure client number is loaded
+    if (_clientNumber == 1) {
+      _clientNumber = await _loadClientNumber();
+    }
+    
     final prefs = await SharedPreferences.getInstance();
     AppConstant.lastInvoiceNumber = invoiceNumber; // update global variable
-    await prefs.setString('lastInvoiceNumber', AppConstant.lastInvoiceNumber);
-    print("💾 Saved lastInvoiceNumber globally: ${AppConstant.lastInvoiceNumber}");
-    _loadLastInvoiceNumber();
-
+    
+    // Save with client-specific key
+    final clientSpecificKey = 'lastInvoiceNumber_client_$_clientNumber';
+    await prefs.setString(clientSpecificKey, AppConstant.lastInvoiceNumber);
+    print("💾 Saved lastInvoiceNumber for client $_clientNumber: ${AppConstant.lastInvoiceNumber}");
+    
+    // Don't call _loadLastInvoiceNumber() here to avoid double generation
+    // The counter is already incremented in generateInvoiceNumber()
   }
 
 

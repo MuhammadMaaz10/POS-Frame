@@ -29,6 +29,8 @@ class CompanySetupController extends GetxController{
   TextEditingController tinNumberController=TextEditingController();
   TextEditingController vatNumberController=TextEditingController();
 
+  int selectedClientNumber = 1; // Default to 1
+
    String logoImagePath='';
   Future<String?> pickImageFromGallery() async {
     final ImagePicker picker = ImagePicker();

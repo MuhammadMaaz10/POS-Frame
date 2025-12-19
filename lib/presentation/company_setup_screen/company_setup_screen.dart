@@ -38,6 +38,7 @@ class CompanySetupScreen extends StatelessWidget {
           vatNumber: companySetupController.vatNumberController.text.trim().isEmpty 
               ? null 
               : companySetupController.vatNumberController.text.trim(),
+          clientNumber: companySetupController.selectedClientNumber,
         ),
       );
     }
@@ -180,6 +181,44 @@ class CompanySetupScreen extends StatelessWidget {
                           style: TextStyle(color: Colors.red, fontSize: 12.sp),
                         ),
                       ],
+                    ),
+                    16.ht,
+                    CustomText(
+                      text: "Client Number",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                    5.ht,
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryClr,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: DropdownButton<int>(
+                        dropdownColor: AppColors.bgClr,
+                        isExpanded: true,
+                        underline: SizedBox(),
+                        iconEnabledColor: AppColors.white,
+                        value: companySetupController.selectedClientNumber,
+                        items: List.generate(100, (index) => index + 1).map((clientNum) {
+                          return DropdownMenuItem<int>(
+                            value: clientNum,
+                            child: CustomText(
+                              text: clientNum.toString(),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.sp,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            companySetupController.selectedClientNumber = value;
+                            companySetupController.update();
+                          }
+                        },
+                      ),
                     ),
                     16.ht,
                     CustomText(

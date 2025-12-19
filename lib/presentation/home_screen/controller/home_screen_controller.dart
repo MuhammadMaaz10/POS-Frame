@@ -536,7 +536,7 @@ class HomeScreenController extends GetxController {
           "receiptLineQuantity": item.quantity is String
               ? double.tryParse(item.quantity) ?? 1.0
               : item.quantity.toDouble(),
-          "receiptLineTotal": double.tryParse(item.price) ?? 0.0,
+          "receiptLineTotal": double.tryParse(item.price)!.toStringAsFixed(2) ?? 0.0,
           "taxPercent": item.taxPercentage is String
               ? double.tryParse(item.taxPercentage) ?? 0
               : item.taxPercentage,
