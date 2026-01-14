@@ -24,10 +24,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _requestBluetoothPermissions();
-  // String? deviceId = await getDeviceId();
-  // deviceID = deviceId!;
-  // print('Device ID: $deviceID');
   final directory = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(directory.path);
 
@@ -57,13 +53,13 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]).then((_) {
     runApp(
-      Phoenix(
-        child: MyApp(),
-      ),);
-    // DevicePreview(
-    //   enabled: true,
-    //   builder: (context) => MyApp(), // Wrap your app
-    // ));
+      // Phoenix(
+      //   child: MyApp(),
+      // ),);
+    DevicePreview(
+      enabled: true,
+      builder: (context) => MyApp(), // Wrap your app
+    ));
   });
 }
 
@@ -102,25 +98,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-}
-
-
-Future<void> _requestBluetoothPermissions() async {
-  var scanStatus = await Permission.bluetoothScan.status;
-  if (scanStatus.isDenied) {
-    scanStatus = await Permission.bluetoothScan.request();
-  }
-  print("📡 Bluetooth Scan permission: $scanStatus");
-
-  var connectStatus = await Permission.bluetoothConnect.status;
-  if (connectStatus.isDenied) {
-    connectStatus = await Permission.bluetoothConnect.request();
-  }
-  print("🔌 Bluetooth Connect permission: $connectStatus");
-
-  var locationStatus = await Permission.location.status;
-  if (locationStatus.isDenied) {
-    locationStatus = await Permission.location.request();
-  }
-  print("📍 Location permission: $locationStatus");
 }

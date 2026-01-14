@@ -12,6 +12,7 @@ import 'package:frame_virtual_fiscilation/presentation/tax_group/tax_group_scree
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/edit_company_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/store_invoices_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -60,6 +61,11 @@ class SettingsScreen extends StatelessWidget {
                     title: "Tax Group Management",
                     onTap: () => Get.to(TaxGroupScreen()),
                     iconPath: AppImages.taxIcon
+                  ),
+                  customTile(
+                    title: "Store Invoices",
+                    onTap: () => Get.to(() => StoreInvoicesScreen()),
+                    iconPath: AppImages.invoiceIcon
                   ),
                   // customTile(
                   //     onTap: () => Get.to(PrinterScreen()),
