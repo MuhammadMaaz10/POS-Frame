@@ -226,38 +226,6 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                  ),
                ),
 
-               // Reactive List of Items
-               // Obx(() {
-               //   return ListView.builder(
-               //     shrinkWrap: true,
-               //     itemCount: homeController.itemList.length,
-               //     itemBuilder: (context, index) {
-               //       final item = homeController.itemList[index];
-               //
-               //       return GestureDetector(
-               //         onTap: () {
-               //           // selectedItem.value = item;
-               //           // Navigator.pop(context);
-               //         },
-               //         child: Padding(
-               //             padding: EdgeInsets.only(bottom: 10.h),
-               //             child: InvoiceCustomListTile(
-               //               titleText: title,
-               //               invoiceID: invoicID,
-               //               isTrailing: true,
-               //               paid: status,
-               //               date: date,
-               //               amount: double.tryParse(price),
-               //               imageUrl: File(imagePath).existsSync()
-               //                   ? FileImage(File(imagePath))
-               //                   : AssetImage(AppImages.demo) ,// Use a valid asset path
-               //               // onTap: () {},
-               //             ),
-               //         ),
-               //       );
-               //     },
-               //   );
-               // }),
                30.ht,
                CustomButton(
                  text: "Send To FDMS",

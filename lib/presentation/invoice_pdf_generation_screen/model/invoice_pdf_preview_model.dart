@@ -135,7 +135,7 @@ class ReceiptLines {
   String? receiptLineName;
   int? receiptLineQuantity;
   double? receiptLineTotal;
-  int? taxPercent;
+  double? taxPercent;
   String? taxID;
 
   ReceiptLines(
