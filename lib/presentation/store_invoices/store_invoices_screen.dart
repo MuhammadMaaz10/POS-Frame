@@ -3,12 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoices_controller.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/item_detail/store_invoice_item_detail_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/store_invoice_preview_screen.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
-import 'dart:math' as math;
+import 'package:skeletonizer/skeletonizer.dart';
 
 class StoreInvoicesScreen extends StatelessWidget {
   StoreInvoicesScreen({super.key});
@@ -93,10 +94,35 @@ class StoreInvoicesScreen extends StatelessWidget {
             // Items Grid
             Expanded(
               child: Obx(() {
+                if (controller.errorMessage.value != null &&
+                    !controller.isLoadingItems.value) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 18.w),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CustomText(
+                            text: controller.errorMessage.value ?? '',
+                            color: Colors.white70,
+                          ),
+                          12.ht,
+                          CustomButton(
+                            text: 'Retry',
+                            onPressed: () => controller.loadItemsFromApi(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 if (controller.filteredItemList.isEmpty) {
                   return Center(
                     child: CustomText(
-                      text: "No items found",
+                      text: controller.isLoadingItems.value
+                          ? "Loading items..."
+                          : "No items found",
                       fontSize: 14,
                       color: Colors.white70,
                     ),
@@ -118,34 +144,37 @@ class StoreInvoicesScreen extends StatelessWidget {
                       crossAxisCount = constraints.maxWidth >= 390 ? 3 : 2;
                     }
 
+                    final showSkeleton = controller.isLoadingItems.value;
                     final items = controller.filteredItemList;
-                    final rowCount = (items.length / crossAxisCount).ceil();
+                    final skeletonItemCount = crossAxisCount * 4;
+                    final rowCount = showSkeleton
+                        ? (skeletonItemCount / crossAxisCount).ceil()
+                        : (items.length / crossAxisCount).ceil();
                     final rowGap = 10.h;
                     final colGap = 10.w;
 
                     // Fixed card height keeps text from clipping across devices.
                     final cardHeight = isTablet ? 150.h : 140.h;
 
-                    return ListView.builder(
+                    final listView = ListView.builder(
                       padding:
                           EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
                       itemCount: rowCount,
                       itemBuilder: (context, rowIndex) {
                         final start = rowIndex * crossAxisCount;
-                        final end = math.min(start + crossAxisCount, items.length);
-                        final rowItems = items.sublist(start, end);
+                        // end is not required; we use absoluteIndex bounds checks
 
                         return Padding(
                           padding: EdgeInsets.only(bottom: rowGap),
                           child: Row(
                             children: List.generate(crossAxisCount, (colIndex) {
                               final isLastCol = colIndex == crossAxisCount - 1;
+                              final absoluteIndex = start + colIndex;
 
-                              if (colIndex >= rowItems.length) {
+                              if (!showSkeleton &&
+                                  absoluteIndex >= items.length) {
                                 return Expanded(child: SizedBox());
                               }
-
-                              final item = rowItems[colIndex];
 
                               return Expanded(
                                 child: Padding(
@@ -154,21 +183,42 @@ class StoreInvoicesScreen extends StatelessWidget {
                                   ),
                                   child: SizedBox(
                                     height: cardHeight,
-                                    child: Obx(() {
-                                      final isSelected =
-                                          controller.isItemSelected(item);
-                                      final quantity =
-                                          controller.getItemQuantity(item);
+                                    child: showSkeleton
+                                        ? StoreInvoiceItemCard(
+                                            title: 'Loading item',
+                                            priceText: '0.00',
+                                            quantity: 0,
+                                            isSelected: false,
+                                            onRemove: () {},
+                                            onAdd: () {},
+                                            onTap: null,
+                                          )
+                                        : Obx(() {
+                                            final item = items[absoluteIndex];
+                                            final isSelected =
+                                                controller.isItemSelected(item);
+                                            final quantity =
+                                                controller.getItemQuantity(item);
 
-                                      return StoreInvoiceItemCard(
-                                        title: item.itemName,
-                                        priceText: item.unitPrice.toStringAsFixed(2),
-                                        quantity: quantity,
-                                        isSelected: isSelected,
-                                        onRemove: () => controller.removeItem(item),
-                                        onAdd: () => controller.addItem(item),
-                                      );
-                                    }),
+                                            return StoreInvoiceItemCard(
+                                              title: item.itemName,
+                                              priceText: item.price
+                                                  .toStringAsFixed(2),
+                                              quantity: quantity,
+                                              isSelected: isSelected,
+                                              onRemove: () =>
+                                                  controller.removeItem(item),
+                                              onAdd: () =>
+                                                  controller.addItem(item),
+                                              onTap: () => Get.to(
+                                                () => StoreInvoiceItemDetailScreen(
+                                                  item: item,
+                                                  currency:
+                                                      controller.selectedCurrency.value,
+                                                ),
+                                              ),
+                                            );
+                                          }),
                                   ),
                                 ),
                               );
@@ -177,6 +227,11 @@ class StoreInvoicesScreen extends StatelessWidget {
                         );
                       },
                     );
+
+                    return Skeletonizer(
+                      enabled: showSkeleton,
+                      child: listView,
+                    );
                   },
                 );
               }),
@@ -184,7 +239,7 @@ class StoreInvoicesScreen extends StatelessWidget {
 
             // Bottom Summary and Preview Button
             Obx(() {
-              final hasSelectedItems = controller.selectedItems.isNotEmpty;
+              final hasSelectedItems = controller.selectedQuantities.isNotEmpty;
               return Container(
                 padding: EdgeInsets.all(18.w),
                 decoration: BoxDecoration(
@@ -268,6 +323,7 @@ class StoreInvoiceItemCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onRemove;
   final VoidCallback onAdd;
+  final VoidCallback? onTap;
 
   const StoreInvoiceItemCard({
     super.key,
@@ -277,104 +333,112 @@ class StoreInvoiceItemCard extends StatelessWidget {
     required this.isSelected,
     required this.onRemove,
     required this.onAdd,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(8.w, 12.h, 8.w, 10.h),
-      decoration: BoxDecoration(
-        color: AppColors.secondaryClr,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(10.r),
-        border: isSelected
-            ? Border.all(color: AppColors.buttonClr, width: 2)
-            : Border.all(color: Colors.transparent, width: 2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            height: 36.h,
-            child: Center(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.white,
-                  fontFamily: 'Satoshi',
-                  height: 1.2,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            ),
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.fromLTRB(8.w, 12.h, 8.w, 10.h),
+          decoration: BoxDecoration(
+            color: AppColors.secondaryClr,
+            borderRadius: BorderRadius.circular(10.r),
+            border: isSelected
+                ? Border.all(color: AppColors.buttonClr, width: 2)
+                : Border.all(color: Colors.transparent, width: 2),
           ),
-          6.ht,
-          CustomText(
-            text: priceText,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.buttonClr,
-            textAlign: TextAlign.center,
-          ),
-          6.ht,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              GestureDetector(
-                onTap: onRemove,
-                child: Container(
-                  width: 22.w,
-                  height: 22.h,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.buttonClr
-                        : Colors.grey.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(5.r),
-                  ),
-                  child: Icon(
-                    Icons.remove,
-                    color: isSelected ? Colors.black : Colors.white70,
-                    size: 14.sp,
-                  ),
-                ),
-              ),
-              4.wd,
               SizedBox(
-                width: 30.w,
-                child: CustomText(
-                  text: quantity.toString(),
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.white,
-                  textAlign: TextAlign.center,
+                height: 36.h,
+                child: Center(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.white,
+                      fontFamily: 'Satoshi',
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-              4.wd,
-              GestureDetector(
-                onTap: onAdd,
-                child: Container(
-                  width: 22.w,
-                  height: 22.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.buttonClr,
-                    borderRadius: BorderRadius.circular(5.r),
+              6.ht,
+              CustomText(
+                text: priceText,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.buttonClr,
+                textAlign: TextAlign.center,
+              ),
+              6.ht,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: onRemove,
+                    child: Container(
+                      width: 22.w,
+                      height: 22.h,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.buttonClr
+                            : Colors.grey.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(5.r),
+                      ),
+                      child: Icon(
+                        Icons.remove,
+                        color: isSelected ? Colors.black : Colors.white70,
+                        size: 14.sp,
+                      ),
+                    ),
                   ),
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.black,
-                    size: 14.sp,
+                  4.wd,
+                  SizedBox(
+                    width: 30.w,
+                    child: CustomText(
+                      text: quantity.toString(),
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.white,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
+                  4.wd,
+                  GestureDetector(
+                    onTap: onAdd,
+                    child: Container(
+                      width: 22.w,
+                      height: 22.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.buttonClr,
+                        borderRadius: BorderRadius.circular(5.r),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.black,
+                        size: 14.sp,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
