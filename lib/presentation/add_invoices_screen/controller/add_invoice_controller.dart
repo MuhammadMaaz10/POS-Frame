@@ -1551,7 +1551,7 @@ class AddInvoicesController extends GetxController {
     double newTotal = editSelectedItem.fold(0.0, (sum, item) => sum + (double.tryParse(item.price) ?? 0.0));
     print("💸 New total after edits: $newTotal (original: ${originalTotal.value})");
 
-    // Determine InvoiceType based on comparison
+    // Determine InvoiceType based on comparison or user choice when unchanged
     String newInvoiceType = "FiscalInvoice";
     if (newTotal > originalTotal.value) {
       newInvoiceType = "DebitNote";
@@ -1560,7 +1560,41 @@ class AddInvoicesController extends GetxController {
       newInvoiceType = "CreditNote";
       print("📉 Invoice type set to Credit (decrease in total)");
     } else {
-      print("⚖️ Invoice type remains Fiscal Invoice (no change in total)");
+      // No change in total: ask user to choose Credit or Debit Note instead of defaulting to Fiscal Invoice
+      final String? userChoice = await Get.dialog<String>(
+        barrierDismissible: false,
+        AlertDialog(
+          backgroundColor: const Color(0xFF000D3A),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: const Text(
+            "Invoice type",
+            style: TextStyle(fontFamily: 'Satoshi', color: Colors.white),
+          ),
+          content: const Text(
+            "You didn't change the invoice. Do you want to create a Credit Note or Debit Note?",
+            style: TextStyle(fontFamily: 'Satoshi', color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: null),
+              child: const Text("Cancel", style: TextStyle(color: Colors.white54)),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: 'CreditNote'),
+              child: Text("Credit Note", style: TextStyle(color: AppColors.buttonClr)),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: 'DebitNote'),
+              child: Text("Debit Note", style: TextStyle(color: AppColors.buttonClr)),
+            ),
+          ],
+        ),
+      );
+      if (userChoice == null) {
+        return; // User cancelled
+      }
+      newInvoiceType = userChoice;
+      print("📋 User selected invoice type: $newInvoiceType (no change in total)");
     }
 
     // Build new customer

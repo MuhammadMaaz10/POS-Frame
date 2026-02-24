@@ -18,8 +18,12 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../local_storage/configured_fdms_model.dart';
+
+/// SharedPreferences key for store-invoices mode toggle on home screen.
+const String _kUseStoreInvoicesMode = 'useStoreInvoicesMode';
 /// ---------------------------------------------------------------------------
 /// SETTINGS CONTROLLER
 /// ---------------------------------------------------------------------------
@@ -29,6 +33,12 @@ import '../../../local_storage/configured_fdms_model.dart';
 /// ---------------------------------------------------------------------------
 
 class SettingsController extends GetxController {
+  @override
+  void onInit() {
+    super.onInit();
+    loadStoreInvoicesMode();
+  }
+
   // ---------------------------------------------------------------------------
   // TEXT CONTROLLERS
   // ---------------------------------------------------------------------------
@@ -51,6 +61,26 @@ class SettingsController extends GetxController {
 
   /// Form key for validation of manual API entry
   final formKey = GlobalKey<FormState>();
+
+  /// When true, home screen shows Store Invoices flow; when false, default Invoices/Items/Customers.
+  final useStoreInvoicesMode = false.obs;
+
+  // ---------------------------------------------------------------------------
+  // STORE INVOICES MODE TOGGLE (persisted)
+  // ---------------------------------------------------------------------------
+
+  /// Loads persisted store-invoices toggle from SharedPreferences.
+  Future<void> loadStoreInvoicesMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    useStoreInvoicesMode.value = prefs.getBool(_kUseStoreInvoicesMode) ?? false;
+  }
+
+  /// Toggles store-invoices mode and persists the value.
+  Future<void> setStoreInvoicesMode(bool value) async {
+    useStoreInvoicesMode.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kUseStoreInvoicesMode, value);
+  }
 
   // ---------------------------------------------------------------------------
   // INPUT VALIDATORS

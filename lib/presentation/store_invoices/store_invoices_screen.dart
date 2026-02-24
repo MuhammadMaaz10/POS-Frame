@@ -12,7 +12,10 @@ import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class StoreInvoicesScreen extends StatelessWidget {
-  StoreInvoicesScreen({super.key});
+  /// When true, screen is embedded in home (no app bar; parent provides it).
+  final bool embedded;
+
+  StoreInvoicesScreen({super.key, this.embedded = false});
   final controller = Get.put(StoreInvoicesController());
 
   @override
@@ -20,19 +23,21 @@ class StoreInvoicesScreen extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.bgClr,
-      appBar: AppBar(
-        backgroundColor: AppColors.bgClr,
-        title: CustomText(
-          text: "Store Invoices",
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: AppColors.white,
-        ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-        ),
-      ),
+      appBar: embedded
+          ? null
+          : AppBar(
+              backgroundColor: AppColors.bgClr,
+              title: CustomText(
+                text: "Store Invoices",
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.white,
+              ),
+              leading: InkWell(
+                onTap: () => Get.back(),
+                child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
+              ),
+            ),
       body: SafeArea(
         child: Column(
           children: [

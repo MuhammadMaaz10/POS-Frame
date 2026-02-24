@@ -83,9 +83,8 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                     final item = homeController.filteredInvoiceList[index];
                     final invoiceTotal = item.items.fold<double>(0.0,
                           (sum, item) => sum + (double.tryParse(item.price) ?? 0.0),);
-                    print("singleInvoiceQrURL ---> ${singleInvoiceQrURL}");
 
-                   return Obx(() {
+                    return Obx(() {
                       final qrUrl = index < homeController.qrUrlList.length
                           ? homeController.qrUrlList[index]
                           : null;
