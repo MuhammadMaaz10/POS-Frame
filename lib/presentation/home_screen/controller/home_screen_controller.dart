@@ -255,6 +255,8 @@ class HomeScreenController extends GetxController {
       final invoiceBox = Hive.box<InvoiceModel>('invoices_$username');
       print("📂 Opened Hive box: invoices_$username");
 
+      /// Space out receipt API calls so the server is not hit back-to-back.
+      var delayBeforeNextSync = false;
       for (int index = 0; index < filteredInvoiceList.length; index++) {
         final invoice = filteredInvoiceList[index];
         // Skip invoices with non-empty qrUrl
@@ -264,8 +266,12 @@ class HomeScreenController extends GetxController {
           print("🔄 Synced qrUrlList[$index] with invoice.qrUrl: ${qrUrlList[index]}");
           continue;
         }
+        if (delayBeforeNextSync) {
+          await Future.delayed(const Duration(seconds: 1));
+        }
         print("📦 Processing invoice ${invoice.invoiceNo} at index ${index + 1} of ${filteredInvoiceList.length}");
         await createReceipt(invoiceModel: invoice, index: index);
+        delayBeforeNextSync = true;
         // Save updated invoice to Hive
         await invoiceBox.put(invoice.key, invoice);
         print("✅ Saved updated invoice ${invoice.invoiceNo} to Hive with qrUrl: ${invoice.qrUrl}");

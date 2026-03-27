@@ -1,0 +1,41 @@
+{
+  "receiptType": "FROM STORE: Use 'FiscalInvoice' for normal store invoice (fixed; no type picker in store flow)",
+  "receiptCurrency": "FROM STORE: controller.selectedCurrency (e.g. USD from Currency dropdown)",
+  "receiptGlobalNo": "WE DON'T HAVE: Not from Store UI – use from device/fiscal day (e.g. 1 or AppConstant)",
+  "invoiceNo": "WE DON'T HAVE: Store flow does not collect invoice number – must generate (e.g. same sequence as add-invoice) or let backend assign",
+  "buyerData": {
+    "buyerRegisterName": "WE DON'T HAVE: No customer in store flow – use placeholder e.g. 'Walk-in Customer' or 'Cash Sale'",
+    "buyerTIN": "WE DON'T HAVE: No customer TIN – use placeholder e.g. '0000000000'",
+    "buyerVAT": "WE DON'T HAVE: No customer VAT – use empty string ''",
+    "buyerAddress": {
+      "houseNumber": "WE DON'T HAVE: No customer address – use '' or minimal placeholder",
+      "street": "WE DON'T HAVE: No customer address – use '' or minimal placeholder",
+      "city": "WE DON'T HAVE: No customer address – use '' or minimal placeholder",
+      "province": "WE DON'T HAVE: No customer address – use '' or minimal placeholder"
+    }
+  },
+  "receiptLinesTaxInclusive": "FROM STORE: true (store uses tax-inclusive pricing; controller calculates tax from taxGroup)",
+  "receiptLines": [
+    {
+      "receiptLineHSCode": "WE DON'T HAVE: InventoryItem has no hsCode – use default '99001000'",
+      "receiptLineType": "FROM STORE: Fixed 'Sale' for each line",
+      "receiptLineNo": "FROM STORE: Line index 1, 2, 3... from selectedQuantities order",
+      "receiptLineName": "FROM STORE: InventoryItem.itemName (e.g. 'C001 - Broiler Pre-Starter Crumbs 10kg')",
+      "receiptLineQuantity": "FROM STORE: selectedQuantities[item.id] for this item",
+      "receiptLineTotal": "FROM STORE: item.price * quantity (tax-inclusive), format to 2 decimals",
+      "taxPercent": "FROM STORE: InventoryItem.taxGroup (e.g. 0 or 15)",
+      "taxID": "WE DON'T HAVE: InventoryItem has no taxID – use default 2"
+    }
+  ],
+  "receiptPayments": [
+    {
+      "moneyTypeCode": "FROM STORE: Use 'CASH' (or add payment type from Tender if needed later)",
+      "paymentAmount": "FROM STORE: Same as receiptTotal – controller.calculateGrandTotal() to 2 decimals"
+    }
+  ],
+  "receiptTotal": "FROM STORE: controller.calculateGrandTotal() formatted to 2 decimals",
+  "receiptTaxAmount": "FROM STORE: controller.calculateTotalTax() formatted to 2 decimals",
+  "receiptPrintForm": "REMAINS: Fixed 'Receipt48' (not from Store UI)",
+  "receiptNotes": "ONLY FOR CREDIT/DEBIT: Store normal invoice does not use this; for CreditNote/DebitNote use notes text",
+  "creditDebitNote": "ONLY FOR CREDIT/DEBIT: Store flow is normal invoice only – no creditDebitNote block; for Credit/Debit note would need: deviceID, receiptGlobalNo, fiscalDayNo, and originalInvoice (we don't have original invoice number in store flow)"
+}

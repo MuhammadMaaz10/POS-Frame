@@ -1,0 +1,49 @@
+{
+  "receiptType": "FiscalInvoice",
+  "receiptCurrency": "USD",
+  "receiptGlobalNo": 1,
+  "invoiceNo": "INV-STORE-0001",
+  "buyerData": {
+    "buyerRegisterName": "Walk-in Customer",
+    "buyerTIN": "0000000000",
+    "buyerVAT": "",
+    "buyerAddress": {
+      "houseNumber": "",
+      "street": "",
+      "city": "",
+      "province": ""
+    }
+  },
+  "receiptLinesTaxInclusive": true,
+  "receiptLines": [
+    {
+      "receiptLineHSCode": "99001000",
+      "receiptLineType": "Sale",
+      "receiptLineNo": 1,
+      "receiptLineName": "C001 - Broiler Pre-Starter Crumbs 10kg",
+      "receiptLineQuantity": 1,
+      "receiptLineTotal": "8.00",
+      "taxPercent": 0,
+      "taxID": 2
+    },
+    {
+      "receiptLineHSCode": "99001000",
+      "receiptLineType": "Sale",
+      "receiptLineNo": 2,
+      "receiptLineName": "C002 - Broilers Starter Crumbs 10kg",
+      "receiptLineQuantity": 1,
+      "receiptLineTotal": "8.00",
+      "taxPercent": 0,
+      "taxID": 2
+    }
+  ],
+  "receiptPayments": [
+    {
+      "moneyTypeCode": "CASH",
+      "paymentAmount": "16.00"
+    }
+  ],
+  "receiptTotal": "16.00",
+  "receiptTaxAmount": "0.00",
+  "receiptPrintForm": "Receipt48"
+}

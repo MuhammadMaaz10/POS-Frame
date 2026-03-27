@@ -1,12 +1,33 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoice_api_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoices_controller.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+
+pw.Font? satoshiLight;
+pw.Font? satoshiRegular;
+pw.Font? satoshiMedium;
+pw.Font? satoshiBold;
+pw.Font? satoshiBlack;
+
+Future<void> _loadSatoshiFonts() async {
+  satoshiLight ??= pw.Font.ttf(await rootBundle.load('assets/fonts/Satoshi-Light.ttf'));
+  satoshiRegular ??= pw.Font.ttf(await rootBundle.load('assets/fonts/Satoshi-Regular.ttf'));
+  satoshiMedium ??= pw.Font.ttf(await rootBundle.load('assets/fonts/Satoshi-Medium.ttf'));
+  satoshiBold ??= pw.Font.ttf(await rootBundle.load('assets/fonts/Satoshi-Bold.ttf'));
+  satoshiBlack ??= pw.Font.ttf(await rootBundle.load('assets/fonts/Satoshi-Black.ttf'));
+}
 
 class StoreInvoicePreviewScreen extends StatefulWidget {
   StoreInvoicePreviewScreen({super.key});
@@ -18,12 +39,214 @@ class StoreInvoicePreviewScreen extends StatefulWidget {
 
 class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
   final controller = Get.find<StoreInvoicesController>();
+  final storeInvoiceApi = Get.find<StoreInvoiceApiController>();
   final TextEditingController tenderController = TextEditingController();
 
   double _parseAmount(String raw) {
     // allow comma separators
     final cleaned = raw.replaceAll(',', '').trim();
     return double.tryParse(cleaned) ?? 0.0;
+  }
+
+  /// Generates store invoice as PDF and opens the system share sheet (Print, WhatsApp, etc.).
+  Future<void> _shareInvoice() async {
+    try {
+      final pdfBytes = await _generateStoreInvoicePdf();
+      await Printing.sharePdf(bytes: pdfBytes, filename: 'invoice.pdf');
+    } catch (e) {
+      if (mounted) {
+        Get.snackbar('Error', 'Could not generate or share PDF: $e');
+      }
+    }
+  }
+
+  Future<Uint8List> _generateStoreInvoicePdf() async {
+    await _loadSatoshiFonts();
+    final pdf = pw.Document();
+    // Match the on-screen Store Invoice preview layout: narrow receipt format,
+    // tax line under each item, and include tender + remaining/change.
+    final currency = controller.selectedCurrency.value;
+    final grandTotal = controller.calculateGrandTotal();
+    final totalTax = controller.calculateTotalTax();
+    final totalNet = controller.calculateTotalNet();
+    final totalQty = controller.getTotalQuantity();
+    final tendered = _parseAmount(tenderController.text);
+    final diff = tendered - grandTotal;
+    final byId = {for (final it in controller.itemList) it.id: it};
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat(
+          58 * PdfPageFormat.mm,
+          double.infinity,
+          marginAll: 4 * PdfPageFormat.mm,
+        ),
+        build: (pw.Context context) {
+          final regular = pw.TextStyle(fontSize: 8, font: satoshiRegular);
+          final bold = pw.TextStyle(fontSize: 9, font: satoshiBold, fontWeight: pw.FontWeight.bold);
+          final bigBold = pw.TextStyle(fontSize: 11, font: satoshiBlack ?? satoshiBold, fontWeight: pw.FontWeight.bold);
+
+          pw.Widget row2(String left, String right, {pw.TextStyle? leftStyle, pw.TextStyle? rightStyle}) {
+            return pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Expanded(child: pw.Text(left, style: leftStyle ?? regular)),
+                pw.SizedBox(width: 4),
+                pw.Text(right, style: rightStyle ?? regular),
+              ],
+            );
+          }
+
+          pw.Widget divider() => pw.Divider(thickness: 0.5);
+
+          final items = <pw.Widget>[];
+
+          // Header
+          items.add(pw.Center(child: pw.Text('STORE INVOICE', style: bigBold)));
+          items.add(pw.SizedBox(height: 4));
+
+          // Company section (matches preview)
+          if (controller.companyData != null) {
+            items.add(pw.Text('TIN: ${controller.companyData!.tinNumber ?? ''}', style: regular));
+            items.add(pw.Center(child: pw.Text('VAT No: ${controller.companyData!.vatNumber ?? ''}', style: regular)));
+            items.add(pw.Center(child: pw.Text(controller.companyData!.companyName, style: bold)));
+            items.add(pw.Center(child: pw.Text(_getCompanyAddress(), style: regular)));
+            if (controller.companyData!.email.isNotEmpty) {
+              items.add(pw.Center(child: pw.Text(controller.companyData!.email, style: regular)));
+            }
+            if (controller.companyData!.contactNumber.isNotEmpty) {
+              items.add(pw.Center(child: pw.Text('Contact: ${controller.companyData!.contactNumber}', style: regular)));
+            }
+          }
+
+          items.add(pw.SizedBox(height: 4));
+          items.add(divider());
+          items.add(pw.SizedBox(height: 4));
+
+          // Invoice info
+          items.add(pw.Center(child: pw.Text('Invoice Info', style: bold)));
+          items.add(pw.SizedBox(height: 2));
+          items.add(pw.Text('Date: ${_formatDate(DateTime.now())}', style: regular));
+          items.add(pw.Text('Currency: $currency', style: regular));
+
+          items.add(pw.SizedBox(height: 4));
+          items.add(divider());
+          items.add(pw.SizedBox(height: 4));
+
+          // Items header
+          items.add(
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text('Item Name', style: bold),
+                pw.Text('Qty', style: bold),
+                pw.Text('Amount', style: bold),
+              ],
+            ),
+          );
+          items.add(pw.SizedBox(height: 2));
+          items.add(divider());
+          items.add(pw.SizedBox(height: 2));
+
+          // Items list (with tax line like preview)
+          for (final entry in controller.selectedQuantities.entries) {
+            final item = byId[entry.key];
+            if (item == null) continue;
+            final qty = entry.value;
+            final itemTotal = controller.calculateItemTotal(item, quantity: qty);
+            final itemTax = controller.calculateItemTax(item, quantity: qty);
+
+            items.add(
+              pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Expanded(
+                    flex: 3,
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(item.itemName, style: regular, maxLines: 3),
+                        pw.SizedBox(height: 1),
+                        pw.Text(
+                          'Tax ${item.taxGroup.toStringAsFixed(1)}%',
+                          style: pw.TextStyle(fontSize: 7, font: satoshiRegular),
+                        ),
+                      ],
+                    ),
+                  ),
+                  pw.Expanded(
+                    flex: 1,
+                    child: pw.Align(
+                      alignment: pw.Alignment.topCenter,
+                      child: pw.Text('$qty', style: regular),
+                    ),
+                  ),
+                  pw.Expanded(
+                    flex: 2,
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text('$currency ${itemTotal.toStringAsFixed(2)}', style: regular),
+                        pw.SizedBox(height: 1),
+                        pw.Text(
+                          '$currency ${itemTax.toStringAsFixed(2)}',
+                          style: pw.TextStyle(fontSize: 7, font: satoshiRegular),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+            items.add(pw.SizedBox(height: 4));
+            items.add(pw.Divider(thickness: 0.3));
+            items.add(pw.SizedBox(height: 4));
+          }
+
+          // Number of items
+          items.add(row2('Number of Items', '$totalQty', leftStyle: bold, rightStyle: bold));
+          items.add(pw.SizedBox(height: 4));
+          items.add(divider());
+          items.add(pw.SizedBox(height: 4));
+
+          // Totals section (same labels/order as preview)
+          items.add(row2('Total Net Amount', '$currency ${totalNet.toStringAsFixed(2)}'));
+          items.add(pw.SizedBox(height: 2));
+          items.add(row2('Total Tax', '$currency ${totalTax.toStringAsFixed(2)}'));
+          items.add(pw.SizedBox(height: 4));
+          items.add(divider());
+          items.add(pw.SizedBox(height: 4));
+          items.add(row2('Grand Total', '$currency ${grandTotal.toStringAsFixed(2)}', leftStyle: bigBold, rightStyle: bigBold));
+
+          items.add(pw.SizedBox(height: 4));
+          items.add(divider());
+          items.add(pw.SizedBox(height: 6));
+
+          // Tender + remaining/change (to match preview)
+          items.add(pw.Text('Tender Amount', style: bold));
+          items.add(pw.SizedBox(height: 2));
+          items.add(row2('Tendered', '$currency ${tendered.toStringAsFixed(2)}'));
+          items.add(pw.SizedBox(height: 2));
+          items.add(
+            row2(
+              diff >= 0 ? 'Change' : 'Remaining',
+              '$currency ${diff.abs().toStringAsFixed(2)}',
+              leftStyle: bold,
+              rightStyle: pw.TextStyle(fontSize: 9, font: pw.Font.courierBold(), fontWeight: pw.FontWeight.bold),
+            ),
+          );
+
+          items.add(pw.SizedBox(height: 8));
+
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+            children: items,
+          );
+        },
+      ),
+    );
+    return pdf.save();
   }
 
   @override
@@ -409,6 +632,93 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                       ),
                     ],
                   ),
+                  16.ht,
+                  // Submit store invoice (fields data) via separate API provider
+                  Obx(() {
+                    final isSubmitting = storeInvoiceApi.isSubmitting.value;
+                    final error = storeInvoiceApi.submitError.value;
+                    final success = storeInvoiceApi.lastSubmitSuccess.value;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (error != null)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.h),
+                            child: Text(
+                              error,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                        if (success)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.h),
+                            child: Text(
+                              'Receipt submitted successfully.',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                        SizedBox(
+                          height: 44.h,
+                          child: ElevatedButton(
+                            onPressed: isSubmitting
+                                ? null
+                                : () async {
+                                    storeInvoiceApi.clearSubmitState();
+                                    final ok = await storeInvoiceApi.submitStoreInvoice();
+                                    if (ok && mounted) {
+                                      storeInvoiceApi.clearSubmitState();
+                                      controller.clearSelection();
+                                      Get.back();
+                                      Get.snackbar(
+                                        'Success',
+                                        'Store invoice submitted.',
+                                        snackPosition: SnackPosition.BOTTOM,
+                                        backgroundColor: AppColors.bgClr,
+                                        colorText: AppColors.white,
+                                      );
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black87,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: isSubmitting
+                                ? SizedBox(
+                                    width: 22.w,
+                                    height: 22.h,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text('Submit receipt'),
+                          ),
+                        ),
+                        12.ht,
+                        // Share invoice option
+                        SizedBox(
+                          height: 44.h,
+                          child: OutlinedButton.icon(
+                            onPressed: _shareInvoice,
+                            icon: Icon(Icons.share, size: 20.sp, color: Colors.black87),
+                            label: Text(
+                              'Share invoice',
+                              style: TextStyle(color: Colors.black87, fontSize: 14.sp),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: Colors.black54),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ],
               ),
 
