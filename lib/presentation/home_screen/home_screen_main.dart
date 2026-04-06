@@ -101,10 +101,12 @@ class _HomeScreenMainState extends State<HomeScreenMain>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    ever(controller2.useStoreInvoicesMode, (_) {
+      if (mounted) setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller2.checkFDMSConfig(context);
     });
-
   }
 
   @override
@@ -121,7 +123,7 @@ class _HomeScreenMainState extends State<HomeScreenMain>
       resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
-        toolbarHeight: 80.h,
+        toolbarHeight: controller2.useStoreInvoicesMode.value ? 52.h : 80.h,
         backgroundColor: Color(0xFF00144D),
         titleSpacing: 18.w,
         title: barLogo(),
@@ -167,14 +169,20 @@ class _HomeScreenMainState extends State<HomeScreenMain>
           barHeight: 48.h,
         ),
       ),
-      body: SafeArea(
-        child: Obx(() {
-          if (controller2.useStoreInvoicesMode.value) {
-            return StoreInvoicesScreen(embedded: true);
-          }
-          // Builder defers building tab content so this Obx only subscribes to
-          // useStoreInvoicesMode, not to observables inside InvoicesScreen etc.
-          return TabBarView(
+      body: Obx(() {
+        if (controller2.useStoreInvoicesMode.value) {
+          // No top SafeArea here: body already sits below AppBar; applying top
+          // padding again left a visible gap above the store tab bar.
+          return SafeArea(
+            top: false,
+            left: false,
+            right: false,
+            bottom: true,
+            child: StoreInvoicesScreen(embedded: true),
+          );
+        }
+        return SafeArea(
+          child: TabBarView(
             physics: AlwaysScrollableScrollPhysics(),
             controller: _tabController,
             children: [
@@ -182,9 +190,9 @@ class _HomeScreenMainState extends State<HomeScreenMain>
               Builder(builder: (_) => ItemsScreen()),
               Builder(builder: (_) => CustomersScreen()),
             ],
-          );
-        }),
-      ),
+          ),
+        );
+      }),
       floatingActionButton: Obx(() {
         if (controller2.useStoreInvoicesMode.value) {
           return const SizedBox.shrink();

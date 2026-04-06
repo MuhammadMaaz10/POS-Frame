@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/processed_receipts_controller.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/credit_debit_adjustment_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/processed_receipts_page_response.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/processed_receipt_detail_screen.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
@@ -63,6 +64,27 @@ class _ProcessedReceiptsListBodyState extends State<ProcessedReceiptsListBody> {
     } catch (_) {
       return iso;
     }
+  }
+
+  void _openAdjustment(ProcessedReceipt receipt) {
+    Get.to(
+      () => CreditDebitAdjustmentScreen(receipt: receipt),
+    )?.then((result) async {
+      if (result == true) {
+        await controller.refreshReceipts();
+      }
+    });
+  }
+
+  void _showVerifySheet(
+    BuildContext context,
+    ProcessedReceipt receipt,
+  ) {
+    showVerifyInvoiceBottomSheet(
+      context,
+      receipt: receipt,
+      formatDate: _formatDate,
+    );
   }
 
   @override
@@ -137,6 +159,8 @@ class _ProcessedReceiptsListBodyState extends State<ProcessedReceiptsListBody> {
               onTap: () => Get.to(
                 () => ProcessedReceiptDetailScreen(receipt: r),
               ),
+              onAdjust: () => _openAdjustment(r),
+              onLongPress: () => _showVerifySheet(context, r),
             );
           },
         ),
@@ -175,68 +199,355 @@ class ReceiptTile extends StatelessWidget {
   final ProcessedReceipt receipt;
   final String Function(String) formatDate;
   final VoidCallback onTap;
+  final VoidCallback onAdjust;
+  final VoidCallback? onLongPress;
 
   const ReceiptTile({
     super.key,
     required this.receipt,
     required this.formatDate,
     required this.onTap,
+    required this.onAdjust,
+    this.onLongPress,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    final card = Container(
+      margin: EdgeInsets.only(bottom: 10.h),
+      decoration: BoxDecoration(
+        color: AppColors.secondaryClr,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(14.w, 12.h, 10.w, 12.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8.r),
+                    onTap: onTap,
+                    child: Text(
+                      receipt.invoiceNo,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Satoshi',
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: onTap,
+                  borderRadius: BorderRadius.circular(6.r),
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 6.w),
+                    child: CustomText(
+                      text:
+                          '${receipt.receiptCurrency} ${receipt.receiptTotal.toStringAsFixed(2)}',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: AppColors.buttonClr,
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            6.ht,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8.r),
+                    onTap: onTap,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          text: formatDate(receipt.receiptDate),
+                          fontSize: 12,
+                          color: Colors.white70,
+                          textAlign: TextAlign.start,
+                        ),
+                        6.ht,
+                        CustomText(
+                          text: receipt.buyerData.buyerRegisterName,
+                          fontSize: 13,
+                          color: AppColors.white,
+                          textAlign: TextAlign.start,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                6.wd,
+                _ReceiptCreditDebitButton(onPressed: onAdjust),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (onLongPress == null) return card;
+    return GestureDetector(
+      onLongPress: onLongPress,
+      behavior: HitTestBehavior.opaque,
+      child: card,
+    );
+  }
+}
+
+/// Long-press on a receipt → verify actions (QR not available yet).
+void showVerifyInvoiceBottomSheet(
+  BuildContext context, {
+  required ProcessedReceipt receipt,
+  required String Function(String) formatDate,
+}) {
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (ctx) => _VerifyInvoiceSheet(
+      receipt: receipt,
+      formatDate: formatDate,
+    ),
+  );
+}
+
+class _VerifyInvoiceSheet extends StatelessWidget {
+  final ProcessedReceipt receipt;
+  final String Function(String) formatDate;
+
+  const _VerifyInvoiceSheet({
+    required this.receipt,
+    required this.formatDate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewPadding.bottom;
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgClr,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(18.w, 12.h, 18.w, 12.h + bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Verify Invoice?',
+                      style: TextStyle(
+                        fontFamily: 'Satoshi',
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close_rounded, color: AppColors.white, size: 24.sp),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ],
+              ),
+              14.ht,
+              Container(
+                padding: EdgeInsets.all(14.w),
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryClr,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            text: receipt.buyerData.buyerRegisterName,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
+                          8.ht,
+                          CustomText(
+                            text: receipt.invoiceNo,
+                            fontSize: 13,
+                            color: Colors.white70,
+                          ),
+                          4.ht,
+                          CustomText(
+                            text: formatDate(receipt.receiptDate),
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                          8.ht,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              CustomText(
+                                text: 'Document Type: ',
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                              Text(
+                                receipt.receiptType.isEmpty
+                                    ? '—'
+                                    : receipt.receiptType,
+                                style: TextStyle(
+                                  fontFamily: 'Satoshi',
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.buttonClr,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        CustomText(
+                          text:
+                              '${receipt.receiptCurrency} ${receipt.receiptTotal.toStringAsFixed(2)}',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: AppColors.white,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              16.ht,
+              _verifySheetButton(
+                label: 'Invoice preview',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Get.to(() => ProcessedReceiptDetailScreen(receipt: receipt));
+                },
+              ),
+              8.ht,
+              _verifySheetButton(
+                label: 'Verify',
+                onPressed: () {
+                  Get.snackbar(
+                    'Verify',
+                    'no qr url is available now',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.secondaryClr,
+                    colorText: AppColors.white,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget _verifySheetButton({
+  required String label,
+  required VoidCallback onPressed,
+}) {
+  return SizedBox(
+    height: 42.h,
+    width: double.infinity,
+    child: ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.buttonClr,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Satoshi',
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+  );
+}
+
+/// Compact pill for credit/debit; separate from card tap target.
+class _ReceiptCreditDebitButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _ReceiptCreditDebitButton({required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(10.r),
-        onTap: onTap,
-        child: Container(
-          margin: EdgeInsets.only(bottom: 10.h),
-          padding: EdgeInsets.all(14.w),
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20.r),
+        child: Ink(
           decoration: BoxDecoration(
-            color: AppColors.secondaryClr,
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: AppColors.buttonClr, width: 1.2),
+            color: AppColors.buttonClr.withValues(alpha: 0.14),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: CustomText(
-                      text: receipt.invoiceNo,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: AppColors.white,
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                  CustomText(
-                    text:
-                        '${receipt.receiptCurrency} ${receipt.receiptTotal.toStringAsFixed(2)}',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: AppColors.buttonClr,
-                    textAlign: TextAlign.end,
-                  ),
-                ],
-              ),
-              6.ht,
-              CustomText(
-                text: formatDate(receipt.receiptDate),
-                fontSize: 12,
-                color: Colors.white70,
-                textAlign: TextAlign.start,
-              ),
-              8.ht,
-              CustomText(
-                text: receipt.buyerData.buyerRegisterName,
-                fontSize: 13,
-                color: AppColors.white,
-                textAlign: TextAlign.start,
-              ),
-            ],
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.compare_arrows_rounded,
+                  size: 15.sp,
+                  color: AppColors.buttonClr,
+                ),
+                4.wd,
+                CustomText(
+                  text: 'Credit / Debit',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.buttonClr,
+                  textAlign: TextAlign.start,
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -17,6 +17,8 @@ class CustomTextField extends StatelessWidget {
   final Color selectedBorderColor;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  /// When set, constrains field height (e.g. to align with a dropdown).
+  final double? fixedHeight;
 
   const CustomTextField({
     Key? key,
@@ -34,30 +36,47 @@ class CustomTextField extends StatelessWidget {
     required this.selectedBorderColor,
     this.validator,
     this.enabled = true,
+    this.fixedHeight,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    final field = TextFormField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType ?? TextInputType.text,
-      style:  TextStyle(color: AppColors.white,fontSize: 14.sp, fontWeight: FontWeight.w500),
+      style: TextStyle(
+        color: AppColors.white,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w500,
+        height: fixedHeight != null ? 1.2 : null,
+      ),
       validator: validator,
       enabled: enabled,
       maxLines: maxLines,
       onTap: onTap,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(fontSize: 14.sp,fontWeight: FontWeight.w500,color: Colors.white38),
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Colors.white70) : null,
+        hintStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+          color: Colors.white38,
+        ),
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, color: Colors.white70, size: 20.sp)
+            : null,
         suffixIcon: suffixIcon != null
             ? IconButton(
-          icon: Icon(suffixIcon, color: Colors.white70,size: 18.sp,),
-          onPressed: onSuffixTap,)
+                icon: Icon(suffixIcon, color: Colors.white70, size: 18.sp),
+                onPressed: onSuffixTap,
+              )
             : null,
         filled: true,
         fillColor: const Color(0xFF172349),
+        isDense: fixedHeight != null,
+        contentPadding: fixedHeight != null
+            ? EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h)
+            : null,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide(color: borderColor),
@@ -77,5 +96,8 @@ class CustomTextField extends StatelessWidget {
         errorStyle: const TextStyle(color: Colors.red),
       ),
     );
+
+    if (fixedHeight == null) return field;
+    return SizedBox(height: fixedHeight, child: field);
   }
 }

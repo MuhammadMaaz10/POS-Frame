@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/urls.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/processed_receipts_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoices_controller.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/utils/invoice_number_generator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -57,7 +59,12 @@ class StoreInvoiceApiController extends GetxController {
       'receiptType': 'FiscalInvoice',
       'receiptCurrency': currency,
       'receiptGlobalNo': int.tryParse(AppConstant.fiscalDayNumber) ?? 1,
-      'invoiceNo': _generateInvoiceNo(),
+      'invoiceNo': generateNextInvoiceForSubmit(
+        original: null,
+        apiReceipts: Get.isRegistered<ProcessedReceiptsController>()
+            ? Get.find<ProcessedReceiptsController>().receipts.toList()
+            : null,
+      ),
       'buyerData': {
         'buyerRegisterName': 'Walk-in Customer',
         'buyerTIN': '0000000000',
@@ -81,14 +88,6 @@ class StoreInvoiceApiController extends GetxController {
       'receiptTaxAmount': receiptTaxStr,
       'receiptPrintForm': 'Receipt48',
     };
-  }
-
-  String _generateInvoiceNo() {
-    final last = AppConstant.lastInvoiceNumber;
-    if (last.isEmpty) return 'INV-STORE-0001';
-    final numPart = int.tryParse(last.replaceAll(RegExp(r'[^0-9]'), ''));
-    if (numPart == null) return 'INV-STORE-0001';
-    return 'INV-STORE-${(numPart + 1).toString().padLeft(4, '0')}';
   }
 
   /// Submits the store invoice (fields data) to the receipts API.
@@ -133,6 +132,10 @@ class StoreInvoiceApiController extends GetxController {
         // Console: success (green)
         print('$_green[StoreInvoice API] Response status: ${response.statusCode}$_reset');
         print('$_green[StoreInvoice API] Response body: ${response.body}$_reset');
+        final inv = payload['invoiceNo']?.toString();
+        if (inv != null && inv.isNotEmpty) {
+          await persistLastInvoiceNumber(inv);
+        }
         lastSubmitSuccess.value = true;
         submitError.value = null;
         return true;

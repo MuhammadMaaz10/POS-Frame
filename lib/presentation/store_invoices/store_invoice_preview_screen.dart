@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/processed_receipts_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoice_api_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoices_controller.dart';
+import 'package:frame_virtual_fiscilation/presentation/store_invoices/utils/invoice_number_generator.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -345,6 +347,48 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
               CustomText2('Date: ${_formatDate(DateTime.now())}', color: Colors.black),
               CustomText2('Currency: ${controller.selectedCurrency.value}', color: Colors.black),
               8.ht,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Next invoice no. (on submit)',
+                      style: TextStyle(fontSize: 11.sp, color: Colors.black54),
+                    ),
+                    4.ht,
+                    Get.isRegistered<ProcessedReceiptsController>()
+                        ? Obx(() {
+                            final list = Get.find<ProcessedReceiptsController>()
+                                .receipts
+                                .toList();
+                            return Text(
+                              generateNextInvoiceForSubmit(
+                                original: null,
+                                apiReceipts: list,
+                              ),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
+                            );
+                          })
+                        : Text(
+                            generateNextInvoiceForSubmit(
+                              original: null,
+                              apiReceipts: null,
+                            ),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                  ],
+                ),
+              ),
+              8.ht,
               Divider(thickness: 1, color: Colors.black),
               8.ht,
 
@@ -674,7 +718,28 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                                     if (ok && mounted) {
                                       storeInvoiceApi.clearSubmitState();
                                       controller.clearSelection();
+                                      if (!Get.isRegistered<
+                                          ProcessedReceiptsController>()) {
+                                        Get.put(
+                                          ProcessedReceiptsController(),
+                                          permanent: true,
+                                        );
+                                      }
+                                      final prc =
+                                          Get.find<ProcessedReceiptsController>();
+                                      await prc.refreshReceipts();
                                       Get.back();
+                                      // List GET can briefly lag behind POST; retry once.
+                                      Future<void>.delayed(
+                                        const Duration(milliseconds: 800),
+                                        () {
+                                          if (Get.isRegistered<
+                                              ProcessedReceiptsController>()) {
+                                            Get.find<ProcessedReceiptsController>()
+                                                .refreshReceipts();
+                                          }
+                                        },
+                                      );
                                       Get.snackbar(
                                         'Success',
                                         'Store invoice submitted.',

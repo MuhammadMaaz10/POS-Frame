@@ -6,6 +6,29 @@ import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/proc
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+void _logReceiptsListResponse(Uri uri, http.Response response) {
+  final raw = response.body;
+  print('[ProcessedReceipts API] GET $uri');
+  print('[ProcessedReceipts API] status: ${response.statusCode}');
+  try {
+    final decoded = jsonDecode(raw);
+    print(
+      '[ProcessedReceipts API] body (pretty):\n'
+      '${const JsonEncoder.withIndent('  ').convert(decoded)}',
+    );
+  } catch (_) {
+    print('[ProcessedReceipts API] body (raw): $raw');
+  }
+  final lower = raw.toLowerCase();
+  final hasUrlKey =
+      RegExp(r'"[^"]*url[^"]*"\s*:').hasMatch(lower) ||
+          lower.contains('http://') ||
+          lower.contains('https://');
+  print(
+    '[ProcessedReceipts API] Likely URL field in JSON or http(s) in body: $hasUrlKey',
+  );
+}
+
 class ProcessedReceiptsController extends GetxController {
   static const int pageSize = 10;
 
@@ -56,6 +79,7 @@ class ProcessedReceiptsController extends GetxController {
       );
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        _logReceiptsListResponse(uri, response);
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         final page = ProcessedReceiptsPageResponse.fromJson(decoded);
         receipts.assignAll(page.content);
