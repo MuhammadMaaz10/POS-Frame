@@ -9,6 +9,7 @@ import 'package:frame_virtual_fiscilation/presentation/store_invoices/processed_
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Scrollable list of processed receipts (pull-to-refresh + load more).
 /// Use [disposeControllerOnDispose]: `true` when shown alone; `false` when embedded in tabs.
@@ -461,20 +462,55 @@ class _VerifyInvoiceSheet extends StatelessWidget {
               8.ht,
               _verifySheetButton(
                 label: 'Verify',
-                onPressed: () {
-                  Get.snackbar(
-                    'Verify',
-                    'no qr url is available now',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: AppColors.secondaryClr,
-                    colorText: AppColors.white,
-                  );
+                onPressed: () async {
+
+                  if (receipt.qrUrl != null && receipt.qrUrl!.isNotEmpty) {
+                    await launchQR(receipt.qrUrl!);
+                  } else {
+                    Get.snackbar(
+                      'Verify',
+                      'No QR URL is available right now',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: AppColors.secondaryClr,
+                      colorText: AppColors.white,
+                    );
+                  }
+
+                  print("invoice url ---> ${receipt.qrUrl}");
                 },
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+ launchQR(String qrUrl) async {
+  try {
+    if (qrUrl.isEmpty) {
+      throw Exception("Empty URL");
+    }
+
+    final uri = Uri.tryParse(qrUrl);
+
+    if (uri == null) {
+      throw Exception("Invalid URL");
+    }
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw Exception("Cannot launch URL");
+    }
+  } catch (e) {
+    CustomGetSnackBar.show(
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+      title: 'Error',
+      message: 'Could not open QR URL',
+      backgroundColor: Colors.red,
     );
   }
 }

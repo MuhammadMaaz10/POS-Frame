@@ -107,6 +107,7 @@ class ProcessedReceipt {
   final BuyerDataReceipt buyerData;
   final List<ReceiptLineReceipt> receiptLines;
   final List<ReceiptPaymentReceipt> receiptPayments;
+  final String? qrUrl; // ✅ NEW FIELD
 
   ProcessedReceipt({
     required this.receiptType,
@@ -124,6 +125,7 @@ class ProcessedReceipt {
     required this.buyerData,
     required this.receiptLines,
     required this.receiptPayments,
+    this.qrUrl, // ✅ ADD HERE
   });
 
   factory ProcessedReceipt.fromJson(Map<String, dynamic> json) {
@@ -134,14 +136,15 @@ class ProcessedReceipt {
       receiptGlobalNo: (json['receiptGlobalNo'] as num?)?.toInt(),
       invoiceNo: json['invoiceNo']?.toString() ?? '',
       receiptDate: json['receiptDate']?.toString() ?? '',
-      receiptLinesTaxInclusive: json['receiptLinesTaxInclusive'] as bool? ?? false,
+      receiptLinesTaxInclusive:
+      json['receiptLinesTaxInclusive'] as bool? ?? false,
       receiptTotal: _toDouble(json['receiptTotal']),
       receiptTaxAmount: _toDouble(json['receiptTaxAmount']),
       receiptPrintForm: json['receiptPrintForm']?.toString() ?? '',
       receiptNotes: json['receiptNotes']?.toString(),
       creditDebitNote: json['creditDebitNote'] != null
           ? CreditDebitNoteReceipt.fromJson(
-              json['creditDebitNote'] as Map<String, dynamic>)
+          json['creditDebitNote'] as Map<String, dynamic>)
           : null,
       buyerData: BuyerDataReceipt.fromJson(
           json['buyerData'] as Map<String, dynamic>? ?? {}),
@@ -151,6 +154,7 @@ class ProcessedReceipt {
       receiptPayments: (json['receiptPayments'] as List<dynamic>? ?? [])
           .map((e) => ReceiptPaymentReceipt.fromJson(e as Map<String, dynamic>))
           .toList(),
+      qrUrl: json['qrUrl']?.toString(), // ✅ MAP HERE
     );
   }
 }

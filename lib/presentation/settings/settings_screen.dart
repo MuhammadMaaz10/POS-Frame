@@ -13,6 +13,7 @@ import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/edit_company_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/store_invoices_screen.dart';
+import 'package:frame_virtual_fiscilation/presentation/fiscal_day_report/view/fiscal_day_report_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -52,43 +53,48 @@ class SettingsScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
+
                   customTile(
                     title: "Company Profile",
                     onTap: () => Get.to(() => EditCompanyScreen()),
                     iconPath: AppImages.infoIcon,
                   ),
+
+                  customTile(
+                      title: "Configure FDMS",
+                      onTap: () {
+                        final controller = Get.find<SettingsController>();
+                        controller.showConfigOptionSheet(Get.context!);
+                        // controller.openQRScanner(Get.context!);
+                      },
+                      // onTap: () => controller.addAPIkeyBottomSheet(context),
+                      iconPath: AppImages.fdmsIcon
+                  ),
+
+                  customTile(
+                      title: "Fiscal Device Management",
+                      onTap: () => Get.to(FiscalDeviceManagementScreen()),
+                      iconPath: AppImages.fdmsIcon
+                  ),
+
                   customTile(
                     title: "Tax Group Management",
                     onTap: () => Get.to(TaxGroupScreen()),
                     iconPath: AppImages.taxIcon
                   ),
-                  customTile(
-                    title: "Store Invoices",
-                    onTap: () => Get.to(() => StoreInvoicesScreen()),
-                    iconPath: AppImages.invoiceIcon
-                  ),
+
                   // customTile(
-                  //     onTap: () => Get.to(PrinterScreen()),
-                  //   title: "Bluetooth Printer Setup",
-                  //     iconPath: AppImages.printerIcon
+                  //   title: "Invoice Grid View",
+                  //   onTap: () => Get.to(() => StoreInvoicesScreen()),
+                  //   iconPath: AppImages.invoiceIcon
                   // ),
-                  customTile(
-                    title: "Configure FDMS",
-                    onTap: () {
-                      final controller = Get.find<SettingsController>();
-                      controller.showConfigOptionSheet(Get.context!);
-                      // controller.openQRScanner(Get.context!);
-                      },
-                    // onTap: () => controller.addAPIkeyBottomSheet(context),
-                      iconPath: AppImages.fdmsIcon
-                  ),
 
                   customTile(
-                    title: "Fiscal Device Management",
-                    onTap: () => Get.to(FiscalDeviceManagementScreen()),
-                      iconPath: AppImages.fdmsIcon
+                      onTap: () => Get.to(() => FiscalDayReportScreen()),
+                    title: "Fiscal Day Report",
+                      iconPath: AppImages.printerIcon
                   ),
-
+                  
                   customTile(
                     title: "Terms & Conditions",
                       iconPath: AppImages.termsCondIcon

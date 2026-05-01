@@ -12,3 +12,5 @@ String receiptsListUrl({required int deviceId, required int page, required int s
  String getFiscalDayUrl = "device-status/$fiscalDeviceID";
  String openDayUrl = "open-day/$fiscalDeviceID";
  String closeDayUrl = "close-day/$fiscalDeviceID";
+
+ String zReportUrl(int deviceId, int fiscalDayNo) => '${baseUrl}z-report/$deviceId/$fiscalDayNo';
