@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/fiscal_day_report/controller/fiscal_day_report_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
@@ -69,7 +70,7 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(
+        pageFormat: const PdfPageFormat(
           80 * PdfPageFormat.mm,
           double.infinity,
           marginAll: 4 * PdfPageFormat.mm,
@@ -445,7 +446,7 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
             ),
           ),
           ...rows.map((row) => Container(
-            decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.black12))),
+            decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12))),
             padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
             child: Row(
               children: List.generate(row.length, (i) => Expanded(
@@ -466,7 +467,7 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
       return Scaffold(
         backgroundColor: AppColors.bgClr,
         appBar: AppBar(backgroundColor: AppColors.bgClr),
-        body: Center(child: Text("No data available", style: TextStyle(color: Colors.white))),
+        body: const Center(child: Text("No data available", style: TextStyle(color: Colors.white))),
       );
     }
 
@@ -475,16 +476,13 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: 'REPORT PREVIEW',
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: Container(
         color: Colors.white,
@@ -532,11 +530,11 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
                       _buildSectionHeader('DAILY TOTALS (${model.dailyTotals!.keys.first})', icon: Icons.analytics),
                       _buildDataRow('Net Sales:', '${model.dailyTotals!.values.first.netSales?.toStringAsFixed(2) ?? "0.00"}'),
                       _buildDataRow('Tax Amount:', '${model.dailyTotals!.values.first.taxAmount?.toStringAsFixed(2) ?? "0.00"}'),
-                      Divider(color: Colors.black26),
+                      const Divider(color: Colors.black26),
                       _buildDataRow('Gross Sales:', '${model.dailyTotals!.values.first.grossSales?.toStringAsFixed(2) ?? "0.00"}', isBold: true),
                       _buildDataRow('Credit Notes:', '${model.dailyTotals!.values.first.creditNotes?.toStringAsFixed(2) ?? "0.00"}'),
                       _buildDataRow('Debit Notes:', '${model.dailyTotals!.values.first.debitNotes?.toStringAsFixed(2) ?? "0.00"}'),
-                      Divider(color: Colors.black26),
+                      const Divider(color: Colors.black26),
                     ],
 
                     if (model.taxBreakdown != null && model.taxBreakdown!.isNotEmpty) ...[
@@ -592,7 +590,7 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
                               children: [
                                 _buildSectionHeader('PAYMENTS', icon: Icons.payments),
                                 ...model.paymentMethods!.values.first.entries.map((e) => _buildDataRow('${e.key}:', e.value.toStringAsFixed(2))),
-                                Divider(),
+                                const Divider(),
                                 _buildDataRow('Total:', model.paymentMethods!.values.first.values.fold(0.0, (a, b) => a + b).toStringAsFixed(2), isBold: true),
                               ],
                             )
@@ -604,7 +602,7 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
                               children: [
                                 _buildSectionHeader('BALANCES', icon: Icons.account_balance_wallet),
                                 ...model.balanceCounters!.values.first.entries.map((e) => _buildDataRow('${e.key}:', e.value.toStringAsFixed(2))),
-                                Divider(),
+                                const Divider(),
                                 _buildDataRow('Total:', model.balanceCounters!.values.first.values.fold(0.0, (a, b) => a + b).toStringAsFixed(2), isBold: true),
                               ],
                             )
@@ -643,7 +641,7 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
                 height: 50.h,
                 child: ElevatedButton.icon(
                   onPressed: _shareReport,
-                  icon: Icon(Icons.share, color: Colors.white),
+                  icon: const Icon(Icons.share, color: Colors.white),
                   label: Text('Share Report PDF', style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.bgClr,

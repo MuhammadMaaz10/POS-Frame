@@ -31,10 +31,10 @@ class SmallRoundedButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(imgUrl!),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
                 text!,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),

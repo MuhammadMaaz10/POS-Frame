@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/processed_receipts_page_response.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class ProcessedReceiptDetailScreen extends StatelessWidget {
@@ -29,11 +29,7 @@ class ProcessedReceiptDetailScreen extends StatelessWidget {
         backgroundColor: AppColors.bgClr,
         centerTitle: false,
         titleSpacing: 0,
-        leadingWidth: 48.w,
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
         title: CustomText(
           text: receipt.invoiceNo,
           fontSize: 18,
@@ -61,7 +57,7 @@ class ProcessedReceiptDetailScreen extends StatelessWidget {
             if (receipt.receiptNotes != null && receipt.receiptNotes!.isNotEmpty)
               _row('Notes', receipt.receiptNotes!),
             16.ht,
-            CustomText(
+            const CustomText(
               text: 'Buyer',
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -75,7 +71,7 @@ class ProcessedReceiptDetailScreen extends StatelessWidget {
                 receipt.buyerData.vatNumber!.isNotEmpty)
               _row('VAT', receipt.buyerData.vatNumber!),
             16.ht,
-            CustomText(
+            const CustomText(
               text: 'Items',
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -118,7 +114,7 @@ class ProcessedReceiptDetailScreen extends StatelessWidget {
               );
             }),
             16.ht,
-            CustomText(
+            const CustomText(
               text: 'Payments',
               fontSize: 16,
               fontWeight: FontWeight.w700,

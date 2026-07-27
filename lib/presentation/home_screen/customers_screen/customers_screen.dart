@@ -46,7 +46,7 @@ class CustomersScreen extends StatelessWidget {
 
             Obx(() {
               if (homeController.filteredCustomerList.isEmpty) {
-                return Center(child: Text('No Customer found'));
+                return const Center(child: Text('No Customer found'));
               }
               return ListView.separated(
                 itemBuilder: (context, index) {
@@ -65,7 +65,7 @@ class CustomersScreen extends StatelessWidget {
                       customerController.editVatNumberController.text = item.vatNumber.toString() ?? "";
                       customerController.editPhoneController.text = item.phone.toString() ?? "";
                        customerController.ediSelectedImage.value = (File(item.imagePath!));
-                      Get.to(EditCustomerScreen());
+                      Get.to(const EditCustomerScreen());
                       print("tin Number -------> ${item.tinNumber.toString()}");
                       print("street -------> ${item.street.toString()}");
 
@@ -74,13 +74,13 @@ class CustomersScreen extends StatelessWidget {
                     subTitleText: item.email,
                     imageUrl:item.imagePath != null &&File(item.imagePath!).existsSync()
                         ? FileImage(File(item.imagePath!))
-                        : AssetImage(AppImages.demo) ,
+                        : const AssetImage(AppImages.demo) ,
                     isTrailing: false,
                     leftPadding: 10.w,
                   );
                 },
                 itemCount: homeController.filteredCustomerList.length,
-                separatorBuilder: (context, index) => SizedBox(height: 10),
+                separatorBuilder: (context, index) => const SizedBox(height: 10),
               );
             }),
 

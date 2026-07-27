@@ -25,7 +25,7 @@ class InvoicesScreen extends StatefulWidget {
 }
 
 class _InvoicesScreenState extends State<InvoicesScreen> {
-   final  homeController = Get.put(HomeScreenController());
+   final  homeController = Get.put(HomeScreenController(), permanent: true);
 
    final invoiceController = Get.put(AddInvoicesController());
    
@@ -85,9 +85,11 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                           (sum, item) => sum + (double.tryParse(item.price) ?? 0.0),);
 
                     return Obx(() {
-                      final qrUrl = index < homeController.qrUrlList.length
-                          ? homeController.qrUrlList[index]
-                          : null;
+                      // React to list + qrUrlList updates; status comes from invoice.qrUrl only
+                      homeController.qrUrlList.length;
+                      final isProcessed =
+                          HomeScreenController.hasValidQr(item.qrUrl);
+                      final displayQr = isProcessed ? item.qrUrl.toString() : '';
                       return GestureDetector(
                           onLongPress: () =>
                               invoiceVerificationBottomSheet(
@@ -96,9 +98,8 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                                 date: item.invoiceDate,
                                 imagePath: item.customer.pic,
                                 price: invoiceTotal.toString(),
-                                  // status: (qrUrl != null || singleInvoiceQrURL != "") ? true : false,
-                                  status: (item.qrUrl != null || singleInvoiceQrURL != "") ? true : false,
-                                  qrUrl: item.qrUrl ?? "",
+                                  status: isProcessed,
+                                  qrUrl: displayQr,
                                 context: context,
                                 itemIndex: index
                               ),
@@ -117,7 +118,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                               invoiceController.editSelectedCurrency.value = item.currency ?? "USD";
                               invoiceController.editInvoiceType.value = item.invoiceType ?? "Fiscal Invoice";
                               Get.to(EditInvoicesScreen(
-                                qrUrl: item.qrUrl??"",
+                                qrUrl: displayQr,
                                 invoice: invoice,
                                 invoiceIndex: index,
                               ));
@@ -125,7 +126,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                             titleText: item.customer.name,
                             invoiceID: item.invoiceNo,
                             isTrailing: true,
-                            paid: item.qrUrl != null ? true: false,
+                            paid: isProcessed,
                             date: item.invoiceDate,
                             inoiveTypeTextcolor: item.invoiceType == "FiscalInvoice"
                                 ? AppColors.buttonClr

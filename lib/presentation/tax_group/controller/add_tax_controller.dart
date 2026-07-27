@@ -115,7 +115,7 @@ class TaxController extends GetxController {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomText(
+                        const CustomText(
                           text: 'Add New TAX Group',
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -204,7 +204,7 @@ class TaxController extends GetxController {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CustomText(text: "Edit Tax Group", fontSize: 18, color: Colors.white),
+                    const CustomText(text: "Edit Tax Group", fontSize: 18, color: Colors.white),
                     20.ht,
                     CustomTextField(
                       controller: nameController,
@@ -268,8 +268,8 @@ class TaxController extends GetxController {
   void confirmDelete(BuildContext context, int index, VatCategoryModel taxGroup) {
     Get.defaultDialog(
       backgroundColor: AppColors.buttonClr.withOpacity(1),
-      middleTextStyle: TextStyle(color: Colors.black),
-      titleStyle: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+      middleTextStyle: const TextStyle(color: Colors.black),
+      titleStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
       title: "Delete Tax Group",
       middleText: "Are you sure you want to delete ${taxGroup.name}?",
       textCancel: "Cancel",

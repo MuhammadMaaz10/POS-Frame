@@ -58,7 +58,7 @@ Future<void> main() async {
       // ),);
     DevicePreview(
       enabled: false,
-      builder: (context) => MyApp(), // Wrap your app
+      builder: (context) => const MyApp(), // Wrap your app
     ));
   });
 }

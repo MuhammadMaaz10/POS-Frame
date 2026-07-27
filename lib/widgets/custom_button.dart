@@ -37,7 +37,7 @@ class CustomButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
-        minimumSize: Size(double.infinity, 0), // Full width
+        minimumSize: const Size(double.infinity, 0), // Full width
         elevation: 2, // Slight elevation for Material Design effect
         disabledBackgroundColor: (color ?? AppColors.buttonClr).withOpacity(0.5), // Dim when disabled
       ),
@@ -88,7 +88,7 @@ class CustomSmallButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4.r),
         ),
-        minimumSize: Size(double.infinity, 0), // Full width
+        minimumSize: const Size(double.infinity, 0), // Full width
         elevation: 2, // Slight elevation for Material Design effect
         disabledBackgroundColor: (color ?? AppColors.buttonClr).withOpacity(0.5), // Dim when disabled
       ),
@@ -103,7 +103,7 @@ class CustomSmallButton extends StatelessWidget {
           : Row(
         mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.add,
                 color: Colors.black,
               ),

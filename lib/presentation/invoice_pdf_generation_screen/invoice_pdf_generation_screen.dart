@@ -8,6 +8,7 @@ import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/home_screen/controller/home_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/invoice_pdf_generation_screen/model/invoice_pdf_preview_model.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -72,7 +73,7 @@ class InvoiceScreenPdfView extends StatefulWidget {
   final invoicePdfPreviewModel previewModel;
   final String qrUrl;
 
-  InvoiceScreenPdfView({Key? key, required this.previewModel, required this.qrUrl}) : super(key: key);
+  const InvoiceScreenPdfView({Key? key, required this.previewModel, required this.qrUrl}) : super(key: key);
 
   @override
   _InvoiceScreenPdfViewState createState() => _InvoiceScreenPdfViewState();
@@ -170,19 +171,16 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: 'FISCAL TAX INVOICE',
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: Colors.white),
       ),
       body: isLoadingCompany
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
@@ -506,7 +504,7 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
     /// Updated PDF generation with real data
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(
+        pageFormat: const PdfPageFormat(
           58 * PdfPageFormat.mm,
           double.infinity,
           marginAll: 4 * PdfPageFormat.mm,
@@ -747,7 +745,7 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                       destination: widget.qrUrl,
                       child: pw.Text(
                         "https://fdmstest.zimra.co.zw/",
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 8,
                           color: PdfColors.blue,
                           decoration: pw.TextDecoration.underline,
@@ -766,7 +764,7 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
                       destination: "https://www.frame.co.zw/",
                       child: pw.Text(
                         "www.frame.co.zw",
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 8,
                           color: PdfColors.blue,
                           decoration: pw.TextDecoration.underline,
@@ -796,16 +794,13 @@ class _InvoiceScreenPdfViewState extends State<InvoiceScreenPdfView> {
           appBar: AppBar(
             centerTitle: true,
             backgroundColor: AppColors.bgClr,
-            title: CustomText(
+            title: const CustomText(
               text: 'Invoice PDF preview',
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
-            leading: InkWell(
-              onTap: () => Get.back(),
-              child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-            ),
+            leading: const AppBarBackButton(color: Colors.white),
           ),
           body: PdfPreview(
             shouldRepaint: false,

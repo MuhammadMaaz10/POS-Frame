@@ -7,6 +7,7 @@ import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/app_images.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_invoices_screen/controller/add_invoice_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_list_tile.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
@@ -14,7 +15,7 @@ import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
 
 class AddInvoicesScreen extends StatefulWidget {
-   AddInvoicesScreen({super.key});
+   const AddInvoicesScreen({super.key});
 
   @override
   State<AddInvoicesScreen> createState() => _AddInvoicesScreenState();
@@ -28,6 +29,7 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = Get.find<AddInvoicesController>();
       controller.refreshClientNumberAndInvoice();
+      controller.setDefaultInvoiceDates();
     });
   }
 
@@ -39,16 +41,13 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Create New Invoice",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -67,7 +66,7 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                   ),
                   16.ht,
 
-                  Align(
+                  const Align(
                     alignment: Alignment.topLeft,
                     child: CustomText(
                       text: "Currency ",
@@ -86,7 +85,7 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                     child: DropdownButton<String>(
                       dropdownColor: AppColors.bgClr,
                       isExpanded: true,
-                      underline: SizedBox(),
+                      underline: const SizedBox(),
                       value: controller.selectedCurrency.value,
                       items: ['USD', 'ZWG'].map((currency) {
                         return DropdownMenuItem<String>(
@@ -125,7 +124,7 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                                 color: Colors.white70,
                               ),
                               7.ht,
-                              CustomText(
+                              const CustomText(
                                 text: "Select Customer",
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -169,7 +168,7 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                               children: [
                                 SvgPicture.asset(AppImages.itemIcon, height: 16.6.h),
                                 7.ht,
-                                CustomText(
+                                const CustomText(
                                   text: "Select Item",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -210,7 +209,7 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomText(
+                          const CustomText(
                             text: "Invoice Date",
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -222,9 +221,9 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                             child: GestureDetector(
                               onTap: () => controller.selectDate(context, isInvoiceDate: true),
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF172349),
+                                  color: const Color(0xFF172349),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.transparent),
                                 ),
@@ -252,7 +251,7 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomText(
+                          const CustomText(
                             text: "Due Date",
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -264,9 +263,9 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                             child: GestureDetector(
                               onTap: () => controller.selectDate(context, isInvoiceDate: false),
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF172349),
+                                  color: const Color(0xFF172349),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.transparent),
                                 ),
@@ -328,21 +327,18 @@ class _AddInvoicesScreenState extends State<AddInvoicesScreen> {
                     labeltext: "Enter notes",
                     minLines: 4,
                   ),
-                  16.ht,
-                  TitleAndInput(
-                    controller: controller.addressController,
-                    titletext: "Terms and Conditions",
-                    labeltext: "Enter terms and conditions",
-                    minLines: 4,
-                  ),
+
                   60.ht,
                   Padding(
                     padding: EdgeInsets.only(left: 174.w),
-                    child: CustomButton(
-                      text: "Generate Invoice",
-                      onPressed: () {
-                        controller.createInvoice();
-                      }
+                    child: Obx(
+                      () => CustomButton(
+                        text: "Generate Invoice",
+                        isLoading: controller.isGeneratingInvoice.value,
+                        onPressed: () {
+                          controller.createInvoice();
+                        },
+                      ),
                     ),
                   ),
                 ],

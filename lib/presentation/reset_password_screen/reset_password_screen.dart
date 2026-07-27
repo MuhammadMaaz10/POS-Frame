@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/reset_password_screen/controller/reset_password_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
@@ -33,10 +34,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
         backgroundColor: AppColors.bgClr,
         elevation: 0,
       ),
@@ -50,13 +48,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 30.ht,
-                CustomText(
+                const CustomText(
                   text: "Reset Password",
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                 ),
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Create a new password to reset your account.",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

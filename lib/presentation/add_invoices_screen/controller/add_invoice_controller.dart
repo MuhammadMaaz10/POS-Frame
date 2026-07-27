@@ -59,12 +59,21 @@ class AddInvoicesController extends GetxController {
 
   AddInvoicesController() {
     print("----- on init called ----- ");
+    setDefaultInvoiceDates();
     if (AppConstant.isAppConfigured == true){
       print('--- load the invoice number app is configured ---');
     _loadLastInvoiceNumber();
     }else{
       print('--- cannot load the invoice number app is not configured yet---');
     }  // this will generate after load
+  }
+
+  /// Defaults Invoice Date and Due Date to today (create invoice).
+  void setDefaultInvoiceDates() {
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    dateController.text = today;
+    dueDateController.text = today;
+    update();
   }
 
 
@@ -1154,7 +1163,8 @@ class AddInvoicesController extends GetxController {
       notes: notes,
       termsAndConditions: termsAndConditions,
       currency: selectedCurrency.toString(),
-      invoiceType: "FiscalInvoice"
+      invoiceType: "FiscalInvoice",
+      qrUrl: null,
     );
 
     // Save to Hive box
@@ -1202,8 +1212,13 @@ class AddInvoicesController extends GetxController {
   }
 
 
+  /// Guards against duplicate Generate Invoice taps.
+  final isGeneratingInvoice = false.obs;
+
   ///////////////// create invoice //////////////////
-  void createInvoice() {
+  Future<void> createInvoice() async {
+    if (isGeneratingInvoice.value) return;
+
     if (selectedCustomer.value == null) {
       CustomGetSnackBar.show(
         title: "Validation Error!",
@@ -1231,70 +1246,292 @@ class AddInvoicesController extends GetxController {
       );
       return;
     }
+
+    isGeneratingInvoice.value = true;
+    update();
+
+    final createdInvoiceNo = invoiceNumber.value;
     final selectedItems = selectedItemsWithQuantity.entries.map((entry) {
       return InvoiceItem(
         name: entry.key.itemName,
         category: entry.key.itemCategory,
-        price: (entry.key.unitPrice * entry.value).toString(), // total price = unit × quantity
+        price: (entry.key.unitPrice * entry.value).toString(),
         quantity: entry.value,
         taxName: entry.key.vatCategoryName,
         taxPercentage: entry.key.vatCategoryPercentage,
         taxID: entry.key.vatCategoryID,
-          hsCode: entry.key.hsCode
-
+        hsCode: entry.key.hsCode,
       );
     }).toList();
 
+    try {
+      // 1) Always save locally first (online + offline)
+      await createAndSaveInvoice(
+        invoiceNo: createdInvoiceNo,
+        customerName: selectedCustomer.value!.name,
+        customerPic: selectedCustomer.value!.imagePath!,
+        customerEmail: selectedCustomer.value!.email,
+        customerPhoneNumber: selectedCustomer.value!.phone,
+        customerProvinceNumber: selectedCustomer.value!.province,
+        customerCityNumber: selectedCustomer.value!.city,
+        customerStreetNumber: selectedCustomer.value!.street,
+        customerHouseNumber: selectedCustomer.value!.houseNumber,
+        customerTinNumber: selectedCustomer.value!.tinNumber,
+        customerVatNumber: selectedCustomer.value!.vatNumber,
+        items: selectedItems,
+        invoiceDate: dateController.text,
+        invoiceDueDate: dueDateController.text,
+        notes: notesController.text,
+        termsAndConditions: addressController.text,
+      );
 
-    createAndSaveInvoice(
-      invoiceNo: invoiceNumber.value,
-      customerName: selectedCustomer.value!.name,
-      customerPic: selectedCustomer.value!.imagePath!,
-      customerEmail: selectedCustomer.value!.email,
-      customerPhoneNumber: selectedCustomer.value!.phone,
-      customerProvinceNumber: selectedCustomer.value!.province,
-      customerCityNumber: selectedCustomer.value!.city,
-      customerStreetNumber: selectedCustomer.value!.street,
-      customerHouseNumber: selectedCustomer.value!.houseNumber,
-      customerTinNumber: selectedCustomer.value!.tinNumber,
-      customerVatNumber: selectedCustomer.value!.vatNumber,  // ✅ ADD THIS
-      items: selectedItems,
-      invoiceDate: dateController.text,
-      invoiceDueDate: dueDateController.text,
-      notes: notesController.text,
-      termsAndConditions: addressController.text,
-    );
+      await saveLastInvoiceNumber(createdInvoiceNo);
+      generateInvoiceNumber();
 
-    // ✅ Save latest invoice number
-    saveLastInvoiceNumber(invoiceNumber.value);
+      _resetCreateInvoiceForm();
 
-    // ✅ Generate the next invoice number immediately
-    generateInvoiceNumber();
+      // 2) Navigate home so invoice is visible (Pending until backend succeeds)
+      Get.offAll(() => const HomeScreenMain());
 
+      // CRITICAL: after offAll, always use the live HomeScreenController
+      // (stale reference was leaving online invoices stuck on Pending in the UI).
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!Get.isRegistered<HomeScreenController>()) {
+        Get.put(HomeScreenController(), permanent: true);
+      }
+      final homeController = Get.find<HomeScreenController>();
+      await homeController.loadInvoice();
 
-    Get.find<HomeScreenController>().loadInvoice();
+      CustomGetSnackBar.show(
+        title: "Success",
+        message: 'Invoice $createdInvoiceNo generated successfully!',
+        backgroundColor: AppColors.buttonClr,
+        snackPosition: SnackPosition.TOP,
+      );
 
-    Get.offAll(HomeScreenMain());
-    // Simulate invoice generation
-    CustomGetSnackBar.show(
-      title: "Success",
-      message: 'Invoice ${invoiceNumber.value} generated successfully!',
-      backgroundColor: AppColors.buttonClr,
-      snackPosition: SnackPosition.TOP,
-    );
+      final hasNet = await homeController.hasInternetConnection();
+      if (!hasNet) {
+        // Offline: local Pending invoice only — existing behavior
+        return;
+      }
 
+      // 3) Online: process/upload with cancellable dialog
+      await _processGeneratedInvoiceOnline(
+        createdInvoiceNo: createdInvoiceNo,
+      );
+    } catch (e) {
+      print('🔥 createInvoice error: $e');
+      CustomGetSnackBar.show(
+        title: "Error",
+        message: 'Failed to generate invoice: $e',
+        backgroundColor: AppColors.redClr,
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isGeneratingInvoice.value = false;
+      update();
+    }
+  }
 
-
-
-    // // Reset fields after submission
-    // generateInvoiceNumber();
+  void _resetCreateInvoiceForm() {
     selectedCustomer.value = null;
     selectedItem.value = null;
-    dateController.clear();
+    selectedItemsWithQuantity.clear();
     invoiceIDController.clear();
-    dueDateController.clear();
     notesController.clear();
     addressController.clear();
+    setDefaultInvoiceDates();
+  }
+
+  /// Online-only: upload local invoice, update to Processed on success, open preview.
+  /// Close cancels upload only — invoice stays Pending on Home.
+  Future<void> _processGeneratedInvoiceOnline({
+    required String createdInvoiceNo,
+  }) async {
+    HomeScreenController home() => Get.find<HomeScreenController>();
+
+    while (true) {
+      final cancelToken = ReceiptUploadCancelToken();
+      var dialogOpen = true;
+
+      Get.dialog(
+        PopScope(
+          canPop: false,
+          child: AlertDialog(
+            backgroundColor: const Color(0xFF000D3A),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () {
+                      cancelToken.cancel();
+                      if (dialogOpen &&
+                          (Get.isDialogOpen == true || Get.overlayContext != null)) {
+                        dialogOpen = false;
+                        if (Get.overlayContext != null) {
+                          Navigator.of(Get.overlayContext!).pop();
+                        } else {
+                          Get.back();
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF172349),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, size: 18, color: Colors.white70),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const CircularProgressIndicator(color: Colors.white),
+                const SizedBox(height: 20),
+                const Text(
+                  "Invoice processing to the backend...",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: false,
+      );
+
+      final homeController = home();
+      await homeController.loadInvoice();
+      var index = homeController.filteredInvoiceList
+          .indexWhere((i) => i.invoiceNo == createdInvoiceNo);
+      if (index < 0) index = 0;
+
+      final invoice = homeController.filteredInvoiceList[index];
+      final ok = await homeController.createReceipt(
+        invoiceModel: invoice,
+        index: index,
+        cancelToken: cancelToken,
+        showErrors: false,
+      );
+
+      if (cancelToken.isCancelled) {
+        print('⏹ Backend processing cancelled for $createdInvoiceNo — Pending');
+        await home().loadInvoice();
+        return;
+      }
+
+      if (dialogOpen && (Get.isDialogOpen == true || Get.overlayContext != null)) {
+        dialogOpen = false;
+        if (Get.overlayContext != null) {
+          Navigator.of(Get.overlayContext!).pop();
+        } else if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+      }
+
+      if (ok && HomeScreenController.hasValidQr(invoice.qrUrl)) {
+        // Persist Processed on the Hive record for this invoice number
+        var settingsBox = await Hive.openBox('settings');
+        var username = settingsBox.get('loggedInUser');
+        final invoiceBox = Hive.box<InvoiceModel>('invoices_$username');
+        final qr = invoice.qrUrl.toString();
+
+        InvoiceModel? hiveInvoice;
+        for (final inv in invoiceBox.values) {
+          if (inv.invoiceNo == createdInvoiceNo) {
+            hiveInvoice = inv;
+            break;
+          }
+        }
+        if (hiveInvoice != null) {
+          hiveInvoice.qrUrl = qr;
+          await hiveInvoice.save();
+          print('✅ Hive invoice $createdInvoiceNo marked Processed with qrUrl');
+        } else {
+          await invoiceBox.put(invoice.key, invoice);
+          print('✅ Fallback put for $createdInvoiceNo with qrUrl');
+        }
+
+        final live = home();
+        if (username != null) {
+          // Rebuild qr list from invoices after save
+          await live.loadInvoice();
+          await live.saveQrUrlsToHive(username, live.qrUrlList);
+        }
+        await live.saveQrUrls(live.qrUrlList);
+        await live.loadInvoice();
+        live.invoiceList.refresh();
+        live.filteredInvoiceList.refresh();
+        live.qrUrlList.refresh();
+
+        final previewIndex = live.filteredInvoiceList
+            .indexWhere((i) => i.invoiceNo == createdInvoiceNo);
+        final previewInvoice = previewIndex >= 0
+            ? live.filteredInvoiceList[previewIndex]
+            : invoice;
+
+        await Future.delayed(const Duration(milliseconds: 100));
+        await live.invoicePreview(
+          invoiceModel: previewInvoice,
+          index: previewIndex >= 0 ? previewIndex : index,
+          qrUrl: qr,
+        );
+
+        // After preview closes, force UI refresh on the live home controller
+        if (Get.isRegistered<HomeScreenController>()) {
+          await home().loadInvoice();
+          home().filteredInvoiceList.refresh();
+          home().qrUrlList.refresh();
+        }
+        return;
+      }
+
+      // Backend failure — Pending + Retry / Close
+      final ctx = Get.overlayContext ?? Get.context;
+      String? action;
+      if (ctx != null) {
+        action = await showDialog<String>(
+          context: ctx,
+          barrierDismissible: false,
+          builder: (dialogContext) => AlertDialog(
+            backgroundColor: const Color(0xFF000D3A),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            title: const Text(
+              'Processing failed',
+              style: TextStyle(color: Colors.white, fontFamily: 'Satoshi'),
+            ),
+            content: const Text(
+              'Invoice is saved locally as Pending. You can retry now or close and sync later.',
+              style: TextStyle(color: Colors.white70, fontFamily: 'Satoshi'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop('close'),
+                child: const Text('Close', style: TextStyle(color: Colors.white54)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop('retry'),
+                child: const Text('Retry', style: TextStyle(color: AppColors.buttonClr)),
+              ),
+            ],
+          ),
+        );
+      }
+
+      await home().loadInvoice();
+      if (action == 'retry') {
+        continue;
+      }
+      return;
+    }
   }
 
 

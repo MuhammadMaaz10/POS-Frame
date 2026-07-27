@@ -24,14 +24,14 @@ class RoundedButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          side: WidgetStatePropertyAll(BorderSide.none),
-          backgroundColor: WidgetStatePropertyAll(
+          side: const WidgetStatePropertyAll(BorderSide.none),
+          backgroundColor: const WidgetStatePropertyAll(
             Color(0xFF00E3FC),
           ),
         ),
         child: Text(
           text!,
-          style: TextStyle(color: Color(0xFF333333), fontFamily: "Satoshi", fontWeight: FontWeight.w700),
+          style: const TextStyle(color: Color(0xFF333333), fontFamily: "Satoshi", fontWeight: FontWeight.w700),
         ),
       ),
     );

@@ -131,7 +131,7 @@ class ItemsScreen extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if (homeController.filteredItemList.isEmpty) {
-                return Center(child: Text('No items found'));
+                return const Center(child: Text('No items found'));
               }
               return ListView.separated(
                 itemBuilder: (context, index) {
@@ -147,7 +147,7 @@ class ItemsScreen extends StatelessWidget {
                       itemController.editVatCategoryNameController.text = item.vatCategoryName.toString() ?? "";
                       itemController.editVatCategoryPercentageController.text = item.vatCategoryPercentage.toString() ?? "";
                       itemController.editVatCategoryTaxIDController.text = item.vatCategoryID.toString() ?? "";
-                      Get.to(EditItemScreen());
+                      Get.to(const EditItemScreen());
                     },
                     titleText: item.itemName,
                     subTitleText: item.itemCategory,
@@ -156,7 +156,7 @@ class ItemsScreen extends StatelessWidget {
                   );
                 },
                 itemCount: homeController.filteredItemList.length,
-                separatorBuilder: (context, index) => SizedBox(height: 10),
+                separatorBuilder: (context, index) => const SizedBox(height: 10),
               );
             }),
           ),

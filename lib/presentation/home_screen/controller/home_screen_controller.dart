@@ -23,6 +23,25 @@ import '../../../local_storage/item_model.dart';import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../local_storage/qrUrlsList_model.dart';
+
+/// Used to cancel an in-flight receipt upload without deleting the local invoice.
+class ReceiptUploadCancelToken {
+  bool isCancelled = false;
+  http.Client? _client;
+
+  void attachClient(http.Client client) => _client = client;
+
+  void detachClient() => _client = null;
+
+  void cancel() {
+    isCancelled = true;
+    try {
+      _client?.close();
+    } catch (_) {}
+    _client = null;
+  }
+}
+
 class HomeScreenController extends GetxController {
 
   // final settingsController = Get.put(SettingsController());
@@ -56,11 +75,13 @@ class HomeScreenController extends GetxController {
       } else {
         print('No logged in user found.');
       }
+      // Always rebuild qrUrlList from invoice.qrUrl so index 0 is not a stale QR
+      await loadInvoice();
     });
     loadItems();
     loadCustomer();
     loadInvoice();
-    initializeQrUrlList();
+    // Do not call initializeQrUrlList() — it wipes / desyncs QR status from invoices.
     searchItemController.addListener(() {
       filterItems(searchItemController.text);
     });
@@ -134,12 +155,25 @@ class HomeScreenController extends GetxController {
     filteredCustomerList.value = customerList;
   }
 
-  void loadInvoice() async {
+  Future<void> loadInvoice() async {
     var settingsBox = await Hive.openBox('settings');
     var username = settingsBox.get('loggedInUser');
     final box = Hive.box<InvoiceModel>('invoices_$username');
-    invoiceList.value = box.values.toList();
-    filteredInvoiceList.value = invoiceList;
+    final tempInvoiceList = box.values.toList();
+    // Highest invoice number first (not by date)
+    tempInvoiceList.sort((a, b) => b.invoiceNo.compareTo(a.invoiceNo));
+    invoiceList.assignAll(tempInvoiceList);
+    filteredInvoiceList.assignAll(tempInvoiceList);
+
+    // Keep qrUrlList aligned 1:1 with invoices (fixes offline showing Processed)
+    qrUrlList.assignAll(
+      tempInvoiceList.map((e) {
+        final raw = e.qrUrl?.toString();
+        if (raw == null || raw.isEmpty || raw == 'null') return null;
+        return raw;
+      }).toList(),
+    );
+
     double total = 0;
     for (var invoice in invoiceList) {
       for (var item in invoice.items) {
@@ -147,6 +181,12 @@ class HomeScreenController extends GetxController {
       }
     }
     totalInvoiceRate.value = total.toInt();
+  }
+
+  static bool hasValidQr(dynamic qr) {
+    if (qr == null) return false;
+    final s = qr.toString().trim();
+    return s.isNotEmpty && s != 'null';
   }
 
   void filterItems(String query) {
@@ -354,7 +394,11 @@ class HomeScreenController extends GetxController {
         qrUrlList.addAll(List<String?>.filled(index - qrUrlList.length + 1, null));
         print("📏 Extended qrUrlList to length ${qrUrlList.length} for index $index");
       }
-      await createReceipt(invoiceModel: invoice, index: index);
+      final ok = await createReceipt(invoiceModel: invoice, index: index);
+      if (!ok || !hasValidQr(invoice.qrUrl)) {
+        print("⚠️ Single receipt processing did not complete for ${invoice.invoiceNo}");
+        return;
+      }
       // Save updated invoice to Hive
       var settingsBox = await Hive.openBox('settings');
       var username = settingsBox.get('loggedInUser');
@@ -364,14 +408,6 @@ class HomeScreenController extends GetxController {
       await invoiceBox.put(invoice.key, invoice);
       print("✅ Saved updated invoice ${invoice.invoiceNo} to Hive with qrUrl: ${invoice.qrUrl}");
 
-      // Get.snackbar(
-      //   'Success',
-      //   'Invoice processed for item ${index + 1}',
-      //   snackPosition: SnackPosition.TOP,
-      //   backgroundColor: AppColors.buttonClr,
-      //   duration: Duration(seconds: 3),
-      // );
-
       if (username != null) {
         print("👤 Saving QR URLs to Hive for user: $username");
         await saveQrUrlsToHive(username, qrUrlList);
@@ -379,6 +415,10 @@ class HomeScreenController extends GetxController {
       } else {
         print('⚠️ No logged-in user found.');
       }
+      await loadInvoice();
+      invoiceList.refresh();
+      filteredInvoiceList.refresh();
+      qrUrlList.refresh();
     } catch (e) {
       print('🔥 Error processing receipt at index $index: $e');
       Get.snackbar(
@@ -510,25 +550,35 @@ class HomeScreenController extends GetxController {
 
     print("Preview Model Data index $index  --- : $previewModel");
     print("buyerTIN: Data index $index  --- : ${previewModel.buyerData!.buyerTIN}");
-    Get.to(InvoiceScreenPdfView(previewModel: previewModel, qrUrl: qrUrl));
+    await Get.to(() => InvoiceScreenPdfView(previewModel: previewModel, qrUrl: qrUrl));
   }
 
   final controller = Get.put(AddInvoicesController());
-  Future<void> createReceipt({
+
+  /// Returns `true` only when backend accepted the receipt and a QR was applied.
+  /// If [cancelToken] is cancelled (before or after response), local invoice stays Pending.
+  Future<bool> createReceipt({
     required InvoiceModel invoiceModel,
     required int index,
-  })
-  async {
+    ReceiptUploadCancelToken? cancelToken,
+    bool showErrors = true,
+  }) async {
     print("api called -----");
     await updateLoading(true);
+    final client = http.Client();
+    cancelToken?.attachClient(client);
     try {
+      if (cancelToken?.isCancelled == true) return false;
+
       print('Starting receipt creation process...');
+      final apiKey = fiscalApiKey.isNotEmpty ? fiscalApiKey : fiscalDeviceID;
       var headers = {
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        "apiKey": "$fiscalDeviceID",
+        'apiKey': apiKey,
       };
-      String url = 'http://frame-server.af-south-1.elasticbeanstalk.com/api/v1/client/receipts/25811';
-      var request = http.Request('POST', Uri.parse(createReceiptUrl));
+      String url = createReceiptUrl;
+      var request = http.Request('POST', Uri.parse(url));
 
       // Build receipt lines
       List<Map<String, dynamic>> receiptLines = [];
@@ -542,7 +592,8 @@ class HomeScreenController extends GetxController {
           "receiptLineQuantity": item.quantity is String
               ? double.tryParse(item.quantity) ?? 1.0
               : item.quantity.toDouble(),
-          "receiptLineTotal": double.tryParse(item.price)!.toStringAsFixed(2) ?? 0.0,
+          "receiptLineTotal":
+              (double.tryParse(item.price) ?? 0.0).toStringAsFixed(2),
           "taxPercent": item.taxPercentage is String
               ? double.tryParse(item.taxPercentage) ?? 0
               : item.taxPercentage,
@@ -587,75 +638,95 @@ class HomeScreenController extends GetxController {
         "receiptPrintForm": "Receipt48",
       };
 
-      // Add extra params only if NOT FiscalInvoice
+      // Add creditDebitNote only for CreditNote / DebitNote — original invoice only
       if (invoiceModel.invoiceType != "FiscalInvoice") {
         requestBody.addAll({
           "receiptNotes": controller.editNotesController.text,
-          // "creditDebitNote": {
-          //   "originalInvoice": invoiceModel.invoiceNo
-          // },
-
           "creditDebitNote": {
-            "deviceID": 25811,
-            "receiptGlobalNo": 4,
-            "fiscalDayNo": AppConstant.fiscalDayNumber,
+            "originalInvoice": invoiceModel.originalInvoiceNo,
           },
         });
       }
 
-      // Encode request body
       request.body = jsonEncode(requestBody);
-
-      // Add headers
       request.headers.addAll(headers);
 
-      // Debug logs
       print("createReceipt API Url ---> $url");
       print("Request Body ---> ${request.body}");
 
-      // Send request
-      http.StreamedResponse response = await request.send();
+      http.StreamedResponse response = await client.send(request);
+      if (cancelToken?.isCancelled == true) {
+        print('⏹ Receipt upload cancelled — ignoring response');
+        return false;
+      }
       print("Response Status Code ---> ${response.statusCode}");
-
 
       if (response.statusCode == 201) {
         String responseBody = await response.stream.bytesToString();
+        if (cancelToken?.isCancelled == true) {
+          print('⏹ Receipt upload cancelled after 201 — not marking Processed');
+          return false;
+        }
         final body = jsonDecode(responseBody);
         print('Receipt statusCode : ${response.statusCode}');
         print("Response body ---> ${body}");
 
-        String qrUrl = body['qrUrl'] ?? "";
-        // Update InvoiceModel with qrUrl
+        String qrUrl = body['qrUrl']?.toString() ?? "";
+        if (!hasValidQr(qrUrl)) {
+          if (showErrors) {
+            Get.snackbar(
+              'Error',
+              'Receipt created but QR URL missing',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: AppColors.buttonClr,
+              duration: const Duration(seconds: 3),
+            );
+          }
+          return false;
+        }
+
         invoiceModel.qrUrl = qrUrl;
-        // Update qrUrlList (keeping as requested)
         if (index >= qrUrlList.length) {
-          qrUrlList.addAll(List<String?>.filled(index - qrUrlList.length + 1, null));
+          qrUrlList.addAll(
+              List<String?>.filled(index - qrUrlList.length + 1, null));
         }
         qrUrlList[index] = qrUrl;
         qrUrlList.refresh();
         print('Receipt created successfully for index: $index, qrUrl: $qrUrl');
+        return true;
       } else {
         String responseBody = await response.stream.bytesToString();
         print('Receipt statusCode : ${response.statusCode}');
         print('Failed to create receipt: $responseBody');
-        Get.snackbar(
-          'Error',
-          'Failed to create receipt',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: AppColors.buttonClr,
-          duration: Duration(seconds: 3),
-        );
+        if (showErrors && cancelToken?.isCancelled != true) {
+          Get.snackbar(
+            'Error',
+            'Failed to create receipt',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: AppColors.buttonClr,
+            duration: const Duration(seconds: 3),
+          );
+        }
+        return false;
       }
     } catch (e) {
       print('Error occurred while creating receipt: $e');
-      Get.snackbar(
-        'Error',
-        'An error occurred: $e',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: AppColors.buttonClr,
-        duration: Duration(seconds: 3),
-      );
+      if (cancelToken?.isCancelled == true) return false;
+      if (showErrors) {
+        Get.snackbar(
+          'Error',
+          'An error occurred: $e',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: AppColors.buttonClr,
+          duration: const Duration(seconds: 3),
+        );
+      }
+      return false;
     } finally {
+      try {
+        client.close();
+      } catch (_) {}
+      cancelToken?.detachClient();
       await updateLoading(false);
     }
   }

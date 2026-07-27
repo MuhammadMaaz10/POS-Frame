@@ -95,8 +95,8 @@ class HomeScreenMain extends StatefulWidget {
 class _HomeScreenMainState extends State<HomeScreenMain>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final controller = Get.put(HomeScreenController());
-  final controller2 = Get.put(SettingsController());
+  final controller = Get.put(HomeScreenController(), permanent: true);
+  final controller2 = Get.put(SettingsController(), permanent: true);
   @override
   void initState() {
     super.initState();
@@ -124,7 +124,7 @@ class _HomeScreenMainState extends State<HomeScreenMain>
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         toolbarHeight: controller2.useStoreInvoicesMode.value ? 52.h : 80.h,
-        backgroundColor: Color(0xFF00144D),
+        backgroundColor: const Color(0xFF00144D),
         titleSpacing: 18.w,
         title: barLogo(),
         actions: [
@@ -152,15 +152,10 @@ class _HomeScreenMainState extends State<HomeScreenMain>
             }
             return const SizedBox.shrink();
           }),
-          Obx(() {
-            if (controller2.useStoreInvoicesMode.value) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: EdgeInsets.only(right: 18.w),
-              child: settingsIcon(onTap: () => Get.to(SettingsScreen())),
-            );
-          }),
+          Padding(
+            padding: EdgeInsets.only(right: 18.w),
+            child: settingsIcon(onTap: () => Get.to(SettingsScreen())),
+          ),
         ],
         bottom: _StoreInvoicesAwareBottomBar(
           settingsController: controller2,
@@ -173,7 +168,7 @@ class _HomeScreenMainState extends State<HomeScreenMain>
         if (controller2.useStoreInvoicesMode.value) {
           // No top SafeArea here: body already sits below AppBar; applying top
           // padding again left a visible gap above the store tab bar.
-          return SafeArea(
+          return const SafeArea(
             top: false,
             left: false,
             right: false,
@@ -183,7 +178,7 @@ class _HomeScreenMainState extends State<HomeScreenMain>
         }
         return SafeArea(
           child: TabBarView(
-            physics: AlwaysScrollableScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(),
             controller: _tabController,
             children: [
               Builder(builder: (_) => InvoicesScreen()),
@@ -207,7 +202,7 @@ class _HomeScreenMainState extends State<HomeScreenMain>
             overlayOpacity: 0.1,
             children: [
               SpeedDialChild(
-                onTap: () => Get.to(() => AddInvoicesScreen()),
+                onTap: () => Get.to(() => const AddInvoicesScreen()),
                 shape: const CircleBorder(),
                 backgroundColor: AppColors.bgClr,
                 foregroundColor: Colors.white,
@@ -226,7 +221,7 @@ class _HomeScreenMainState extends State<HomeScreenMain>
                 ),
               ),
               SpeedDialChild(
-                onTap: () => Get.to(() => AddItemScreen()),
+                onTap: () => Get.to(() => const AddItemScreen()),
                 shape: const CircleBorder(),
                 backgroundColor: AppColors.bgClr,
                 foregroundColor: Colors.white,
@@ -245,7 +240,7 @@ class _HomeScreenMainState extends State<HomeScreenMain>
                 ),
               ),
               SpeedDialChild(
-                onTap: () => Get.to(() => AddCustomerScreen()),
+                onTap: () => Get.to(() => const AddCustomerScreen()),
                 shape: const CircleBorder(),
                 backgroundColor: AppColors.bgClr,
                 foregroundColor: Colors.white,

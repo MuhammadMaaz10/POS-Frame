@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/inventory_item.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 
@@ -22,16 +23,13 @@ class StoreInvoiceItemDetailScreen extends StatelessWidget {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: 'Item Details',
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: AppColors.white),
       ),
       body: SafeArea(
         child: Padding(

@@ -162,16 +162,16 @@ class AddItemController extends GetxController {
                   child: GestureDetector(
                     onTap: () => taxController.addTaxGroupBottomSheet(context),
                     child: DottedBorder(
-                      color: Color(0xFF343A40),
+                      color: const Color(0xFF343A40),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.add,
                             color: Colors.white70,
                           ),
                           4.wd,
-                          CustomText(
+                          const CustomText(
                             text: 'Add New',
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -231,11 +231,11 @@ class AddItemController extends GetxController {
                                   ),
                                   // 14.wd,
                                 ]),
-                            Divider(color: Color(0xFF343A40),),
+                            const Divider(color: Color(0xFF343A40),),
                           ],
                         ),
                       ),
-                    ) : Text('No tax found');
+                    ) : const Text('No tax found');
                   },
                 ),
               ],
@@ -266,16 +266,16 @@ class AddItemController extends GetxController {
                   child: GestureDetector(
                     onTap: () => taxController.addTaxGroupBottomSheet(context),
                     child: DottedBorder(
-                      color: Color(0xFF343A40),
+                      color: const Color(0xFF343A40),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.add,
                             color: Colors.white70,
                           ),
                           4.wd,
-                          CustomText(
+                          const CustomText(
                             text: 'Add New',
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -324,11 +324,11 @@ class AddItemController extends GetxController {
                                   ),
                                   // 14.wd,
                                 ]),
-                            Divider(color: Color(0xFF343A40),),
+                            const Divider(color: Color(0xFF343A40),),
                           ],
                         ),
                       ),
-                    ) : Text('No tax found');
+                    ) : const Text('No tax found');
                   },
                 ),
               ],
@@ -360,7 +360,7 @@ class AddItemController extends GetxController {
 
 
         Get.find<HomeScreenController>().loadItems();
-        Get.back();
+        Navigator.pop(Get.context!);
         CustomGetSnackBar.show(
           title: 'Success',
           message:
@@ -401,7 +401,7 @@ class AddItemController extends GetxController {
         await box.putAt(editItemIndex,updatedItem);
 
         Get.find<HomeScreenController>().loadItems();
-        Get.back();
+        Navigator.pop(Get.context!);
         CustomGetSnackBar.show(
           title: 'Success',
           message:
@@ -429,7 +429,7 @@ class AddItemController extends GetxController {
     await box.deleteAt(editItemIndex);
 
     Get.find<HomeScreenController>().loadItems();
-    Get.back();
+    Navigator.pop(Get.context!);
     CustomGetSnackBar.show(
       title: 'Success',
       message:

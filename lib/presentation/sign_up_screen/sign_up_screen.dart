@@ -194,7 +194,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 39.ht,
                 SvgAppLogo(),
                 40.ht,
-                CustomText(
+                const CustomText(
                   text: "Create Account",
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -202,7 +202,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 10.ht,
                 Row(
                   children: [
-                    CustomText(
+                    const CustomText(
                       text: "Already have an account? ",
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -210,9 +210,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Get.to(LoginScreen());
+                        Get.to(const LoginScreen());
                       },
-                      child: CustomText(
+                      child: const CustomText(
                         text: "Sign In",
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -272,7 +272,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   isLoading: false,
                 ),
                 10.ht,
-                Row(
+                const Row(
                   children: [
                     Expanded(child: Divider(color: Color(0xFF343A40))),
                     Padding(

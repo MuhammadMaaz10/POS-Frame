@@ -6,6 +6,7 @@ import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/credit_debit_adjustment_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/processed_receipts_page_response.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/processed_receipt_detail_screen.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -98,7 +99,7 @@ class _ProcessedReceiptsListBodyState extends State<ProcessedReceiptsListBody> {
       if (!controller.isLoading.value &&
           controller.receipts.isEmpty &&
           controller.errorMessage.value == null) {
-        return Center(
+        return const Center(
           child: CustomText(
             text: 'No processed invoices yet.',
             color: Colors.white70,
@@ -122,7 +123,7 @@ class _ProcessedReceiptsListBodyState extends State<ProcessedReceiptsListBody> {
                 16.ht,
                 TextButton(
                   onPressed: controller.refreshReceipts,
-                  child: CustomText(
+                  child: const CustomText(
                     text: 'Retry',
                     color: AppColors.buttonClr,
                   ),
@@ -156,7 +157,6 @@ class _ProcessedReceiptsListBodyState extends State<ProcessedReceiptsListBody> {
             final r = controller.receipts[index];
             return ReceiptTile(
               receipt: r,
-              formatDate: _formatDate,
               onTap: () => Get.to(
                 () => ProcessedReceiptDetailScreen(receipt: r),
               ),
@@ -180,16 +180,13 @@ class ProcessedReceiptsScreen extends StatelessWidget {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: 'Processed invoices',
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: const ProcessedReceiptsListBody(disposeControllerOnDispose: true),
     );
@@ -198,7 +195,6 @@ class ProcessedReceiptsScreen extends StatelessWidget {
 
 class ReceiptTile extends StatelessWidget {
   final ProcessedReceipt receipt;
-  final String Function(String) formatDate;
   final VoidCallback onTap;
   final VoidCallback onAdjust;
   final VoidCallback? onLongPress;
@@ -206,7 +202,6 @@ class ReceiptTile extends StatelessWidget {
   const ReceiptTile({
     super.key,
     required this.receipt,
-    required this.formatDate,
     required this.onTap,
     required this.onAdjust,
     this.onLongPress,
@@ -214,6 +209,10 @@ class ReceiptTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final invoiceType = receipt.receiptType.trim();
+    final customerName = receipt.buyerData.buyerRegisterName.trim();
+    final titleText = customerName.isEmpty ? 'empty' : customerName;
+
     final card = Container(
       margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
@@ -233,7 +232,7 @@ class ReceiptTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8.r),
                     onTap: onTap,
                     child: Text(
-                      receipt.invoiceNo,
+                      titleText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -274,18 +273,20 @@ class ReceiptTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(
-                          text: formatDate(receipt.receiptDate),
+                          text: receipt.invoiceNo,
                           fontSize: 12,
                           color: Colors.white70,
                           textAlign: TextAlign.start,
                         ),
-                        6.ht,
-                        CustomText(
-                          text: receipt.buyerData.buyerRegisterName,
-                          fontSize: 13,
-                          color: AppColors.white,
-                          textAlign: TextAlign.start,
-                        ),
+                        if (invoiceType.isNotEmpty) ...[
+                          6.ht,
+                          CustomText(
+                            text: invoiceType,
+                            fontSize: 13,
+                            color: AppColors.white,
+                            textAlign: TextAlign.start,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -415,7 +416,7 @@ class _VerifyInvoiceSheet extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
                             children: [
-                              CustomText(
+                              const CustomText(
                                 text: 'Document Type: ',
                                 fontSize: 12,
                                 color: Colors.white70,
@@ -575,7 +576,7 @@ class _ReceiptCreditDebitButton extends StatelessWidget {
                   color: AppColors.buttonClr,
                 ),
                 4.wd,
-                CustomText(
+                const CustomText(
                   text: 'Credit / Debit',
                   fontSize: 10,
                   fontWeight: FontWeight.w700,

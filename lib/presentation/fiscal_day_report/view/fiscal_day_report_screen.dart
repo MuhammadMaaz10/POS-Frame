@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/fiscal_day_report/controller/fiscal_day_report_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
@@ -18,16 +19,13 @@ class FiscalDayReportScreen extends StatelessWidget {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Fiscal Day Report",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white),
-        ),
+        leading: const AppBarBackButton(color: AppColors.white),
       ),
       body: SafeArea(
         child: Padding(
@@ -35,7 +33,7 @@ class FiscalDayReportScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomText(
+              const CustomText(
                 text: "Enter Fiscal Day Number",
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -53,7 +51,7 @@ class FiscalDayReportScreen extends StatelessWidget {
                         color: AppColors.buttonClr,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Icon(Icons.remove, color: Colors.black),
                       ),
                     ),
@@ -71,7 +69,7 @@ class FiscalDayReportScreen extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Color(0xFF172349),
+                        fillColor: const Color(0xFF172349),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.r),
                           borderSide: BorderSide.none,
@@ -90,7 +88,7 @@ class FiscalDayReportScreen extends StatelessWidget {
                         color: AppColors.buttonClr,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Icon(Icons.add, color: Colors.black),
                       ),
                     ),

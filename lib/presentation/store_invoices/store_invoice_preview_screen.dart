@@ -9,6 +9,7 @@ import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoice_api_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/controller/store_invoices_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/utils/invoice_number_generator.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,7 +33,7 @@ Future<void> _loadSatoshiFonts() async {
 }
 
 class StoreInvoicePreviewScreen extends StatefulWidget {
-  StoreInvoicePreviewScreen({super.key});
+  const StoreInvoicePreviewScreen({super.key});
 
   @override
   State<StoreInvoicePreviewScreen> createState() =>
@@ -78,7 +79,7 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(
+        pageFormat: const PdfPageFormat(
           58 * PdfPageFormat.mm,
           double.infinity,
           marginAll: 4 * PdfPageFormat.mm,
@@ -264,20 +265,17 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: 'STORE INVOICE',
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: Colors.white),
       ),
       body: Obx(() {
         if (controller.isLoadingCompany.value) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         final grandTotal = controller.calculateGrandTotal();
@@ -331,7 +329,7 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
               ],
 
               8.ht,
-              Divider(thickness: 1, color: Colors.black),
+              const Divider(thickness: 1, color: Colors.black),
               8.ht,
 
               // Invoice Info
@@ -389,11 +387,11 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                 ),
               ),
               8.ht,
-              Divider(thickness: 1, color: Colors.black),
+              const Divider(thickness: 1, color: Colors.black),
               8.ht,
 
               // Items Header
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CustomText2(
@@ -420,7 +418,7 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                 ],
               ),
               4.ht,
-              Divider(thickness: 1, color: Colors.black),
+              const Divider(thickness: 1, color: Colors.black),
               4.ht,
 
               // Items List
@@ -529,7 +527,7 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                 ],
               ),
               8.ht,
-              Divider(thickness: 1, color: Colors.black),
+              const Divider(thickness: 1, color: Colors.black),
               8.ht,
 
               // Totals Section
@@ -580,7 +578,7 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                     ],
                   ),
                   8.ht,
-                  Divider(thickness: 1, color: Colors.black),
+                  const Divider(thickness: 1, color: Colors.black),
                   8.ht,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -604,7 +602,7 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                     ],
                   ),
                   8.ht,
-                  Divider(thickness: 1, color: Colors.black),
+                  const Divider(thickness: 1, color: Colors.black),
                   8.ht,
 
                   // Tender amount input + change calculation
@@ -635,15 +633,15 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.r),
-                        borderSide: BorderSide(color: Colors.black12),
+                        borderSide: const BorderSide(color: Colors.black12),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.r),
-                        borderSide: BorderSide(color: Colors.black12),
+                        borderSide: const BorderSide(color: Colors.black12),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.r),
-                        borderSide: BorderSide(color: Colors.black54),
+                        borderSide: const BorderSide(color: Colors.black54),
                       ),
                     ),
                     style: GoogleFonts.robotoMono(
@@ -757,12 +755,12 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                                 ? SizedBox(
                                     width: 22.w,
                                     height: 22.h,
-                                    child: CircularProgressIndicator(
+                                    child: const CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: Colors.white,
                                     ),
                                   )
-                                : Text('Submit receipt'),
+                                : const Text('Submit receipt'),
                           ),
                         ),
                         12.ht,
@@ -777,7 +775,7 @@ class _StoreInvoicePreviewScreenState extends State<StoreInvoicePreviewScreen> {
                               style: TextStyle(color: Colors.black87, fontSize: 14.sp),
                             ),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.black54),
+                              side: const BorderSide(color: Colors.black54),
                             ),
                           ),
                         ),
@@ -834,7 +832,7 @@ class CustomText2 extends StatelessWidget {
   final FontWeight? fontWeight;
   final Color? color;
 
-  CustomText2(
+  const CustomText2(
     this.text, {
     this.style,
     this.textAlign,

@@ -7,6 +7,7 @@ import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_item/add_item_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_item/controller/add_item_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/tax_group/controller/add_tax_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
@@ -31,16 +32,13 @@ class _TaxGroupScreenState extends State<TaxGroupScreen> {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Tax Group Management",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: AppColors.white),
       ),
       body: SafeArea(
         child: GetBuilder(
@@ -55,7 +53,7 @@ class _TaxGroupScreenState extends State<TaxGroupScreen> {
                   children: [
                     10.ht,
                     ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: controller.vatList.length,
                       itemBuilder: (context, index) {
@@ -64,7 +62,7 @@ class _TaxGroupScreenState extends State<TaxGroupScreen> {
                           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                           margin: EdgeInsets.only(bottom: 10.h),
                           decoration: BoxDecoration(
-                            color: Color(0xFF172349),
+                            color: const Color(0xFF172349),
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           child: Row(
@@ -100,7 +98,7 @@ class _TaxGroupScreenState extends State<TaxGroupScreen> {
                                 children: [
                                   IconButton(
                                     padding: EdgeInsets.zero,
-                                    icon: Icon(Icons.edit, color: AppColors.buttonClr),
+                                    icon: const Icon(Icons.edit, color: AppColors.buttonClr),
                                     onPressed: () => controller.editTaxGroupBottomSheet(
                                       context,      // pass context for bottom sheet
                                       index,        // index of the current item
@@ -109,7 +107,7 @@ class _TaxGroupScreenState extends State<TaxGroupScreen> {
                                   ),
 
                                   IconButton(
-                                    icon: Icon(Icons.delete, color: AppColors.redClr),
+                                    icon: const Icon(Icons.delete, color: AppColors.redClr),
                                     onPressed: () => controller.confirmDelete(context, index, taxGroup),
                                   ),
                                 ],
@@ -172,7 +170,7 @@ customContainar({required String taxName, required String percentage,}){
     padding: EdgeInsets.symmetric(horizontal:10.w, vertical: 10.h),
     margin: EdgeInsets.only(bottom:10.h),
     decoration: BoxDecoration(
-      color: Color(0xFF172349),
+      color: const Color(0xFF172349),
       borderRadius: BorderRadius.circular(10.r)
     ),
     child: Row(

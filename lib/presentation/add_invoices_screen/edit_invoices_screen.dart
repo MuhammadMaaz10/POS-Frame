@@ -8,6 +8,7 @@ import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/app_images.dart';
 import 'package:frame_virtual_fiscilation/local_storage/invoice_model.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_invoices_screen/controller/add_invoice_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_list_tile.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
@@ -54,16 +55,13 @@ class _EditInvoicesScreenState extends State<EditInvoicesScreen> {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Edit Invoice",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -85,7 +83,7 @@ class _EditInvoicesScreenState extends State<EditInvoicesScreen> {
                     16.ht,
 
 
-                    Align(
+                    const Align(
                       alignment: Alignment.topLeft,
                       child: CustomText(
                         text: "Currency ",
@@ -105,7 +103,7 @@ class _EditInvoicesScreenState extends State<EditInvoicesScreen> {
                         dropdownColor: AppColors.bgClr,
                         isExpanded: true,
                         enableFeedback: true,
-                        underline: SizedBox(),
+                        underline: const SizedBox(),
                         iconDisabledColor: Colors.white38,
                         iconEnabledColor: AppColors.white,
                         value: controller.editSelectedCurrency.value,
@@ -148,7 +146,7 @@ class _EditInvoicesScreenState extends State<EditInvoicesScreen> {
                                   color: Colors.white70,
                                 ),
                                 7.ht,
-                                CustomText(
+                                const CustomText(
                                   text: "Select Customer",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -195,7 +193,7 @@ class _EditInvoicesScreenState extends State<EditInvoicesScreen> {
                                     height: 16.6.h,
                                   ),
                                   7.ht,
-                                  CustomText(
+                                  const CustomText(
                                     text: "Select Item",
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -212,7 +210,7 @@ class _EditInvoicesScreenState extends State<EditInvoicesScreen> {
                                 color: AppColors.secondaryClr,
                               ),
                               child: ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
+                                physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: controller.editSelectedItem.length,
                                 itemBuilder: (context, index) {

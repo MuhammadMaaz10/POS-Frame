@@ -9,6 +9,7 @@ import 'package:frame_virtual_fiscilation/presentation/store_invoices/item_detai
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/processed_receipts_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/store_invoice_preview_screen.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
 import 'package:get/get.dart';
@@ -98,17 +99,13 @@ class _StoreInvoicesScreenState extends State<StoreInvoicesScreen>
           ? null
           : AppBar(
               backgroundColor: AppColors.bgClr,
-              title: CustomText(
+              title: const CustomText(
                 text: "Store Invoices",
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.white,
               ),
-              leading: InkWell(
-                onTap: () => Get.back(),
-                child:
-                    Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-              ),
+              leading: const AppBarBackButton(color: AppColors.white),
               bottom: PreferredSize(
                 preferredSize: Size.fromHeight(48.h),
                 child: _storeInvoicesTabBar(_tabController),
@@ -170,7 +167,7 @@ class StoreInvoicesDefaultTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CustomText(
+                    const CustomText(
                       text: "Search items",
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -193,7 +190,7 @@ class StoreInvoicesDefaultTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CustomText(
+                  const CustomText(
                     text: "Currency",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -345,7 +342,7 @@ class StoreInvoicesDefaultTab extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CustomText(
+                      const CustomText(
                         text: "Total Items",
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -363,7 +360,7 @@ class StoreInvoicesDefaultTab extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CustomText(
+                      const CustomText(
                         text: "Grand Total",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -384,7 +381,7 @@ class StoreInvoicesDefaultTab extends StatelessWidget {
                   text: hasSelectedItems ? "Preview Invoice" : "Select Items",
                   onPressed: hasSelectedItems
                       ? () {
-                          Get.to(() => StoreInvoicePreviewScreen());
+                          Get.to(() => const StoreInvoicePreviewScreen());
                         }
                       : () {
                           Get.snackbar(

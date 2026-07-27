@@ -9,17 +9,35 @@ import 'package:frame_virtual_fiscilation/presentation/store_invoices/utils/invo
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+class CreditDebitSubmitResult {
+  final bool ok;
+  final String? errorMessage;
+
+  const CreditDebitSubmitResult({required this.ok, this.errorMessage});
+
+  factory CreditDebitSubmitResult.success() => const CreditDebitSubmitResult(ok: true);
+
+  factory CreditDebitSubmitResult.failure(String message) =>
+      CreditDebitSubmitResult(ok: false, errorMessage: message);
+}
+
 /// Submits a **CreditNote** or **DebitNote** with user-edited lines, referencing
 /// a processed receipt from GET `/receipts` (same POST endpoint as fiscal invoices).
-Future<bool> submitCreditDebitFromProcessedReceipt({
+Future<CreditDebitSubmitResult> submitCreditDebitFromProcessedReceipt({
   required ProcessedReceipt original,
   required String receiptType,
   required List<CreditDebitAdjustmentLine> lines,
   String notes = '',
 }) async {
-  if (fiscalDeviceID.isEmpty) return false;
-  if (receiptType != 'CreditNote' && receiptType != 'DebitNote') return false;
-  if (lines.isEmpty) return false;
+  if (fiscalDeviceID.isEmpty) {
+    return CreditDebitSubmitResult.failure('Fiscal device ID is not configured');
+  }
+  if (receiptType != 'CreditNote' && receiptType != 'DebitNote') {
+    return CreditDebitSubmitResult.failure('Invalid receipt type');
+  }
+  if (lines.isEmpty) {
+    return CreditDebitSubmitResult.failure('Add at least one line');
+  }
 
   final apiKey = fiscalApiKey.isNotEmpty
       ? fiscalApiKey
@@ -47,9 +65,6 @@ Future<bool> submitCreditDebitFromProcessedReceipt({
 
   final totalStr = receiptTotal.toStringAsFixed(2);
   final taxStr = receiptTax.toStringAsFixed(2);
-
-  final deviceId = int.tryParse(fiscalDeviceID) ?? 0;
-  final fiscalDay = int.tryParse(AppConstant.fiscalDayNumber) ?? 0;
 
   final invoiceNo = generateNextInvoiceForSubmit(
     original: original,
@@ -87,9 +102,6 @@ Future<bool> submitCreditDebitFromProcessedReceipt({
     'receiptPrintForm':
         original.receiptPrintForm.isNotEmpty ? original.receiptPrintForm : 'Receipt48',
     'creditDebitNote': {
-      'deviceID': deviceId,
-      'receiptGlobalNo': original.receiptGlobalNo ?? 0,
-      'fiscalDayNo': fiscalDay,
       'originalInvoice': original.invoiceNo,
     },
   };
@@ -112,6 +124,31 @@ Future<bool> submitCreditDebitFromProcessedReceipt({
   final ok = response.statusCode >= 200 && response.statusCode < 300;
   if (ok) {
     await persistLastInvoiceNumber(invoiceNo);
+    return CreditDebitSubmitResult.success();
   }
-  return ok;
+
+  final body = response.body.trim();
+  print('[CreditDebit API] POST failed ${response.statusCode}: $body');
+  if (body.isEmpty) {
+    return CreditDebitSubmitResult.failure(
+      'Request failed (${response.statusCode})',
+    );
+  }
+  try {
+    final decoded = jsonDecode(body);
+    if (decoded is Map) {
+      final message = decoded['message'] ??
+          decoded['error'] ??
+          decoded['detail'] ??
+          decoded['title'];
+      if (message != null && message.toString().trim().isNotEmpty) {
+        return CreditDebitSubmitResult.failure(message.toString());
+      }
+    }
+  } catch (_) {
+    // Fall back to raw body below.
+  }
+  return CreditDebitSubmitResult.failure(
+    body.length > 180 ? '${body.substring(0, 180)}…' : body,
+  );
 }

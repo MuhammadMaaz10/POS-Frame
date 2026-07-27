@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_item/controller/add_item_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
@@ -35,16 +36,13 @@ class _AddItemScreenState extends State<AddItemScreen> {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Add New Item",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: AppColors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -55,7 +53,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "HS Code",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -72,7 +70,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   validator: controller.validateHsCode,
                 ),
                 16.ht,
-                CustomText(
+                const CustomText(
                   text: "Item Details",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -109,7 +107,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   // validator: controller.validateDescription,
                 ),
                 16.ht,
-                CustomText(
+                const CustomText(
                   text: "Unit Price",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -126,7 +124,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   validator: controller.validatePrice,
                 ),
                 16.ht,
-                CustomText(
+                const CustomText(
                   text: "VAT Category",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

@@ -28,13 +28,13 @@ class FormHeader extends StatelessWidget {
       children: [
         isLogoEnabled
             ? Center(child: Image.asset(AppImages.mainLogo,width:  112.w,))
-            : SizedBox(),
-        isLogoEnabled ? SizedBox(height: 40.h) : SizedBox(),
+            : const SizedBox(),
+        isLogoEnabled ? SizedBox(height: 40.h) : const SizedBox(),
         Text(
           maintext!,
           style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         Row(
           children: [
             Flexible(
@@ -70,17 +70,17 @@ class FormHeader extends StatelessWidget {
                   } ,
                   child: Text(
                     sublinktext!,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Color(0xFF00E3FC),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 )
-                : SizedBox(),
+                : const SizedBox(),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
       ],
     );
   }

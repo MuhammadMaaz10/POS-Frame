@@ -5,6 +5,7 @@ import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_customer/controller/add_customer_controller.dart';
 import 'package:get/get.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 
@@ -30,16 +31,13 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Edit Customer",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: AppColors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -55,10 +53,10 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                     onTap: () => controller.showEditImagePickerDialog(context),
                     child: Obx(
                           () => CircleAvatar(
-                            backgroundColor: Color(0xFF172349),
+                            backgroundColor: const Color(0xFF172349),
                         backgroundImage: controller.ediSelectedImage.value != null
                             ? FileImage(controller.ediSelectedImage.value!)
-                            : AssetImage(AppImages.demo) as ImageProvider,
+                            : const AssetImage(AppImages.demo) as ImageProvider,
                         radius: 50.w,
                         child: controller.ediSelectedImage.value == null
                             ? Icon(
@@ -72,7 +70,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                   ),
                 ),
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "TIN Number",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -89,7 +87,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "VAT Number",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -107,7 +105,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Customer Name",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -130,7 +128,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                 //   color: Colors.white70,
                 // ),
                 // 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Email",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -147,7 +145,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                   validator: controller.validateEmail,
                 ),
                 16.ht,
-                CustomText(
+                const CustomText(
                   text: "Phone",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -170,13 +168,13 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomText(
+                          const CustomText(
                             text: "Province",
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Colors.white70,
                           ),
-                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          const SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
                           CustomTextField(
                             controller: controller.editProvinceController,
                             hintText: "Enter province",
@@ -189,18 +187,18 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(width: 16), // Horizontal spacing between fields
+                    const SizedBox(width: 16), // Horizontal spacing between fields
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomText(
+                          const CustomText(
                             text: "City",
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Colors.white70,
                           ),
-                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          const SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
                           CustomTextField(
                             controller: controller.editCityController, // Changed to cityController
                             hintText: "Enter city",
@@ -217,7 +215,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Street",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -235,7 +233,7 @@ class _EditCustomerScreenState extends State<EditCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "House Number",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

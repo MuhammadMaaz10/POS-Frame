@@ -225,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 39.ht,
                 SvgAppLogo(),
                 40.ht,
-                CustomText(
+                const CustomText(
                     text: "Sign In",
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 10.ht,
                 Row(
                   children: [
-                    CustomText(
+                    const CustomText(
                       text: "Don’t have an account? ",
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -243,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () {
                         Get.to(SignUpScreen());
                       },
-                      child: CustomText(
+                      child: const CustomText(
                         text: "Sign Up",
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -284,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onTap: () {
                       Get.to(ForgotPasswordScreen());
                     },
-                    child: CustomText(
+                    child: const CustomText(
                       text: "Forgot Password?",
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -299,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   isLoading: _isLoading,
                 ),
                 10.ht,
-                Row(
+                const Row(
                   children: [
                     Expanded(child: Divider(color: Color(0xFF343A40))),
                     Padding(

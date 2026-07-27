@@ -29,13 +29,13 @@ class AppRouter {
     return [
       GetPage(
         name: splashScreen,
-        page: () => SplashScreen(),
+        page: () => const SplashScreen(),
         // transition: Transition.cupertino,
         // transitionDuration: 100.milliseconds,
       ),
       GetPage(
         name: loginScreen,
-        page: () => LoginScreen(),
+        page: () => const LoginScreen(),
         // transition: Transition.cupertino,
         // transitionDuration: 100.milliseconds,
       ),
@@ -47,7 +47,7 @@ class AppRouter {
       ),
       GetPage(
         name: verifyOtpScreen,
-        page: () => VerifyOtpScreen(),
+        page: () => const VerifyOtpScreen(),
         // transition: Transition.cupertino,
         // transitionDuration: 100.milliseconds,
       ),
@@ -71,13 +71,13 @@ class AppRouter {
       ),
       GetPage(
         name: homeScreen,
-        page: () => HomeScreenMain(),
+        page: () => const HomeScreenMain(),
         // transition: Transition.fadeIn,
         // transitionDuration: 2.seconds,
       ),
       GetPage(
         name: addInvoicesScreen,
-        page: () => AddInvoicesScreen(),
+        page: () => const AddInvoicesScreen(),
         // transition: Transition.fadeIn,
         // transitionDuration: 10.seconds,
       ),

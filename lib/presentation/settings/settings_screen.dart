@@ -9,6 +9,7 @@ import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/
 import 'package:frame_virtual_fiscilation/presentation/qr_code_scanner/qr_code_scanner_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/settings/controller/settings_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/tax_group/tax_group_screen.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/edit_company_screen.dart';
@@ -27,16 +28,13 @@ class SettingsScreen extends StatelessWidget {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Settings",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: AppColors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -48,7 +46,7 @@ class SettingsScreen extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal:16.w, vertical: 18.h),
               decoration: BoxDecoration(
-                  color: Color(0xFF172349),
+                  color: const Color(0xFF172349),
                   borderRadius: BorderRadius.circular(10.r)
               ),
               child: Column(
@@ -56,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
 
                   customTile(
                     title: "Company Profile",
-                    onTap: () => Get.to(() => EditCompanyScreen()),
+                    onTap: () => Get.to(() => const EditCompanyScreen()),
                     iconPath: AppImages.infoIcon,
                   ),
 
@@ -79,7 +77,7 @@ class SettingsScreen extends StatelessWidget {
 
                   customTile(
                     title: "Tax Group Management",
-                    onTap: () => Get.to(TaxGroupScreen()),
+                    onTap: () => Get.to(const TaxGroupScreen()),
                     iconPath: AppImages.taxIcon
                   ),
 
@@ -133,7 +131,7 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     SvgPicture.asset(AppImages.logoutIcon),
                   10.wd,
-                  CustomText(
+                  const CustomText(
                     text: "Logout",
                     fontWeight: FontWeight.w500,
                     color: AppColors.redClr,
@@ -170,16 +168,16 @@ customTile({bool showDivider = true,required String title, String? iconPath, Wid
               fontWeight: FontWeight.w500,
               color: Colors.white,
             ),
-            Spacer(),
-            Icon(Icons.arrow_forward_ios,color: Colors.white70,size: 18,),
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios,color: Colors.white70,size: 18,),
           ],
         ),
       ),
       showDivider == true ?
       Padding(
         padding: EdgeInsets.symmetric(vertical: 18.5.h),
-        child: Divider(height: 1,color: Color(0xFF343A40),),
-      ):SizedBox(),
+        child: const Divider(height: 1,color: Color(0xFF343A40),),
+      ):const SizedBox(),
     ],
   );
 }

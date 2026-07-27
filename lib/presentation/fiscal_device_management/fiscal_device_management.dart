@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/controller/fiscal_day_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/app_logo.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
@@ -29,16 +30,13 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Fiscal Device Management",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: Colors.white),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 18.w),
@@ -89,9 +87,9 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.circle,
+                                    const Icon(Icons.circle,
                                         size: 10, color: AppColors.white),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     CustomText(
                                       text: "${controller.fiscalDayModel?.serverResponse?.fiscalDayStatus.toString()}",
                                       color: Colors.white,
@@ -123,7 +121,7 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                       // Progress Bar at the bottom
                       Obx(() {
                         // Total duration in seconds (24 hours = 86400 seconds)
-                        final totalSeconds = Duration(hours: 24).inSeconds;
+                        final totalSeconds = const Duration(hours: 24).inSeconds;
                         final remainingSeconds =
                             controller.countdownDuration.value.inSeconds;
                         final progress = remainingSeconds / totalSeconds; // 1 → 0
@@ -142,18 +140,18 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                 ),
 
                 16.ht,
-                CustomText(
+                const CustomText(
                     text: "Once day is closed, invoices can’t be created.",
                     color: Colors.white70),
                 220.ht,
 
                 fiscalApiKey == "fiscalDaycloseFailed"
-                    ? Center(
+                    ? const Center(
                   child: CustomText(
                       text: "failed to close day, please request manual day closure",
                       color: Colors.red),
                 )
-                    : SizedBox(),
+                    : const SizedBox(),
 
                 10.ht,
                 CustomActionButton(
@@ -175,7 +173,7 @@ class FiscalDeviceManagementScreen extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: 20.h),
-                SupportText(),
+                const SupportText(),
                 SizedBox(height: 20.h),
               ],
             );
@@ -215,7 +213,7 @@ class CustomActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: loading == true
-            ? Center(child: SizedBox(height: 40.h, width: 40.w,child: CircularProgressIndicator(color: AppColors.white,)))
+            ? Center(child: SizedBox(height: 40.h, width: 40.w,child: const CircularProgressIndicator(color: AppColors.white,)))
             : Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

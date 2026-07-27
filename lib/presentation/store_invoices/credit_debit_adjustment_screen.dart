@@ -9,6 +9,7 @@ import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/cred
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/inventory_item.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/model/processed_receipts_page_response.dart';
 import 'package:frame_virtual_fiscilation/presentation/store_invoices/utils/invoice_number_generator.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:get/get.dart';
 
@@ -82,8 +83,10 @@ class CreditDebitAdjustmentScreen extends StatefulWidget {
 class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScreen> {
   final _notesController = TextEditingController();
   late List<_LineRow> _rows;
-  var _submitting = false;
+  String? _activeSubmitType;
   var _pickSerial = 0;
+
+  bool get _isSubmitting => _activeSubmitType != null;
 
   ProcessedReceipt get _r => widget.receipt;
 
@@ -153,18 +156,55 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
 
   String _documentTypeLabel() {
     final diff = _newTotal() - _originalTotal();
-    if (diff.abs() < 0.001) return '—';
+    if (diff.abs() < 0.001) return 'Credit or Debit';
     return diff < 0 ? 'Credit note' : 'Debit note';
   }
 
   String _documentTypeSubtitle() {
     final diff = _newTotal() - _originalTotal();
     if (diff.abs() < 0.001) {
-      return 'Change quantities or add items so the total differs from the original.';
+      return 'Pricing is unchanged. Choose Credit or Debit to proceed.';
     }
     return diff < 0
         ? 'New total is lower than the original.'
         : 'New total is higher than the original.';
+  }
+
+  bool _isSamePricing() {
+    return (_newTotal() - _originalTotal()).abs() < 0.001;
+  }
+
+  Future<bool> _confirmCreditOrDebit(String receiptType) async {
+    final isCredit = receiptType == 'CreditNote';
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF000D3A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text(
+          isCredit ? 'Credit invoice' : 'Debit invoice',
+          style: const TextStyle(fontFamily: 'Satoshi', color: Colors.white),
+        ),
+        content: Text(
+          isCredit
+              ? 'Do you want to credit this invoice?'
+              : 'Do you want to debit this invoice?',
+          style: const TextStyle(fontFamily: 'Satoshi', color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Confirm', style: TextStyle(color: AppColors.buttonClr)),
+          ),
+        ],
+      ),
+    );
+    return result == true;
   }
 
   List<_LineTemplate> _allPickTemplates() {
@@ -185,66 +225,68 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
     final templates = _allPickTemplates();
     final qtys = List<int>.filled(templates.length, 0);
 
-    Get.bottomSheet(
-      StatefulBuilder(
-        builder: (context, setModal) {
-          return _SelectItemsSheet(
-            currency: _r.receiptCurrency,
-            templates: templates,
-            quantities: qtys,
-            onQuantityChanged: () => setModal(() {}),
-            onClose: () => Get.back(),
-            onAddBlank: () {
-              Get.back();
-              final first = _rows.first.line;
-              setState(() {
-                final row = _LineRow.empty(
-                  defaultTaxPercent: first.taxPercent,
-                  defaultTaxId: first.taxID,
-                );
-                _attachRowListeners(row);
-                _rows.add(row);
-              });
-            },
-            onConfirm: () {
-              final toAdd = <({ _LineTemplate t, int q })>[];
-              for (var i = 0; i < templates.length; i++) {
-                if (qtys[i] > 0) {
-                  toAdd.add((t: templates[i], q: qtys[i]));
-                }
-              }
-              if (toAdd.isEmpty && templates.isNotEmpty) {
-                Get.snackbar(
-                  'Selection',
-                  'Set quantity on at least one item.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: AppColors.redClr,
-                  colorText: AppColors.white,
-                );
-                return;
-              }
-              if (toAdd.isEmpty && templates.isEmpty) {
-                Get.back();
-                return;
-              }
-              Get.back();
-              setState(() {
-                for (final p in toAdd) {
-                  final row = _LineRow.fromTemplate(
-                    p.t,
-                    p.q,
-                    _pickSerial++,
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModal) {
+            return _SelectItemsSheet(
+              currency: _r.receiptCurrency,
+              templates: templates,
+              quantities: qtys,
+              onQuantityChanged: () => setModal(() {}),
+              onClose: () => Navigator.of(sheetContext).pop(),
+              onAddBlank: () {
+                Navigator.of(sheetContext).pop();
+                final first = _rows.first.line;
+                setState(() {
+                  final row = _LineRow.empty(
+                    defaultTaxPercent: first.taxPercent,
+                    defaultTaxId: first.taxID,
                   );
                   _attachRowListeners(row);
                   _rows.add(row);
+                });
+              },
+              onConfirm: () {
+                final toAdd = <({ _LineTemplate t, int q })>[];
+                for (var i = 0; i < templates.length; i++) {
+                  if (qtys[i] > 0) {
+                    toAdd.add((t: templates[i], q: qtys[i]));
+                  }
                 }
-              });
-            },
-          );
-        },
-      ),
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+                if (toAdd.isEmpty && templates.isNotEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Set quantity on at least one item.'),
+                      backgroundColor: AppColors.redClr,
+                    ),
+                  );
+                  return;
+                }
+                if (toAdd.isEmpty && templates.isEmpty) {
+                  Navigator.of(sheetContext).pop();
+                  return;
+                }
+                Navigator.of(sheetContext).pop();
+                setState(() {
+                  for (final p in toAdd) {
+                    final row = _LineRow.fromTemplate(
+                      p.t,
+                      p.q,
+                      _pickSerial++,
+                    );
+                    _attachRowListeners(row);
+                    _rows.add(row);
+                  }
+                });
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -255,8 +297,11 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
       text: row.unitPrice > 0 ? row.unitPrice.toStringAsFixed(2) : '',
     );
 
-    Get.bottomSheet(
-      Container(
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
         padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 16.h),
         decoration: BoxDecoration(
           color: AppColors.bgClr,
@@ -271,20 +316,20 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomText(
+                    const CustomText(
                       text: 'Edit item',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: AppColors.white,
                     ),
                     IconButton(
-                      onPressed: () => Get.back(),
+                      onPressed: () => Navigator.of(sheetContext).pop(),
                       icon: const Icon(Icons.close, color: Colors.white),
                     ),
                   ],
                 ),
                 12.ht,
-                CustomText(text: 'Name', fontSize: 12, color: Colors.white54),
+                const CustomText(text: 'Name', fontSize: 12, color: Colors.white54),
                 6.ht,
                 TextField(
                   controller: nameC,
@@ -318,22 +363,21 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
                 TextButton(
                   onPressed: () {
                     if (_rows.length <= 1) {
-                      Get.snackbar(
-                        'Lines',
-                        'Keep at least one line.',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: AppColors.redClr,
-                        colorText: AppColors.white,
+                      ScaffoldMessenger.of(sheetContext).showSnackBar(
+                        const SnackBar(
+                          content: Text('Keep at least one line.'),
+                          backgroundColor: AppColors.redClr,
+                        ),
                       );
                       return;
                     }
-                    Get.back();
+                    Navigator.of(sheetContext).pop();
                     setState(() {
                       final r = _rows.removeAt(index);
                       r.dispose();
                     });
                   },
-                  child: CustomText(text: 'Remove line', color: AppColors.redClr, fontSize: 14),
+                  child: const CustomText(text: 'Remove line', color: AppColors.redClr, fontSize: 14),
                 ),
                 8.ht,
                 SizedBox(
@@ -345,7 +389,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
                           ) ??
                           0;
                       if (p < 0) return;
-                      Get.back();
+                      Navigator.of(sheetContext).pop();
                       setState(() {
                         row.nameController.text = nameC.text;
                         row.unitPrice = p;
@@ -359,7 +403,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
                       backgroundColor: AppColors.buttonClr,
                       foregroundColor: AppColors.bgClr,
                     ),
-                    child: CustomText(
+                    child: const CustomText(
                       text: 'Save',
                       fontWeight: FontWeight.w700,
                       color: AppColors.bgClr,
@@ -371,8 +415,15 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
           ),
         ),
       ),
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+    );
+  }
+
+  void _showMessage(String title, String message, {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$title: $message'),
+        backgroundColor: isError ? AppColors.redClr : AppColors.bgClr,
+      ),
     );
   }
 
@@ -383,73 +434,70 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
       final name = line.receiptLineName.trim();
       if (name.isEmpty) continue;
       if (line.receiptLineTotal <= 0) {
-        Get.snackbar(
+        _showMessage(
           'Validation',
           'Line "$name" needs a unit price and quantity.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.redClr,
-          colorText: AppColors.white,
+          isError: true,
         );
         return null;
       }
       out.add(line);
     }
     if (out.isEmpty) {
-      Get.snackbar(
+      _showMessage(
         'Validation',
         'Add at least one item with a name, unit price, and quantity.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.redClr,
-        colorText: AppColors.white,
+        isError: true,
       );
       return null;
     }
     return out;
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit({String? explicitType}) async {
     final lines = _buildLinesForSubmit();
     if (lines == null) return;
 
-    final type = _resolveReceiptType();
-    if (type == null) {
-      Get.snackbar(
-        'Document type',
-        'New total matches the original. Change quantities or prices to submit.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.redClr,
-        colorText: AppColors.white,
-      );
-      return;
+    final autoType = _resolveReceiptType();
+    final type = explicitType ?? autoType;
+    if (type == null) return;
+
+    if (autoType == null && explicitType != null) {
+      final confirmed = await _confirmCreditOrDebit(explicitType);
+      if (!confirmed) return;
     }
 
-    setState(() => _submitting = true);
-    final ok = await submitCreditDebitFromProcessedReceipt(
-      original: _r,
-      receiptType: type,
-      lines: lines,
-      notes: _notesController.text.trim(),
-    );
+    setState(() => _activeSubmitType = type);
+    try {
+      final result = await submitCreditDebitFromProcessedReceipt(
+        original: _r,
+        receiptType: type,
+        lines: lines,
+        notes: _notesController.text.trim(),
+      );
 
-    if (!mounted) return;
-    setState(() => _submitting = false);
-    if (ok) {
-      Get.back(result: true);
-      Get.snackbar(
-        'Success',
-        '${type == 'CreditNote' ? 'Credit note' : 'Debit note'} submitted',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.bgClr,
-        colorText: AppColors.white,
-      );
-    } else {
-      Get.snackbar(
-        'Error',
-        'Could not submit. Check device ID and API.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.redClr,
-        colorText: AppColors.white,
-      );
+      if (!mounted) return;
+      if (result.ok) {
+        final label = type == 'CreditNote' ? 'Credit note' : 'Debit note';
+        final messenger = ScaffoldMessenger.of(context);
+        Navigator.of(context).pop(true);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Success: $label submitted'),
+            backgroundColor: AppColors.bgClr,
+          ),
+        );
+      } else {
+        _showMessage(
+          'Error',
+          result.errorMessage ?? 'Could not submit. Check device ID and API.',
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _activeSubmitType = null);
+      }
     }
   }
 
@@ -461,16 +509,13 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: 'Adjust invoice',
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
@@ -493,7 +538,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
               textAlign: TextAlign.start,
             ),
             16.ht,
-            CustomText(
+            const CustomText(
               text: 'Next invoice no. (on submit)',
               fontSize: 12,
               color: Colors.white54,
@@ -526,7 +571,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
                     textAlign: TextAlign.start,
                   ),
             16.ht,
-            CustomText(
+            const CustomText(
               text: 'Document type',
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -564,7 +609,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CustomText(
+                const CustomText(
                   text: 'Items',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -573,7 +618,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
                 TextButton.icon(
                   onPressed: _openSelectItemsSheet,
                   icon: Icon(Icons.add, size: 18.sp, color: AppColors.buttonClr),
-                  label: CustomText(
+                  label: const CustomText(
                     text: 'Select items',
                     fontSize: 13,
                     color: AppColors.buttonClr,
@@ -621,7 +666,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
               ),
             ),
             16.ht,
-            CustomText(
+            const CustomText(
               text: 'Additional notes (optional)',
               fontSize: 13,
               color: Colors.white70,
@@ -634,7 +679,7 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
               style: TextStyle(color: Colors.white, fontSize: 14.sp),
               decoration: InputDecoration(
                 hintText: 'Reason or reference',
-                hintStyle: TextStyle(color: Colors.white54),
+                hintStyle: const TextStyle(color: Colors.white54),
                 filled: true,
                 fillColor: AppColors.secondaryClr,
                 border: OutlineInputBorder(
@@ -644,33 +689,100 @@ class _CreditDebitAdjustmentScreenState extends State<CreditDebitAdjustmentScree
               ),
             ),
             24.ht,
-            SizedBox(
-              height: 48.h,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _submitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonClr,
-                  foregroundColor: AppColors.bgClr,
-                  disabledBackgroundColor: AppColors.buttonClr,
-                  disabledForegroundColor: AppColors.bgClr,
-                ),
-                child: _submitting
-                    ? SizedBox(
-                        width: 22.w,
-                        height: 22.h,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+            if (_isSamePricing())
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 48.h,
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting
+                            ? null
+                            : () => _submit(explicitType: 'CreditNote'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonClr,
+                          foregroundColor: AppColors.bgClr,
+                          disabledBackgroundColor: AppColors.buttonClr,
+                          disabledForegroundColor: AppColors.bgClr,
+                        ),
+                        child: _activeSubmitType == 'CreditNote'
+                            ? SizedBox(
+                                width: 22.w,
+                                height: 22.h,
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.bgClr,
+                                ),
+                              )
+                            : const CustomText(
+                                text: 'Credit',
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.bgClr,
+                              ),
+                      ),
+                    ),
+                  ),
+                  12.wd,
+                  Expanded(
+                    child: SizedBox(
+                      height: 48.h,
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting
+                            ? null
+                            : () => _submit(explicitType: 'DebitNote'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonClr,
+                          foregroundColor: AppColors.bgClr,
+                          disabledBackgroundColor: AppColors.buttonClr,
+                          disabledForegroundColor: AppColors.bgClr,
+                        ),
+                        child: _activeSubmitType == 'DebitNote'
+                            ? SizedBox(
+                                width: 22.w,
+                                height: 22.h,
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.bgClr,
+                                ),
+                              )
+                            : const CustomText(
+                                text: 'Debit',
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.bgClr,
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            else
+              SizedBox(
+                height: 48.h,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isSubmitting ? null : () => _submit(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonClr,
+                    foregroundColor: AppColors.bgClr,
+                    disabledBackgroundColor: AppColors.buttonClr,
+                    disabledForegroundColor: AppColors.bgClr,
+                  ),
+                  child: _activeSubmitType != null
+                      ? SizedBox(
+                          width: 22.w,
+                          height: 22.h,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.bgClr,
+                          ),
+                        )
+                      : const CustomText(
+                          text: 'Submit adjustment',
+                          fontWeight: FontWeight.w700,
                           color: AppColors.bgClr,
                         ),
-                      )
-                    : CustomText(
-                        text: 'Submit adjustment',
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.bgClr,
-                      ),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -828,7 +940,7 @@ class _AdjustmentItemCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomText(
+              const CustomText(
                 text: 'Item',
                 fontSize: 12,
                 color: Colors.white54,
@@ -841,7 +953,7 @@ class _AdjustmentItemCard extends StatelessWidget {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: CustomText(
+                child: const CustomText(
                   text: 'Change',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -988,7 +1100,7 @@ class _SelectItemsSheet extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16.w, 14.h, 8.w, 8.h),
             child: Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: CustomText(
                     text: 'Select items',
                     fontSize: 18,
@@ -999,7 +1111,7 @@ class _SelectItemsSheet extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onAddBlank,
                   icon: Icon(Icons.add, size: 18.sp, color: AppColors.buttonClr),
-                  label: CustomText(
+                  label: const CustomText(
                     text: 'Add New',
                     fontSize: 13,
                     color: AppColors.buttonClr,
@@ -1017,7 +1129,7 @@ class _SelectItemsSheet extends StatelessWidget {
                 ? Center(
                     child: Padding(
                       padding: EdgeInsets.all(24.w),
-                      child: CustomText(
+                      child: const CustomText(
                         text:
                             'No lines on this invoice and no inventory. Tap Add New for a blank line, or open the Store Items tab to load inventory.',
                         fontSize: 13,
@@ -1068,7 +1180,7 @@ class _SelectItemsSheet extends StatelessWidget {
                     backgroundColor: AppColors.buttonClr,
                     foregroundColor: AppColors.bgClr,
                   ),
-                  child: CustomText(
+                  child: const CustomText(
                     text: 'Confirm selection',
                     fontWeight: FontWeight.w700,
                     color: AppColors.bgClr,

@@ -6,6 +6,7 @@ import 'package:frame_virtual_fiscilation/constants/app_images.dart';
 import 'package:frame_virtual_fiscilation/presentation/add_customer/controller/add_customer_controller.dart';
 import 'package:get/get.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 
@@ -29,16 +30,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Add New Customer",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: AppColors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: AppColors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -54,10 +52,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     onTap: () => controller.showImagePickerDialog(context),
                     child: Obx(
                           () => CircleAvatar(
-                            backgroundColor: Color(0xFF172349),
+                            backgroundColor: const Color(0xFF172349),
                         backgroundImage: controller.selectedImage.value != null
                             ? FileImage(controller.selectedImage.value!)
-                            : AssetImage(AppImages.demo) as ImageProvider,
+                            : const AssetImage(AppImages.demo) as ImageProvider,
                         radius: 50.w,
                         child: controller.selectedImage.value == null
                             ? Icon(
@@ -71,7 +69,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   ),
                 ),
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "TIN Number",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -88,7 +86,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "VAT Number",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -105,7 +103,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Customer Name",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -121,7 +119,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   validator: controller.validateName,
                 ),
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Email",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -138,7 +136,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   validator: controller.validateEmail,
                 ),
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Phone",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -162,13 +160,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomText(
+                          const CustomText(
                             text: "Province",
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Colors.white70,
                           ),
-                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          const SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
                           CustomTextField(
                             controller: controller.provinceController,
                             hintText: "Enter province",
@@ -181,18 +179,18 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(width: 16), // Horizontal spacing between fields
+                    const SizedBox(width: 16), // Horizontal spacing between fields
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomText(
+                          const CustomText(
                             text: "City",
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Colors.white70,
                           ),
-                          SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
+                          const SizedBox(height: 10), // Replaced 10.ht with standard SizedBox
                           CustomTextField(
                             controller: controller.cityController, // Changed to cityController
                             hintText: "Enter city",
@@ -209,7 +207,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Street",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -227,7 +225,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "House Number",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

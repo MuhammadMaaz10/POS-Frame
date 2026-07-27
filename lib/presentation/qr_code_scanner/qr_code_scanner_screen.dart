@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../constants/app_color.dart';
+import '../../widgets/app_bar_back_button.dart';
 import '../../widgets/custom_text.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -22,16 +23,13 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.bgClr,
-        title: CustomText(
+        title: const CustomText(
           text: "Scan QR Code",
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: Icon(Icons.arrow_back, color: Colors.white, weight: 500),
-        ),
+        leading: const AppBarBackButton(color: Colors.white),
       ),
       body: GetBuilder<SettingsController>(
         builder: (controller) {

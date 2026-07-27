@@ -162,7 +162,7 @@ class CustomerController extends GetxController {
           children: [
             Padding(
               padding: EdgeInsets.symmetric(vertical: 16.h),
-              child: CustomText(
+              child: const CustomText(
                 text: 'Select Image Source',
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -170,8 +170,8 @@ class CustomerController extends GetxController {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.camera_alt, color: AppColors.white),
-              title: CustomText(
+              leading: const Icon(Icons.camera_alt, color: AppColors.white),
+              title: const CustomText(
                 text: 'Camera',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
@@ -183,8 +183,8 @@ class CustomerController extends GetxController {
               },
             ),
             ListTile(
-              leading: Icon(Icons.photo_library, color: AppColors.white),
-              title: CustomText(
+              leading: const Icon(Icons.photo_library, color: AppColors.white),
+              title: const CustomText(
                 text: 'Gallery',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
@@ -214,7 +214,7 @@ class CustomerController extends GetxController {
           children: [
             Padding(
               padding: EdgeInsets.symmetric(vertical: 16.h),
-              child: CustomText(
+              child: const CustomText(
                 text: 'Select Image Source',
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -222,8 +222,8 @@ class CustomerController extends GetxController {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.camera_alt, color: AppColors.white),
-              title: CustomText(
+              leading: const Icon(Icons.camera_alt, color: AppColors.white),
+              title: const CustomText(
                 text: 'Camera',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
@@ -235,8 +235,8 @@ class CustomerController extends GetxController {
               },
             ),
             ListTile(
-              leading: Icon(Icons.photo_library, color: AppColors.white),
-              title: CustomText(
+              leading: const Icon(Icons.photo_library, color: AppColors.white),
+              title: const CustomText(
                 text: 'Gallery',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,

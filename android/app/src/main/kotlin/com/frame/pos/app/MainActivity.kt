@@ -1,4 +1,4 @@
-package com.example.frame_virtual_fiscilation
+package com.frame.pos.app
 
 import io.flutter.embedding.android.FlutterActivity
 

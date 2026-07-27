@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/presentation/forgot_password_screen/controller/forget_password_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/TextField.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
@@ -30,10 +31,7 @@ class ForgotPasswordScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
         backgroundColor: AppColors.bgClr,
         elevation: 0,
       ),
@@ -47,14 +45,14 @@ class ForgotPasswordScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 30.ht,
-                CustomText(
+                const CustomText(
                   text: "Forgot Password",
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                 ),
 
                 10.ht,
-                CustomText(
+                const CustomText(
                   text: "Enter your email address and we’ll send you an OTP to reset your password.",
                   fontSize: 15,
                   textAlign: TextAlign.start,

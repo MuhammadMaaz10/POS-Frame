@@ -34,7 +34,7 @@ Widget syncIcon({void Function()? onTap}) {
       return Container(
         padding: EdgeInsets.all(11.w),
         decoration: BoxDecoration(
-          color: Color(0xFF172349),
+          color: const Color(0xFF172349),
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: AnimatedRotation(

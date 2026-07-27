@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/TextField.dart';
 import 'package:frame_virtual_fiscilation/widgets/form_header.dart';
 import 'package:frame_virtual_fiscilation/widgets/rounded_button.dart';
@@ -17,19 +18,14 @@ class VerifyOtpScreen extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
-        leading: InkWell(
-          onTap: () {
-            Get.back();
-          },
-          child: Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
         backgroundColor: AppColors.bgClr,
       ),
       body: Padding(
         padding: EdgeInsets.fromLTRB(18, 18, 18, size.height * .05),
         child: Column(
           children: [
-            FormHeader(
+            const FormHeader(
               isLogoEnabled: false,
               maintext: "Verify OTP",
               subtext:
@@ -37,14 +33,14 @@ class VerifyOtpScreen extends StatelessWidget {
               sublinktext: null,
               subtextColor: AppColors.smallTextClr,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextInputField(
               label: "Verification Code",
               icon: null,
               hintText: "",
             ),
-            SizedBox(height: 10),
-            Row(
+            const SizedBox(height: 10),
+            const Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(

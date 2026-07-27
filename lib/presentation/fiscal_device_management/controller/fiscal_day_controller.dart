@@ -12,7 +12,7 @@ class FiscalDeviceManagementController extends GetxController {
   var isDayOpen = false.obs;
   var isServerOnline = true.obs;
   var dayNumber = 1.obs;
-  var countdownDuration = Duration(hours: 24).obs;
+  var countdownDuration = const Duration(hours: 24).obs;
   var countdownText = "24:00:00".obs;
   Timer? _timer;
 

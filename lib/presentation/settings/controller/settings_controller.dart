@@ -6,7 +6,9 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
+import 'package:frame_virtual_fiscilation/presentation/add_invoices_screen/controller/add_invoice_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/fiscal_device_management/controller/fiscal_day_controller.dart';
+import 'package:frame_virtual_fiscilation/presentation/home_screen/controller/home_screen_controller.dart';
 import 'package:frame_virtual_fiscilation/presentation/qr_code_scanner/qr_code_scanner_screen.dart';
 import 'package:frame_virtual_fiscilation/presentation/splash_screen/splash_screen.dart';
 import 'package:frame_virtual_fiscilation/routes/app_pages.dart';
@@ -149,7 +151,7 @@ class SettingsController extends GetxController {
       isLoading.value = true;
 
       Future.delayed(const Duration(seconds: 1), () async {
-        Get.back();
+        Navigator.pop(Get.context!);
         isLoading.value = false;
 
         final settingsBox = await Hive.openBox('settings');
@@ -183,7 +185,7 @@ class SettingsController extends GetxController {
 
 
         // Restart to Splash → refresh everything
-        Get.offAll(() => SplashScreen());
+        Get.offAll(() => const SplashScreen());
 
         // Clear fields after saving
         clientIDController.clear();
@@ -297,6 +299,17 @@ class SettingsController extends GetxController {
     );
 
     AppRouter.offAllTo(loginScreen);
+
+    // Drop home-scoped controllers so next login gets a clean session
+    if (Get.isRegistered<HomeScreenController>()) {
+      Get.delete<HomeScreenController>(force: true);
+    }
+    if (Get.isRegistered<SettingsController>()) {
+      Get.delete<SettingsController>(force: true);
+    }
+    if (Get.isRegistered<AddInvoicesController>()) {
+      Get.delete<AddInvoicesController>(force: true);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -322,7 +335,7 @@ class SettingsController extends GetxController {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomText(
+                    const CustomText(
                       text: 'Configure FDMS',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -352,7 +365,7 @@ class SettingsController extends GetxController {
                   text: "Scan QR Code",
                   onPressed: () {
                     Get.back();
-                    Get.to(QRScannerScreen());
+                    Get.to(const QRScannerScreen());
                   },
                 ),
                 const SizedBox(height: 12),
@@ -438,7 +451,7 @@ class SettingsController extends GetxController {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomText(
+                        const CustomText(
                           text: 'Configure FDMS',
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -447,7 +460,7 @@ class SettingsController extends GetxController {
                         GestureDetector(
                           onTap: () => Get.back(),
                           child: Container(
-                            padding: EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
                               color: Color(0xFF172349),
                               shape: BoxShape.circle,

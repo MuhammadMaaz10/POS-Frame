@@ -7,6 +7,7 @@ import 'package:frame_virtual_fiscilation/constants/app_color.dart';
 import 'package:frame_virtual_fiscilation/constants/app_constants.dart';
 import 'package:frame_virtual_fiscilation/constants/app_images.dart';
 import 'package:frame_virtual_fiscilation/presentation/company_setup_screen/controller/company_setup_controller.dart';
+import 'package:frame_virtual_fiscilation/widgets/app_bar_back_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_button.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_text.dart';
 import 'package:frame_virtual_fiscilation/widgets/custom_textfield.dart';
@@ -49,10 +50,7 @@ class CompanySetupScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgClr,
       appBar: AppBar(
-        leading: InkWell(
-          onTap: () => Get.back(),
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        leading: const AppBarBackButton(),
         backgroundColor: AppColors.bgClr,
         elevation: 0,
       ),
@@ -68,7 +66,7 @@ class CompanySetupScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     30.ht,
-                    CustomText(
+                    const CustomText(
                       text: "Company Setup",
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -89,9 +87,9 @@ class CompanySetupScreen extends StatelessWidget {
                     ),
                     10.ht,
                     DottedBorder(
-                      dashPattern: [10, 5],
+                      dashPattern: const [10, 5],
                       radius: Radius.circular(30.r),
-                      color: Color(0xFF343A40),
+                      color: const Color(0xFF343A40),
                       child: InkWell(
                         onTap: () async {
                           final path = await companySetupController.pickImageFromGallery();
@@ -114,7 +112,7 @@ class CompanySetupScreen extends StatelessWidget {
                                 width: 33.w,
                               ),
                               6.ht,
-                              Text(
+                              const Text(
                                 "Upload Logo",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
@@ -123,7 +121,7 @@ class CompanySetupScreen extends StatelessWidget {
                                 ),
                               ),
                               5.ht,
-                              Text(
+                              const Text(
                                 "Max 10 MB in .jpg/.jpeg/.png format",
                                 style: TextStyle(
                                   color: Colors.white70,
@@ -199,7 +197,7 @@ class CompanySetupScreen extends StatelessWidget {
                       child: DropdownButton<int>(
                         dropdownColor: AppColors.bgClr,
                         isExpanded: true,
-                        underline: SizedBox(),
+                        underline: const SizedBox(),
                         iconEnabledColor: AppColors.white,
                         value: companySetupController.selectedClientNumber,
                         items: List.generate(100, (index) => index + 1).map((clientNum) {
