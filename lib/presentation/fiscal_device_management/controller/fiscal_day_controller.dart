@@ -20,9 +20,9 @@ class FiscalDeviceManagementController extends GetxController {
   var progress = 1.0.obs; // for progress bar (1.0 = full)
 
   // ✅ Add these observable variables for fiscal day status
-  var fiscalDayStatus = "".obs;
-  var fiscalDayNumber = "".obs;
-  var lastInvoiceNumber = "".obs;
+  var fiscalDayStatus = AppConstant.fiscalDayStatus.obs;
+  var fiscalDayNumber = AppConstant.fiscalDayNumber.obs;
+  var lastInvoiceNumber = AppConstant.lastInvoiceNumber.obs;
 
   @override
   void onInit() {
@@ -177,9 +177,11 @@ class FiscalDeviceManagementController extends GetxController {
       } else {
         print("❌ getFiscalDay  Status Code: ${response.statusCode}");
         print("❌ getFiscalDay Response: ${response.body}");
+        fiscalDayStatus.value = "Unknown";
       }
     } catch (e) {
       print("⚠️ Exception during getFiscalDay: $e");
+      fiscalDayStatus.value = "Offline";
     } finally {
       _setLoading(false);
     }
